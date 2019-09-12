@@ -43,16 +43,17 @@ public class Grid {
 		}
 		
 	}
+	
 	public boolean isFree(int x,int y) {
 		return arr[x][y].equals(Free);
 	}
+	
 	public void occupy(int x,int y) {
 		if (isFree(x,y)) {
 			arr[x][y]="* ";
 		}else {
-			System.err.println("cannot be occupied at ("+x+","+y+") because of wall");
-		}
-		
+			System.err.println("\ncannot be occupied at ("+x+","+y+") because of wall\n");
+		} 
 	}
 	
 	/*
