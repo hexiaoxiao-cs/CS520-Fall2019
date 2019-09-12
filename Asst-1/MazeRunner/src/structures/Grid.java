@@ -102,6 +102,16 @@ public class Grid {
 			
 		
 	}
+	
+	public void showPath(Coord goal) {
+		clearOccupied();
+		for (Coord ptr = goal; ptr != null; ptr = ptr.parent) {
+			System.out.println("parent of " + ptr + " is " + ptr.parent);
+			 occupy(ptr.x, ptr.y);
+		}
+		 arr[0][0] =  StartNum;
+		 arr[dim - 1][dim - 1] =  EndNum;
+	}
 	 
 	
 	
