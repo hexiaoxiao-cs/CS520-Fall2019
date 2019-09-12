@@ -19,7 +19,7 @@ public class Grid {
 	public final int EndNum=-3;
 	
 	public final String Wall="+ ";//-1
-	public final String Free="0 ";//0
+	public final String Free="  ";//0
 	public final String Occupied="* ";//1
 	public final String Burnt="& ";//2
 	public final String Start="S ";//-2
@@ -66,14 +66,24 @@ public class Grid {
 		System.out.println("\n ");
 		
 	}
+	public void clearOccupied(){
+		for(int i=0;i<dim;i++) {
+			for(int j=0;j<dim;j++) {
+				if(arr[i][j]==OccupiedNum)
+					arr[i][j]=FreeNum;
+			}
+		} 
+		arr[0][0]=StartNum;
+		arr[dim-1][dim-1]=EndNum;
+	}
 	
 	public boolean isFree(int x,int y) {
 		if (x>=0&&y>=0&&x<dim&&y<dim)
-			return arr[x][y]==0;
+			return arr[x][y]==0||arr[x][y]==StartNum||arr[x][y]==EndNum;
 		else return false;
 	}
 	public boolean isGoal(int x,int y) {
-		return x==dim&&y==dim;
+		return x==dim-1&&y==dim-1;
 	}
 	
 	public void occupy(int x,int y) { //Maybe Not that useful
@@ -84,10 +94,10 @@ public class Grid {
 	
 	public List<Coord> getNeighbors(int x,int y){
 		List <Coord> list=new ArrayList<Coord>();
-		if (isFree(x+1,y)) list.add(new Coord(x+1,y));
-		if (isFree(x-1,y)) list.add(new Coord(x-1,y));
-		if (isFree(x,y+1)) list.add(new Coord(x,y+1));
-		if (isFree(x,y-1)) list.add(new Coord(x,y-1));
+		if (isFree(x,y+1)) {list.add(new Coord(x,y+1,null));}
+		if (isFree(x+1,y)) { list.add(new Coord(x+1,y,null));}
+		if (isFree(x-1,y)) { list.add(new Coord(x-1,y,null));}
+		if (isFree(x,y-1)) {list.add(new Coord(x,y-1,null));}
 		return list;
 			
 		
