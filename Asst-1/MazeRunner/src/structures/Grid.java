@@ -3,37 +3,47 @@ package structures;
 import java.util.*;
 
 public class Grid {
-	public String[][] arr;
+	public int[][] arr;
 	public int dim;
 	
-	public final String Wall="+ ";
-	public final String Free="O ";
-	public final String Occupied="* ";
-	 
-	
+	public final String Wall="+ ";//-1
+	public final String Free="O ";//0
+	public final String Occupied="* ";//1
+	public final String Burnt="& ";//2
+	public final String Start="S ";//-2
+	public final String End="G ";//-3
 	public Grid(int dim, double p) {//initialize board:
 		this.dim=dim;
-		arr=new String[dim][dim];
+		arr=new int[dim][dim];
 		for(int i=0;i<dim;i++) {
 			for(int j=0;j<dim;j++) {
 				double rand=((double)(Math.random()*1000)+1)/1000; // System.out.println(rand+" "+p);
 				if (rand<p) {
-					arr[i][j]= Wall; 
-				}else {
-					arr[i][j]= Free;
+					arr[i][j]= -1; 
 				}
 			}
 		} 
-		arr[0][0]="s ";
-		arr[dim-1][dim-1]="G ";
+		arr[0][0]=-2;
+		arr[dim-1][dim-1]=-3;
 	}
 	
 	 
 	public void show() {
+		String toPrint;
 		for (int i=0;i<dim;i++) {
 			System.out.print(i+"  ");
 			for (int j=0;j<dim;j++) {
-				System.out.print( arr[i][j] +" " );
+				toPrint="\0";
+				switch(arr[i][j]) {
+					case -3 : toPrint=End; break;
+					case -2 : toPrint=Start; break;
+					case -1 : toPrint=Wall; break;
+					case 0  : toPrint=Free; break;
+					case 1  : toPrint=Occupied; break;
+					case 2  : toPrint=Burnt; break;
+					default : System.err.println("\nPANIC:Printing Grid at ("+i+","+j+") with value "+arr[i][j]+". Program Will EXIT!\n"); System.exit(-2);
+				}
+				System.out.print( toPrint +" " );
 			}
 			System.out.println();
 		} 
@@ -45,12 +55,12 @@ public class Grid {
 	}
 	
 	public boolean isFree(int x,int y) {
-		return arr[x][y].equals(Free);
+		return arr[x][y]==0;
 	}
 	
-	public void occupy(int x,int y) {
+	public void occupy(int x,int y) { //Maybe Not that useful
 		if (isFree(x,y)) {
-			arr[x][y]="* ";
+			arr[x][y]=1;
 		}else {
 			System.err.println("\ncannot be occupied at ("+x+","+y+") because of wall\n");
 		} 

@@ -6,9 +6,9 @@ import java.util.PriorityQueue;
 import java.util.Stack;
 
 public class MazeRunner {
-	 
+	static Grid grid;
 	public static void main(String args[]) {
-		Grid grid=new Grid(8,0.3); //dim, probability.
+		grid=new Grid(8,0.3); //dim, probability.
 		grid.occupy(0, 1);	//(x,y)
 		grid.show();
 		 
@@ -16,16 +16,16 @@ public class MazeRunner {
 		
 		//here are some data structure examples:
 		Stack<String> stack=new Stack<String>();
-		Queue<Integer> queue = new LinkedList<Integer>();
+		
 		PriorityQueue<Integer> pq = new PriorityQueue<Integer>();
 		
 		
 	}
-	
-	public void DFS(Grid maze) {
+	//DFS: Will Prioritize "Down" 
+	public static void DFS(Grid maze) {
+		//Queue<Integer,Integer> queue = new LinkedList<Integer>();
 		
 		return;
-		
 	}
 	
 
