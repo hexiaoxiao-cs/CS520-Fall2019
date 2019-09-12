@@ -8,7 +8,7 @@ import java.util.Stack;
 public class MazeRunner {
  
 	public static Grid grid;
-	public class Coord{	//coordinate object. used in fringe.
+	public static class Coord{	//coordinate object. used in fringe.
 		int x;
 		int y;
 		public Coord(int x,int y) {
@@ -16,17 +16,24 @@ public class MazeRunner {
 			this.y=y;
 		} 
 	}  
-	public void DFS(){
+	public static List<Coord> DFS(){
 		Stack<Coord> fringe=new Stack<Coord>(); 
+		List<Coord> path=new ArrayList<Coord>();
 		fringe.push(new Coord(0,0) );
 		while(!fringe.isEmpty()){
 			Coord current=fringe.pop();
+			path.add(current);
 			if (grid.isGoal(current.x, current.y)) { 
-				return;
+				return path;
 			}else {
 				//find all negihboring free squares of curr and add to fringe.
+				for(Coord c:grid.getNeighbors(current.x, current.y)) {
+					fringe.add(c);
+					grid.occupy(current.x, current.y);
+				}
 			}
-		} 
+		}
+		return path;
 		
 	}
 	public void BFS(){
@@ -55,6 +62,8 @@ public class MazeRunner {
 		grid.occupy(0, 1);	//(x,y)
 		grid.show();
 		 
+		DFS();
+		grid.show();
 		
 		
 		//here are some data structure examples:

@@ -2,14 +2,24 @@ package structures;
 
 import java.util.*;
 
+import app.MazeRunner.Coord;
+
 public class Grid {
  
 	public int[][] arr;
 	public int dim;
  
 	
+	
+	public final int WallNum=-1;
+	public final int FreeNum=0;
+	public final int OccupiedNum=1;
+	public final int BurntNum=2;
+	public final int StartNum=-2;
+	public final int EndNum=-3;
+	
 	public final String Wall="+ ";//-1
-	public final String Free="O ";//0
+	public final String Free="0 ";//0
 	public final String Occupied="* ";//1
 	public final String Burnt="& ";//2
 	public final String Start="S ";//-2
@@ -53,11 +63,14 @@ public class Grid {
 		for (int i=0;i<dim;i++) {
 			System.out.print(" "+i+" ");
 		}
+		System.out.println("\n ");
 		
 	}
 	
 	public boolean isFree(int x,int y) {
-		return arr[x][y]==0;
+		if (x>=0&&y>=0&&x<dim&&y<dim)
+			return arr[x][y]==0;
+		else return false;
 	}
 	public boolean isGoal(int x,int y) {
 		return x==dim&&y==dim;
@@ -65,10 +78,21 @@ public class Grid {
 	
 	public void occupy(int x,int y) { //Maybe Not that useful
 		if (isFree(x,y)) {
-			arr[x][y]=1;
-		}else {
-			System.err.println("\ncannot be occupied at ("+x+","+y+") because of wall\n");
+			arr[x][y]=OccupiedNum;
 		} 
 	}
+	
+	public List<Coord> getNeighbors(int x,int y){
+		List <Coord> list=new ArrayList<Coord>();
+		if (isFree(x+1,y)) list.add(new Coord(x+1,y));
+		if (isFree(x-1,y)) list.add(new Coord(x-1,y));
+		if (isFree(x,y+1)) list.add(new Coord(x,y+1));
+		if (isFree(x,y-1)) list.add(new Coord(x,y-1));
+		return list;
+			
+		
+	}
 	 
+	
+	
 }
