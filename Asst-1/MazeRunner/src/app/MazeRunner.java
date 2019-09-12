@@ -22,7 +22,11 @@ public class MazeRunner {
 		
 	}
 	
-	
+	public void DFS(Grid maze) {
+		
+		return;
+		
+	}
 	
 
 }

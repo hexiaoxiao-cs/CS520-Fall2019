@@ -6,8 +6,8 @@ public class Grid {
 	public String[][] arr;
 	public int dim;
 	
-	public final String Wall=(char)0x2593+""+(char)0x2593;
-	public final String Free=(char)0x2591+""+(char)0x2591;
+	public final String Wall="+ ";
+	public final String Free="O ";
 	public final String Occupied="* ";
 	 
 	
