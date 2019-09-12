@@ -8,6 +8,8 @@ import java.util.Stack;
 public class MazeRunner {
  
 	public static Grid grid;
+	public static int dim;
+	public static double prob;
 	public static class Coord{	//coordinate object. used in fringe.
 		int x;
 		int y;
@@ -21,9 +23,8 @@ public class MazeRunner {
 			return "("+x+","+y+")";
 		}
 	}  
-	public static List<Coord> DFS(){
-		Stack<Coord> fringe=new Stack<Coord>(); 
-		List<Coord> path=new ArrayList<Coord>();
+	public static void DFS(){
+		Stack<Coord> fringe=new Stack<Coord>();  
 		fringe.push(new Coord(0,0,null) );
 		Coord current=null;
 		Coord goal=null;
@@ -38,19 +39,15 @@ public class MazeRunner {
 			if (grid.isGoal(current.x, current.y)) {  //save goal coordinate so we can backtrack later
 				goal=current;
 			}  
-		} 
-		
+		}  
 		//Retrace steps to show path:
 		grid.clearOccupied();
 		for(Coord ptr=goal;ptr!=null;ptr=ptr.parent) {
 			System.out.println("parent of "+ptr+" is "+ptr.parent);
-			grid.occupy(ptr.x, ptr.y); 
-		 
-		}
-		
-		
-		return path;
-		
+			grid.occupy(ptr.x, ptr.y);  
+		} 
+		grid.arr[0][0]=grid.StartNum;
+		grid.arr[dim-1][dim-1]=grid.EndNum; 
 	}
 	public void BFS(){
 		Queue<Integer> fringe = new LinkedList<Integer>();
@@ -63,37 +60,24 @@ public class MazeRunner {
 	} 
 	
 	
-	public double Euclid(int x1,int y1,int x2,int y2) {	//find euclid distance
+	private double Euclid(int x1,int y1,int x2,int y2) {	//find euclid distance
 		return Math.sqrt( (x1-x2)*(x1-x2) + (y1-y2)*(y1-y2));
 	}
-	public double Manhattan(int x1,int y1,int x2,int y2) {	//find manhattan distance
+	private double Manhattan(int x1,int y1,int x2,int y2) {	//find manhattan distance
 		return Math.sqrt( Math.abs(x1-x2) + Math.abs(y1-y2));
 	}
 	
 	//MAIN METHOD: 
 	public static void main(String args[]) {
-		grid=new Grid(10,0.2); //dim, probability.
+		dim=10; prob=0.2;
+		grid=new Grid(dim,prob); //dim, probability.
 	 	grid.show();
 		 
 		DFS();
-		grid.show();
-		
-		
-		//here are some data structure examples:
- /*
-		Stack<String> stack=new Stack<String>();
-		
-		PriorityQueue<Integer> pq = new PriorityQueue<Integer>();
- 
-*/		
+		grid.show(); 
 		
 	}
-	//DFS: Will Prioritize "Down" 
-	public static void DFS(Grid maze) {
-		//Queue<Integer,Integer> queue = new LinkedList<Integer>();
-		
-		return;
-	}
+	 
 	
 
 }
