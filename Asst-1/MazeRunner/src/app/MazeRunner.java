@@ -85,60 +85,6 @@ public class MazeRunner {
 	}
 	//Astar:
 	//Arguments: 1. which weighting? 0 for euclid, 1 for Manhattan
-	public static void Astar(boolean isManhattan) {
-		PriorityQueue<Coord> open_set = new PriorityQueue<Coord>();
-		open_set.add(new Coord(0,0,null));
-		Coord current = null;
-		Coord goal = null;
-		double curr_weight;
-		double curr_weight_to_start;
-		Coord[][] closed_set=new Coord[grid.dim][grid.dim];
-		while(!open_set.isEmpty()) {
-			current = open_set.poll();//removed from open
-			closed_set[current.x][current.y]=current;//put current to the closed set
-			if(grid.isGoal(current.x, current.y)) {
-				goal=current;
-				break;
-			}
-			for (Coord c: grid.getNeighbors(current.x, current.y)) {
-				c.parent = current;//first, set path
-				//check whether in the closed set or (wall, burnt)
-				if(closed_set[c.x][c.y]!=null||grid.isFree(c.x, c.y)==false) {
-					continue;
-				}
-				//open_set.
-				if(isManhattan==true){
-					curr_weight_to_start=current.weight_to_start+Manhattan(current.x,current.y,c.x,c.y);//g(x) Actual distance between new point to the old point
-					
-					curr_weight = curr_weight_to_start+Manhattan(current.x,current.y,grid.dim-1,grid.dim-1);//g(x)+h(x)
-				}
-				else {
-					curr_weight_to_start=current.weight_to_start+Euclid(current.x,current.y,c.x,c.y);//g(x) Actual distance between new point to the old point
-					curr_weight = curr_weight_to_start+Euclid(current.x,current.y,grid.dim-1,grid.dim-1);
-				}
-				System.out.println(curr_weight_to_start);
-				System.out.println(curr_weight+"\n");
-				c.weight=curr_weight;
-				c.weight_to_start=curr_weight_to_start;
-				if(open_set.contains(c)) {
-					if(open_set.removeIf((t)->t.weight>c.weight)==true) {//if in the open set it has a worse node than the one being inserted
-						//sth being deleted
-						open_set.add(c);
-					}
-				}
-				else {
-					//does not have c in open set
-					open_set.add(c);
-				}
-				
-				
-				//fringe.add(c);
-				
-			}
-			
-		}
-		grid.showPath(goal);
-		return;
 
 	public static void BiBFS() {
 		Queue<Coord> fringe1 = new LinkedList<Coord>();
