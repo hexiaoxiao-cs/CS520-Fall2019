@@ -12,9 +12,11 @@ public class MazeRunner {
 	public static int dim;
 	public static double prob;
 
-	public static class Coord { // coordinate object. used in fringe.
+	public static class Coord implements Comparable<Coord> { // coordinate object. used in fringe.
 		public int x;
 		public int y;
+		public double weight;
+		public double weight_to_start;
 		public Coord parent;
 		public int f;	//estimated s->n->g. useful for priority queue for A*
 
@@ -22,17 +24,19 @@ public class MazeRunner {
 			this.x = x;
 			this.y = y;
 			this.parent = parent;
+			this.weight=0;
 		}
 
 		public String toString() {
 			return "(" + x + "," + y + ")";
 		}
-		public boolean equals(Object o) {
-			if (!(o instanceof Coord)) { 
-	            return false; 
-	        } 
-			Coord c = (Coord) o; 
-			return this.x==c.x&&this.y==c.y;
+		public int compareTo(Coord another) {
+			if(another.weight==this.weight) {return 0;}
+			if(another.weight<this.weight) {return 1;}
+			else {return -1;}
+		}
+		public boolean equals(Coord c) {
+			return (this.x==c.x)&&(this.y==c.y);
 		}
 	}
 
@@ -79,6 +83,8 @@ public class MazeRunner {
 		grid.clearOccupied();
 		grid.showPath(goal); 
 	}
+	//Astar:
+	//Arguments: 1. which weighting? 0 for euclid, 1 for Manhattan
 
 	public static void BiBFS() {
 		Queue<Coord> fringe1 = new LinkedList<Coord>();
@@ -192,35 +198,81 @@ public class MazeRunner {
 		
 		
 	}
-	
-	
-	public void Astar() {
-		PriorityQueue<Coord> fringe = new PriorityQueue<Coord>( new Comparator<Coord>() {
-			@Override
-			public int compare(Coord o1, Coord o2) {
-				return o1.f-o2.f;
+	//Astar:
+	//Arguments: 1. which weighting? false for euclid, true for Manhattan
+	public static void Astar(boolean isManhattan) {
+		PriorityQueue<Coord> open_set = new PriorityQueue<Coord>();
+		open_set.add(new Coord(0,0,null));
+		Coord current = null;
+		Coord goal = null;
+		double curr_weight;
+		double curr_weight_to_start;
+		Coord[][] closed_set=new Coord[grid.dim][grid.dim];
+		while(!open_set.isEmpty()) {
+			current = open_set.poll();//removed from open
+			//System.out.println("Picked"+current.x+","+current.y+"point with priority"+current.weight);
+			closed_set[current.x][current.y]=current;//put current to the closed set
+			if(grid.isGoal(current.x, current.y)) {
+				goal=current;
+				break;
 			}
-	    }); //^^ note that fringe will be sorted by Coordinate f values if you assign f-values to coord.
-		
-		
-		
-		
-		
-		
-
+ 
+			for (Coord c: grid.getNeighbors(current.x, current.y)) {
+				c.parent = current;//first, set path
+				//check whether in the closed set or (wall, burnt)
+				if(closed_set[c.x][c.y]!=null||grid.isFree(c.x, c.y)==false) {
+					continue;
+				}
+				//open_set.
+				//Calculate heuristic function and the distance between current point and previous point
+				if(isManhattan==true){
+					curr_weight_to_start=current.weight_to_start+Manhattan(current.x,current.y,c.x,c.y);//g(x) Actual distance between new point to the old point
+					
+					curr_weight = curr_weight_to_start+Manhattan(current.x,current.y,grid.dim-1,grid.dim-1);//g(x)+h(x)
+				}
+				else {
+					curr_weight_to_start=current.weight_to_start+Euclid(current.x,current.y,c.x,c.y);//g(x) Actual distance between new point to the old point
+					curr_weight = curr_weight_to_start+Euclid(current.x,current.y,grid.dim-1,grid.dim-1);
+				}
+				//System.out.println(curr_weight_to_start);
+				//System.out.println(curr_weight+"\n");
+				c.weight=curr_weight;
+				c.weight_to_start=curr_weight_to_start;
+				if(open_set.contains(c)) {
+					if(open_set.removeIf((t)->t.weight>c.weight)==true) {//if in the open set it has a worse node than the one being inserted
+						//sth being deleted
+						open_set.add(c);
+					}
+					//else not doing anything, which is keep the node in the open_set since it is currently with a better route
+				}
+				else {
+					//does not have c in open set
+					open_set.add(c);
+				}
+				
+				
+				//fringe.add(c);
+				
+			}
+			
+		}
+		grid.showPath(goal);
+		return; 
 	}
 
-	private double Euclid(int x1, int y1, int x2, int y2) { // find euclid distance
+	private static double Euclid(int x1, int y1, int x2, int y2) { // find euclid distance
 		return Math.sqrt((x1 - x2) * (x1 - x2) + (y1 - y2) * (y1 - y2));
+		
+		
 	}
 
-	private double Manhattan(int x1, int y1, int x2, int y2) { // find manhattan distance
+	private static double Manhattan(int x1, int y1, int x2, int y2) { // find manhattan distance
 		return Math.sqrt(Math.abs(x1 - x2) + Math.abs(y1 - y2));
 	}
 
 	// MAIN METHOD:
 	public static void main(String args[]) {
-		dim = 5;
+/*dim = 5;
 		prob = 0.1;
 		grid = new Grid(dim, prob); // dim, probability.
 		grid.show();
@@ -229,8 +281,36 @@ public class MazeRunner {
 		//grid.show();
 		//grid.clearOccupied();
 		BiBFS();
+*/
+		dim = 15;
+		prob = 0.2;
+		grid = new Grid(dim, prob); // dim, probability.
 		grid.show();
-
+		long startTime_dfs = System.nanoTime();
+		DFS();
+		long endTime_dfs = System.nanoTime(); 
+		grid.show();
+		grid.clearOccupied();
+		long startTime_BFS= System.nanoTime();
+		BFS();
+		long endTime_BFS=System.nanoTime();
+		grid.show();
+		grid.clearOccupied();
+		long startTime_Astar_1=System.nanoTime();
+		Astar(true);
+		long endTime_Astar_1=System.nanoTime();
+		grid.show();
+		grid.clearOccupied();
+		long startTime_Astar_2=System.nanoTime();
+		Astar(false);
+		long endTime_Astar_2=System.nanoTime();
+		grid.show();
+		grid.clearOccupied();
+		System.out.println("Runtime:");
+		System.out.println("DFS:"+((endTime_dfs-startTime_dfs)/1000000)+"ms");
+		System.out.println("BFS:"+((endTime_BFS-startTime_BFS)/1000000)+"ms");
+		System.out.println("A*_Manhattan:"+((endTime_Astar_1-startTime_Astar_1)/1000000)+"ms");
+		System.out.println("A*_Euclid:"+((endTime_Astar_2-startTime_Astar_2)/1000000)+"ms");
 	}
 
 }
