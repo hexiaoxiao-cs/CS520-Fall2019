@@ -243,7 +243,7 @@ public class MazeRunner {
 
 	// MAIN METHOD:
 	public static void main(String args[]) {
-dim = 8;
+/*dim = 8;
 		prob = 0.2;
 		grid = new Grid(dim, prob); // dim, probability.
 		grid.show();
@@ -252,13 +252,14 @@ dim = 8;
 		//grid.show();
 		//grid.clearOccupied();
 		BiBFS();
-		grid.show();
+		grid.show();*/
 		
-/*
+
 		dim = 15;
 		prob = 0.2;
 		grid = new Grid(dim, prob); // dim, probability.
 		grid.show();
+		
 		long startTime_dfs = System.nanoTime();
 		DFS();
 		long endTime_dfs = System.nanoTime(); 
@@ -269,10 +270,17 @@ dim = 8;
 		long endTime_BFS=System.nanoTime();
 		grid.show();
 		grid.clearOccupied();
+		long startTime_BiBFS=System.nanoTime();
+		BiBFS();
+		long endTime_BiBFS=System.nanoTime();
+		grid.show();
 		long startTime_Astar_1=System.nanoTime();
 		Astar(true);
 		long endTime_Astar_1=System.nanoTime();
 		grid.show();
+		
+		
+		
 		grid.clearOccupied();
 		long startTime_Astar_2=System.nanoTime();
 		Astar(false);
@@ -281,12 +289,13 @@ dim = 8;
 		grid.clearOccupied();
 		System.out.println("Runtime:");
 		System.out.println("DFS:"+((endTime_dfs-startTime_dfs)/1000000)+"ms");
+		System.out.println("BiBFS:"+((endTime_BiBFS-startTime_BiBFS)/1000000)+"ms");
 		System.out.println("BFS:"+((endTime_BFS-startTime_BFS)/1000000)+"ms");
 		System.out.println("A*_Manhattan:"+((endTime_Astar_1-startTime_Astar_1)/1000000)+"ms");
 		System.out.println("A*_Euclid:"+((endTime_Astar_2-startTime_Astar_2)/1000000)+"ms");
 		
 		
-		*/
+		
 	}
 
 }

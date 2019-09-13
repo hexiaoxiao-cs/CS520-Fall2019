@@ -19,12 +19,12 @@ public class Grid {
 	public final static int StartNum=-2;
 	public final static int EndNum=-3;
 	
-	public final String Wall="+ ";//-1
-	public final String Free="  ";//0
-	public final String Occupied="* ";//1
-	public final String Burnt="& ";//2
-	public final String Start="S ";//-2
-	public final String End="G ";//-3
+	public final String Wall="+";//-1
+	public final String Free=" ";//0
+	public final String Occupied="*";//1
+	public final String Burnt="&";//2
+	public final String Start="S";//-2
+	public final String End="G";//-3
 	public Grid(int dim, double p) {//initialize board:
 		this.dim=dim;
 		arr=new int[dim][dim];
@@ -44,7 +44,7 @@ public class Grid {
 	public void show() {
 		String toPrint;
 		for (int i=0;i<dim;i++) {
-			System.out.print(i+"  ");
+			System.out.print(i+"\t");
 			for (int j=0;j<dim;j++) {
 				toPrint="\0";
 				switch(arr[i][j]) {
@@ -54,15 +54,20 @@ public class Grid {
 					case 0  : toPrint=Free; break;
 					case 1  : toPrint=Occupied; break;
 					case 2  : toPrint=Burnt; break;
-					default : toPrint=arr[i][j]+" "; break;//System.err.println("\nPANIC:Printing Grid at ("+i+","+j+") with value "+arr[i][j]+". Program Will EXIT!\n"); System.exit(-2);
+					default : toPrint=arr[i][j]+""; break;//System.err.println("\nPANIC:Printing Grid at ("+i+","+j+") with value "+arr[i][j]+". Program Will EXIT!\n"); System.exit(-2);
 				}
-				System.out.print( toPrint +" " );
+				System.out.print( " "+toPrint +" " );
 			}
 			System.out.println();
 		} 
-		System.out.print("  ");
+		System.out.print("\t");
 		for (int i=0;i<dim;i++) {
-			System.out.print(" "+i+" ");
+			if ((i+"").length()==1)
+				System.out.print(" "+i+" ");
+			else if ((i+"").length()==2)
+				System.out.print(" "+i);
+			else
+				System.out.print(i);
 		}
 		System.out.println("\n ");
 		
