@@ -89,87 +89,68 @@ public class MazeRunner {
 	//Arguments: 1. which weighting? 0 for euclid, 1 for Manhattan
 
 	public static void BiBFS() {
-		Queue<Coord> fringe1 = new LinkedList<Coord>();
-		Queue<Coord> fringe2 = new LinkedList<Coord>();
+		Queue<Coord> fringeL = new LinkedList<Coord>();
+		Queue<Coord> fringeR = new LinkedList<Coord>();
 		Queue<Coord> fringePtr = null;
-		fringe1.add(new Coord(0, 0, null));
-		fringe2.add(new Coord(dim-1, dim-1, null));
+		fringeL.add(new Coord(0, 0, null));
+		fringeR.add(new Coord(dim-1, dim-1, null));
 		
-		Coord current1 = null;
-		Coord current2 = null;
+		Coord currentL = null;
+		Coord currentR = null;
 		Coord overlap=null;
 		Coord overlap2=null;
+		
 		//left side bfs='8'. right side bfs='9'
-		 
-		while (!fringe1.isEmpty()&&!fringe2.isEmpty()&&overlap==null    ) { 
-			current1 = fringe1.remove();
-			current2 = fringe2.remove();
+		while (!fringeL.isEmpty()&&!fringeR.isEmpty()&&overlap==null    ) { 
+			currentL = fringeL.remove();
+			currentR = fringeR.remove();
 			
 			
 			//COLLECT NEIGHBORS FOR LEFT SIDE:
-			
-			List<Coord> neighbors=grid.getNeighbors(current1.x, current1.y);
-			neighbors.removeIf((Coord coord)-> grid.getNumAt(coord.x, coord.y)==8);
-				// Find all neighbors for both bfs sides:
-			 grid.show();
-			System.out.println("neighbors of "+current1); for (Coord cc : neighbors) { System.out.println(cc); }
-			
-			
+			List<Coord> neighbors=grid.getNeighbors(currentL.x, currentL.y);
+			neighbors.removeIf((Coord coord)-> grid.getNumAt(coord.x, coord.y)==8);  
 			for (Coord c : neighbors) { 
-				c.parent = current1;
-				fringe1.add(c);System.out.println("add "+c+ " to frindge1");
-				if (fringe2.contains(new Coord(c.x,c.y,null))){
+				c.parent = currentL;
+				fringeL.add(c);
+				if (fringeR.contains(new Coord(c.x,c.y,null))){	//FOUND OVERLAPPED.
 				 	overlap=c; 
-					fringePtr=fringe2;  
+					fringePtr=fringeR;  
 					while(!fringePtr.isEmpty()&&overlap2==null) {
-						Coord c2=fringePtr.remove(); System.out.println("remove "+c2);
-						if (c2.equals(overlap))
-							overlap2=c2;
+						Coord c2=fringePtr.remove(); 
+						if (c2.equals(overlap)) {
+							overlap2=c2; System.out.println("set overlap2 to "+c2+ "=overlap1="+overlap);
+						}
 					} 
 					break; 
 				}
-				grid.arr[current1.x][current1.y]=8;	 
+				grid.arr[currentL.x][currentL.y]=8;	 
 			}
 			
-			
-			
-			//COLLECT NEIGHBORS FOR RIGHT SIDE:
-			neighbors=grid.getNeighbors(current2.x, current2.y);
+			//COLLECT NEIGHBORS FOR RIGHT SIDE (if we still don't have an overlap):
+			neighbors=grid.getNeighbors(currentR.x, currentR.y);
 			neighbors.removeIf((Coord coord)-> grid.getNumAt(coord.x, coord.y)==9);
-			System.out.println("neighbors of "+current2); for (Coord cc : neighbors) { System.out.println(cc);}
-			
-			for (Coord c : neighbors) {
-				
-				c.parent = current2;
-				fringe2.add(c);
-				if (fringe1.contains(new Coord(c.x,c.y,null))){
-				//if (grid.getNumAt(c.x, c.y)==8) {System.out.println(c);grid.show();
-					overlap=c;
-					fringePtr=fringe1;
-					
-					   
-					while(!fringePtr.isEmpty()&&overlap2==null) {
-						Coord c2=fringePtr.remove(); System.out.println("remove "+c2);
-						if (c2.equals(overlap))
-							overlap2=c2;
-					}  
-					
-					
-					break;
-				}else {
-					
-					System.out.println("fringe does not contain "+c.x+","+c.y);
+			if(overlap==null)	{
+				for (Coord c : neighbors) {
+					c.parent = currentR;
+					fringeR.add(c);
+					if (fringeL.contains(new Coord(c.x,c.y,null))){	//FOUND OVERLAPPED.
+						overlap=c;
+						fringePtr=fringeL;
+						while(!fringePtr.isEmpty()&&overlap2==null) {
+							Coord c2=fringePtr.remove();  
+							if (c2.equals(overlap))
+								overlap2=c2;
+						} 
+						break;
+					}
+					grid.arr[currentR.x][currentR.y]=9;	
 				}
-				grid.arr[current2.x][current2.y]=9;	
-			}
-			//check if neig
-			
-		}
-		//clear grid to show
+			} 
+		} 
 		grid.show();
 		System.out.println("overlap="+overlap+"=overlap2="+overlap2);
 		
-		
+		//clear numbers on grid to show: 
 		for(int i=0;i<dim;i++) {
 			for(int j=0;j<dim;j++) {
 				if(grid.arr[i][j]==8||grid.arr[i][j]==9)
@@ -178,19 +159,13 @@ public class MazeRunner {
 		} 
 		grid.arr[0][0]=Grid.StartNum;
 		grid.arr[dim-1][dim-1]=Grid.EndNum;
-		 
 		
-		
-		 
-		grid.clearOccupied(); 
 		grid.showPath(overlap);
-		System.out.println("\nHere is one side: ");
+		
+		System.out.println("\nHere is one side of BiBfs:");
 		grid.show();
-		grid.showPath(overlap2); 
 		
-		
-		
-		
+		grid.showPath(overlap2);  
 		
 		
 	}
