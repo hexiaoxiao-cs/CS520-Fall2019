@@ -232,6 +232,8 @@ public class MazeRunner {
 
 	private static double Euclid(int x1, int y1, int x2, int y2) { // find euclid distance
 		return Math.sqrt((x1 - x2) * (x1 - x2) + (y1 - y2) * (y1 - y2));
+		
+		
 	}
 
 	private static double Manhattan(int x1, int y1, int x2, int y2) { // find manhattan distance
@@ -240,23 +242,35 @@ public class MazeRunner {
 
 	// MAIN METHOD:
 	public static void main(String args[]) {
-		dim = 8;
+		dim = 15;
 		prob = 0.2;
 		grid = new Grid(dim, prob); // dim, probability.
-		//grid.show();
-
-		//DFS();
-		//grid.show();
-		//grid.clearOccupied();
-		//BFS();
-		//grid.show();
+		grid.show();
+		long startTime_dfs = System.nanoTime();
+		DFS();
+		long endTime_dfs = System.nanoTime();
+		grid.show();
+		grid.clearOccupied();
+		long startTime_BFS= System.nanoTime();
+		BFS();
+		long endTime_BFS=System.nanoTime();
+		grid.show();
+		grid.clearOccupied();
+		long startTime_Astar_1=System.nanoTime();
 		Astar(true);
+		long endTime_Astar_1=System.nanoTime();
 		grid.show();
 		grid.clearOccupied();
+		long startTime_Astar_2=System.nanoTime();
 		Astar(false);
+		long endTime_Astar_2=System.nanoTime();
 		grid.show();
 		grid.clearOccupied();
-
+		System.out.println("Runtime:");
+		System.out.println("DFS:"+((endTime_dfs-startTime_dfs)/1000000)+"ms");
+		System.out.println("BFS:"+((endTime_BFS-startTime_BFS)/1000000)+"ms");
+		System.out.println("A*_Manhattan:"+((endTime_Astar_1-startTime_Astar_1)/1000000)+"ms");
+		System.out.println("A*_Euclid:"+((endTime_Astar_2-startTime_Astar_2)/1000000)+"ms");
 	}
 
 }
