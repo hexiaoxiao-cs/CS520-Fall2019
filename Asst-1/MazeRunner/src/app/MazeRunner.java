@@ -118,7 +118,7 @@ public class MazeRunner {
 					while(!fringePtr.isEmpty()&&overlap2==null) {
 						Coord c2=fringePtr.remove(); 
 						if (c2.equals(overlap)) {
-							overlap2=c2; System.out.println("set overlap2 to "+c2+ "=overlap1="+overlap);
+							overlap2=c2; //System.out.println("set overlap2 to "+c2+ "=overlap1="+overlap);
 						}
 					} 
 					break; 
@@ -147,8 +147,8 @@ public class MazeRunner {
 				}
 			} 
 		} 
-		grid.show();
-		System.out.println("overlap="+overlap+"=overlap2="+overlap2);
+		//grid.show();
+		//System.out.println("overlap="+overlap+"=overlap2="+overlap2);
 		
 		//clear numbers on grid to show: 
 		for(int i=0;i<dim;i++) {
@@ -162,8 +162,8 @@ public class MazeRunner {
 		
 		grid.showPath(overlap);
 		
-		System.out.println("\nHere is one side of BiBfs:");
-		grid.show();
+		//System.out.println("\nHere is one side of BiBfs:");
+		//grid.show();
 		
 		grid.showPath(overlap2);  
 		
