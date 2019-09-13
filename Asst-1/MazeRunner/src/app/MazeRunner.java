@@ -32,7 +32,7 @@ public class MazeRunner {
 		}
 		public int compareTo(Coord another) {
 			if(another.weight==this.weight) {return 0;}
-			if(another.weight>this.weight) {return 1;}
+			if(another.weight<this.weight) {return 1;}
 			else {return -1;}
 		}
 		public boolean equals(Coord c) {
@@ -170,7 +170,7 @@ public class MazeRunner {
 		
 	}
 	//Astar:
-	//Arguments: 1. which weighting? 0 for euclid, 1 for Manhattan
+	//Arguments: 1. which weighting? false for euclid, true for Manhattan
 	public static void Astar(boolean isManhattan) {
 		PriorityQueue<Coord> open_set = new PriorityQueue<Coord>();
 		open_set.add(new Coord(0,0,null));
@@ -181,6 +181,7 @@ public class MazeRunner {
 		Coord[][] closed_set=new Coord[grid.dim][grid.dim];
 		while(!open_set.isEmpty()) {
 			current = open_set.poll();//removed from open
+			//System.out.println("Picked"+current.x+","+current.y+"point with priority"+current.weight);
 			closed_set[current.x][current.y]=current;//put current to the closed set
 			if(grid.isGoal(current.x, current.y)) {
 				goal=current;
@@ -193,6 +194,7 @@ public class MazeRunner {
 					continue;
 				}
 				//open_set.
+				//Calculate heuristic function and the distance between current point and previous point
 				if(isManhattan==true){
 					curr_weight_to_start=current.weight_to_start+Manhattan(current.x,current.y,c.x,c.y);//g(x) Actual distance between new point to the old point
 					
@@ -202,8 +204,8 @@ public class MazeRunner {
 					curr_weight_to_start=current.weight_to_start+Euclid(current.x,current.y,c.x,c.y);//g(x) Actual distance between new point to the old point
 					curr_weight = curr_weight_to_start+Euclid(current.x,current.y,grid.dim-1,grid.dim-1);
 				}
-				System.out.println(curr_weight_to_start);
-				System.out.println(curr_weight+"\n");
+				//System.out.println(curr_weight_to_start);
+				//System.out.println(curr_weight+"\n");
 				c.weight=curr_weight;
 				c.weight_to_start=curr_weight_to_start;
 				if(open_set.contains(c)) {
@@ -211,6 +213,7 @@ public class MazeRunner {
 						//sth being deleted
 						open_set.add(c);
 					}
+					//else not doing anything, which is keep the node in the open_set since it is currently with a better route
 				}
 				else {
 					//does not have c in open set
@@ -237,8 +240,8 @@ public class MazeRunner {
 
 	// MAIN METHOD:
 	public static void main(String args[]) {
-		dim = 4;
-		prob = 0.01;
+		dim = 8;
+		prob = 0.2;
 		grid = new Grid(dim, prob); // dim, probability.
 		//grid.show();
 
