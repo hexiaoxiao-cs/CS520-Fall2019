@@ -83,14 +83,17 @@ public class MazeRunner {
 	public static void BiBFS() {
 		Queue<Coord> fringe1 = new LinkedList<Coord>();
 		Queue<Coord> fringe2 = new LinkedList<Coord>();
+		Queue<Coord> fringePtr = null;
 		fringe1.add(new Coord(0, 0, null));
 		fringe2.add(new Coord(dim-1, dim-1, null));
+		
 		Coord current1 = null;
 		Coord current2 = null;
 		Coord overlap=null;
+		Coord overlap2=null;
 		//left side bfs='8'. right side bfs='9'
 		
-		while (!fringe1.isEmpty()&&!fringe2.isEmpty() ) {
+		while (!fringe1.isEmpty()&&!fringe2.isEmpty()&&overlap==null ) {
 			current1 = fringe1.remove();
 			current2 = fringe2.remove();
 			List<Coord> neighbors=grid.getNeighbors(current1.x, current1.y);
@@ -115,7 +118,20 @@ public class MazeRunner {
 				fringe1.add(c);
 				
 				if (grid.getNumAt(c.x, c.y)==9) {System.out.println(c);grid.show();
-					overlap=c; break; 
+					overlap=c; 
+					fringePtr=fringe2;  
+					while(!fringePtr.isEmpty()&&overlap2==null) {
+						Coord c2=fringePtr.remove(); System.out.println("remove "+c2);
+						if (c2.equals(overlap))
+							overlap2=c2;
+					}
+					
+					
+					
+					
+					
+					
+					break; 
 				}
 				grid.arr[current1.x][current1.y]=8;	
 				
@@ -139,7 +155,9 @@ public class MazeRunner {
 				fringe2.add(c);
 				
 				if (grid.getNumAt(c.x, c.y)==8) {System.out.println(c);grid.show();
-					overlap=c; break;
+					overlap=c;
+					fringePtr=fringe1;
+					break;
 				}
 				grid.arr[current2.x][current2.y]=9;	
 			}
@@ -156,7 +174,18 @@ public class MazeRunner {
 		grid.arr[0][0]=Grid.StartNum;
 		grid.arr[dim-1][dim-1]=Grid.EndNum;
 		System.out.println("overlap="+overlap);
+		
+		/*while(!fringePtr.isEmpty()&&overlap2==null) {
+			Coord c=fringePtr.remove(); System.out.println("remove "+c);
+			if (c.equals(overlap))
+				overlap2=c;
+		}*/
+		System.out.println("overlap="+overlap+"=overlap2="+overlap2);
+		
+		 
+		grid.clearOccupied(); 
 		grid.showPath(overlap); 
+		grid.showPath(overlap2); 
 		
 		
 		
@@ -171,7 +200,7 @@ public class MazeRunner {
 			public int compare(Coord o1, Coord o2) {
 				return o1.f-o2.f;
 			}
-	    }); //note that fringe will be sorted by Coordinate f values if you assign f-values to coord.
+	    }); //^^ note that fringe will be sorted by Coordinate f values if you assign f-values to coord.
 		
 		
 		
@@ -191,15 +220,15 @@ public class MazeRunner {
 
 	// MAIN METHOD:
 	public static void main(String args[]) {
-		dim = 4;
-		prob = 0.01;
+		dim = 5;
+		prob = 0.1;
 		grid = new Grid(dim, prob); // dim, probability.
 		grid.show();
 
 		//DFS();
 		//grid.show();
 		//grid.clearOccupied();
-		//BiBFS();
+		BiBFS();
 		grid.show();
 
 	}
