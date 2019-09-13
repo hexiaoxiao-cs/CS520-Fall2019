@@ -1,6 +1,7 @@
 package structures;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 import app.MazeRunner.Coord;
 
@@ -11,12 +12,12 @@ public class Grid {
  
 	
 	
-	public final int WallNum=-1;
-	public final int FreeNum=0;
-	public final int OccupiedNum=1;
-	public final int BurntNum=2;
-	public final int StartNum=-2;
-	public final int EndNum=-3;
+	public final static int WallNum=-1;
+	public final static int FreeNum=0;
+	public final static int OccupiedNum=1;
+	public final static int BurntNum=2;
+	public final static int StartNum=-2;
+	public final static int EndNum=-3;
 	
 	public final String Wall="+ ";//-1
 	public final String Free="  ";//0
@@ -53,7 +54,7 @@ public class Grid {
 					case 0  : toPrint=Free; break;
 					case 1  : toPrint=Occupied; break;
 					case 2  : toPrint=Burnt; break;
-					default : System.err.println("\nPANIC:Printing Grid at ("+i+","+j+") with value "+arr[i][j]+". Program Will EXIT!\n"); System.exit(-2);
+					default : toPrint=arr[i][j]+" "; break;//System.err.println("\nPANIC:Printing Grid at ("+i+","+j+") with value "+arr[i][j]+". Program Will EXIT!\n"); System.exit(-2);
 				}
 				System.out.print( toPrint +" " );
 			}
@@ -79,7 +80,7 @@ public class Grid {
 	
 	public boolean isFree(int x,int y) {
 		if (x>=0&&y>=0&&x<dim&&y<dim)
-			return arr[x][y]==0||arr[x][y]==StartNum||arr[x][y]==EndNum;
+			return arr[x][y]!=BurntNum&&arr[x][y]!=OccupiedNum&&arr[x][y]!=WallNum;
 		else return false;
 	}
 	public boolean isGoal(int x,int y) {
@@ -94,14 +95,19 @@ public class Grid {
 	
 	public List<Coord> getNeighbors(int x,int y){
 		List <Coord> list=new ArrayList<Coord>();
-		if (isFree(x,y+1)) {list.add(new Coord(x,y+1,null));}
+		
+		if (isFree(x,y+1)) {	list.add(new Coord(x,y+1,null));}
 		if (isFree(x+1,y)) { list.add(new Coord(x+1,y,null));}
 		if (isFree(x-1,y)) { list.add(new Coord(x-1,y,null));}
-		if (isFree(x,y-1)) {list.add(new Coord(x,y-1,null));}
-		return list;
+		if (isFree(x,y-1)) {	list.add(new Coord(x,y-1,null));}
+		
+		return list.stream().distinct().collect(Collectors.toList());//remove duplicates
+		
 			
 		
 	}
+	
+	 
 	
 	public void showPath(Coord goal) {
 		clearOccupied();
@@ -111,6 +117,9 @@ public class Grid {
 		}
 		 arr[0][0] =  StartNum;
 		 arr[dim - 1][dim - 1] =  EndNum;
+	}
+	public int getNumAt(int x,int y) {
+		return arr[x][y];
 	}
 	 
 	
