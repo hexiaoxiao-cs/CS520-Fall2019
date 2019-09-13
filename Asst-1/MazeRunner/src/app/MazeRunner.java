@@ -35,7 +35,9 @@ public class MazeRunner {
 			if(another.weight<this.weight) {return 1;}
 			else {return -1;}
 		}
-		public boolean equals(Coord c) {
+		public boolean equals(Object o) {//**should have parameter Object. Else .contains will not work for lists.
+			if(!(o instanceof Coord)) return false;
+			Coord c=(Coord)o;
 			return (this.x==c.x)&&(this.y==c.y);
 		}
 	}
@@ -98,72 +100,65 @@ public class MazeRunner {
 		Coord overlap=null;
 		Coord overlap2=null;
 		//left side bfs='8'. right side bfs='9'
-		
-		while (!fringe1.isEmpty()&&!fringe2.isEmpty()&&overlap==null ) {
+		 
+		while (!fringe1.isEmpty()&&!fringe2.isEmpty()&&overlap==null    ) { 
 			current1 = fringe1.remove();
 			current2 = fringe2.remove();
+			
+			
+			//COLLECT NEIGHBORS FOR LEFT SIDE:
+			
 			List<Coord> neighbors=grid.getNeighbors(current1.x, current1.y);
 			neighbors.removeIf((Coord coord)-> grid.getNumAt(coord.x, coord.y)==8);
 				// Find all neighbors for both bfs sides:
+			 grid.show();
+			System.out.println("neighbors of "+current1); for (Coord cc : neighbors) { System.out.println(cc); }
 			
 			
-			grid.show();
-			
-			
-			System.out.println("neighbors of "+current1);
-				for (Coord cc : neighbors) {
-					
-					System.out.println(cc);
-				}
-				
-				
-				
-			for (Coord c : neighbors) {
-				
+			for (Coord c : neighbors) { 
 				c.parent = current1;
-				fringe1.add(c);
-				
-				if (grid.getNumAt(c.x, c.y)==9) {System.out.println(c);grid.show();
-					overlap=c; 
+				fringe1.add(c);System.out.println("add "+c+ " to frindge1");
+				if (fringe2.contains(new Coord(c.x,c.y,null))){
+				 	overlap=c; 
 					fringePtr=fringe2;  
 					while(!fringePtr.isEmpty()&&overlap2==null) {
 						Coord c2=fringePtr.remove(); System.out.println("remove "+c2);
 						if (c2.equals(overlap))
 							overlap2=c2;
-					}
-					
-					
-					
-					
-					
-					
+					} 
 					break; 
 				}
-				grid.arr[current1.x][current1.y]=8;	
-				
-				
+				grid.arr[current1.x][current1.y]=8;	 
 			}
+			
+			
+			
+			//COLLECT NEIGHBORS FOR RIGHT SIDE:
 			neighbors=grid.getNeighbors(current2.x, current2.y);
 			neighbors.removeIf((Coord coord)-> grid.getNumAt(coord.x, coord.y)==9);
-			
-			
-			System.out.println("neighbors of "+current2);
-			for (Coord cc : neighbors) {
-				
-				System.out.println(cc);
-			}
-			
-			
+			System.out.println("neighbors of "+current2); for (Coord cc : neighbors) { System.out.println(cc);}
 			
 			for (Coord c : neighbors) {
 				
 				c.parent = current2;
 				fringe2.add(c);
-				
-				if (grid.getNumAt(c.x, c.y)==8) {System.out.println(c);grid.show();
+				if (fringe1.contains(new Coord(c.x,c.y,null))){
+				//if (grid.getNumAt(c.x, c.y)==8) {System.out.println(c);grid.show();
 					overlap=c;
 					fringePtr=fringe1;
+					
+					   
+					while(!fringePtr.isEmpty()&&overlap2==null) {
+						Coord c2=fringePtr.remove(); System.out.println("remove "+c2);
+						if (c2.equals(overlap))
+							overlap2=c2;
+					}  
+					
+					
 					break;
+				}else {
+					
+					System.out.println("fringe does not contain "+c.x+","+c.y);
 				}
 				grid.arr[current2.x][current2.y]=9;	
 			}
@@ -171,6 +166,10 @@ public class MazeRunner {
 			
 		}
 		//clear grid to show
+		grid.show();
+		System.out.println("overlap="+overlap+"=overlap2="+overlap2);
+		
+		
 		for(int i=0;i<dim;i++) {
 			for(int j=0;j<dim;j++) {
 				if(grid.arr[i][j]==8||grid.arr[i][j]==9)
@@ -179,19 +178,16 @@ public class MazeRunner {
 		} 
 		grid.arr[0][0]=Grid.StartNum;
 		grid.arr[dim-1][dim-1]=Grid.EndNum;
-		System.out.println("overlap="+overlap);
+		 
 		
-		/*while(!fringePtr.isEmpty()&&overlap2==null) {
-			Coord c=fringePtr.remove(); System.out.println("remove "+c);
-			if (c.equals(overlap))
-				overlap2=c;
-		}*/
-		System.out.println("overlap="+overlap+"=overlap2="+overlap2);
 		
 		 
 		grid.clearOccupied(); 
-		grid.showPath(overlap); 
+		grid.showPath(overlap);
+		System.out.println("\nHere is one side: ");
+		grid.show();
 		grid.showPath(overlap2); 
+		
 		
 		
 		
@@ -272,8 +268,8 @@ public class MazeRunner {
 
 	// MAIN METHOD:
 	public static void main(String args[]) {
-/*dim = 5;
-		prob = 0.1;
+dim = 8;
+		prob = 0.2;
 		grid = new Grid(dim, prob); // dim, probability.
 		grid.show();
 
@@ -281,7 +277,9 @@ public class MazeRunner {
 		//grid.show();
 		//grid.clearOccupied();
 		BiBFS();
-*/
+		grid.show();
+		
+/*
 		dim = 15;
 		prob = 0.2;
 		grid = new Grid(dim, prob); // dim, probability.
@@ -311,6 +309,9 @@ public class MazeRunner {
 		System.out.println("BFS:"+((endTime_BFS-startTime_BFS)/1000000)+"ms");
 		System.out.println("A*_Manhattan:"+((endTime_Astar_1-startTime_Astar_1)/1000000)+"ms");
 		System.out.println("A*_Euclid:"+((endTime_Astar_2-startTime_Astar_2)/1000000)+"ms");
+		
+		
+		*/
 	}
 
 }
