@@ -176,14 +176,14 @@ public class MazeRunner {
 		open_set.add(new Coord(0,0,null));
 		Coord current = null;
 		Coord goal = null;
-		double curr_weight;
-		double curr_weight_to_start;
-		Coord[][] closed_set=new Coord[grid.dim][grid.dim];
+		double curr_weight;//current weight(for priority)
+		double curr_weight_to_start;//current weight from the starting point
+		Coord[][] closed_set=new Coord[grid.dim][grid.dim]; //a better way to store the closed set such that O(1) access with give x,y coordinate
 		while(!open_set.isEmpty()) {
 			current = open_set.poll();//removed from open
 			//System.out.println("Picked"+current.x+","+current.y+"point with priority"+current.weight);
 			closed_set[current.x][current.y]=current;//put current to the closed set
-			if(grid.isGoal(current.x, current.y)) {
+			if(grid.isGoal(current.x, current.y)) {//if Goal Just go
 				goal=current;
 				break;
 			}
@@ -255,7 +255,7 @@ public class MazeRunner {
 		grid.show();*/
 		
 
-		dim = 15;
+		dim = 12;
 		prob = 0.2;
 		grid = new Grid(dim, prob); // dim, probability.
 		grid.show();
@@ -273,14 +273,12 @@ public class MazeRunner {
 		long startTime_BiBFS=System.nanoTime();
 		BiBFS();
 		long endTime_BiBFS=System.nanoTime();
+		grid.clearOccupied();
 		grid.show();
 		long startTime_Astar_1=System.nanoTime();
 		Astar(true);
 		long endTime_Astar_1=System.nanoTime();
 		grid.show();
-		
-		
-		
 		grid.clearOccupied();
 		long startTime_Astar_2=System.nanoTime();
 		Astar(false);
