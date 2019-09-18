@@ -128,8 +128,9 @@ public class MazeRunner {
 			currentR = fringeR.remove();
 			//COLLECT NEIGHBORS FOR LEFT SIDE:
 			List<Coord> neighbors=grid.getNeighbors(currentL.x, currentL.y);
-			neighbors.removeIf((Coord coord)-> grid.getNumAt(coord.x, coord.y)==8);  
+			//neighbors.removeIf((Coord coord)-> grid.getNumAt(coord.x, coord.y)==8);
 			for (Coord c : neighbors) { 
+				if(grid.getNumAt(c.x,c.y)==8) {continue;}
 				c.parent = currentL;
 				if(!fringeL.contains(c)) {fringeL.add(c);
 				currentLm[c.x][c.y]=c;}
@@ -151,9 +152,10 @@ public class MazeRunner {
 			
 			//COLLECT NEIGHBORS FOR RIGHT SIDE (if we still don't have an overlap):
 			neighbors=grid.getNeighbors(currentR.x, currentR.y);
-			neighbors.removeIf((Coord coord)-> grid.getNumAt(coord.x, coord.y)==9);
+			//neighbors.removeIf((Coord coord)-> grid.getNumAt(coord.x, coord.y)==9);
 			if(overlap==null)	{
 				for (Coord c : neighbors) {
+					if(grid.getNumAt(c.x, c.y)==9) {continue;}
 					c.parent = currentR;
 					if(!fringeR.contains(c)) {fringeR.add(c);
 					currentRm[c.x][c.y]=c;}
@@ -266,7 +268,7 @@ public class MazeRunner {
 	}
 
 	private static double Manhattan(int x1, int y1, int x2, int y2) { // find manhattan distance
-		return Math.sqrt(Math.abs(x1 - x2) + Math.abs(y1 - y2));
+		return Math.abs(x1 - x2) + Math.abs(y1 - y2);
 	}
 	
 	public static Grid getHardestMaze( int dim, double prob, char which) {//uses genetic algorithm model
@@ -341,7 +343,15 @@ public class MazeRunner {
 		}
  
 		*/
-		display_algos(15,0.2);
+		//display_algos(100,0.2);
+//		grid=new Grid(15,0.2);
+//		grid.p_burn=0.3;
+//		grid.setFire(14, 0);
+//		for(int i = 0; i<50;i++) {
+//			grid.show();
+//			grid.updateGrid();
+//		}
+		
 	}
 	
 	public static int[] get_solvability_distribution(int dim,int threshold_t) {
@@ -418,8 +428,6 @@ public class MazeRunner {
 		System.out.println("BiBFS:"+((endTime_BiBFS-startTime_BiBFS)/1000000)+"ms");
 		System.out.println("A*_Manhattan:"+((endTime_Astar_1-startTime_Astar_1)/1000000)+"ms");
 		System.out.println("A*_Euclid:"+((endTime_Astar_2-startTime_Astar_2)/1000000)+"ms");
-		
-		
 		
 	}
 

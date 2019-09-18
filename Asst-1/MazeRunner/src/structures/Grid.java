@@ -9,7 +9,7 @@ public class Grid {
  
 	public int[][] arr;
 	public int dim;
- 
+	public double p_burn;
 	
 	
 	public final static int WallNum=-1;
@@ -107,12 +107,40 @@ public class Grid {
 		if (isFree(x,y-1)) {	list.add(new Coord(x,y-1,null));}
 		
 		return list;//list.stream().distinct().collect(Collectors.toList());//remove duplicates.
-		
-			
-		
+	}
+	public boolean isBurnt(int x, int y) {
+		if (x>=0&&y>=0&&x<dim&&y<dim&&arr[x][y]==BurntNum) {
+			return true;
+		}
+		return false;
+	}
+	public void updateGrid() {
+		int x=0,y=0;
+		int counter=0;
+		for(x=0;x<=dim-1;x++) {
+			for(y=0;y<=dim-1;y++) {
+				
+				if(isFree(x,y)) {
+					counter=0;
+					if(isBurnt(x-1,y)) {counter++;}
+					if(isBurnt(x+1,y)) {counter++;}
+					if(isBurnt(x,y-1)) {counter++;}
+					if(isBurnt(x,y+1)) {counter++;}
+					double rand=((double)(Math.random()*1000)+1)/1000;
+					double prob_cb=1-Math.pow((1-p_burn), counter);
+					if(rand<prob_cb) {
+						setFire(x,y);
+					}
+				}
+			}
+		}
 	}
 	
-	 
+	public void setFire(int x, int y) {
+//		if(arr[x][y]!=StartNum &&arr[x][y]!=EndNum && arr[x][y]!=WallNum) {
+			arr[x][y]=BurntNum;
+//		}
+	}
 	
 	public void showPath(Coord goal) {
 		
@@ -144,11 +172,7 @@ public class Grid {
 			
 			return child;
 		}*/return null;
-			
-		
-		
+
 	}
-	 
-	
-	
+
 }
