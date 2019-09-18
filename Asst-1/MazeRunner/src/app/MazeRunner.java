@@ -8,10 +8,12 @@ import java.util.stream.IntStream;
 public class MazeRunner {
 
 	public static Grid grid;
-	public static int dim;
-	public static double prob;
+ 
+	//public static int dim;
+	//public static double prob;
 	public static int DFS_max_fringe_size;
 	public static int A_manhattan_max_nodes_expanded;
+ 
 
 	public static class Coord implements Comparable<Coord> { // coordinate object. used in fringe.
 		public int x;
@@ -73,19 +75,24 @@ public class MazeRunner {
 		fringe.add(new Coord(0, 0, null));
 		Coord current = null;
 		Coord goal = null;
+		//int counter=0;
 		while (!fringe.isEmpty()) {
 			current = fringe.remove();
 			// Find all neighbors:
+
 			for (Coord c : grid.getNeighbors(current.x, current.y)) {
+
 				c.parent = current;
-				if (!fringe.contains(c))
-					fringe.add(c);
+ 
+				if(!fringe.contains(c)) {fringe.add(c);}
+ 
 				grid.occupy(current.x, current.y);
 			}
+			//grid.occupy(current.x, current.y);
 			if (grid.isGoal(current.x, current.y)) { // save goal coordinate so we can backtrack later
 				goal = current;
 			}
-			System.out.println(fringe.size());
+			//System.out.println(fringe.size());
 		}
 		
 		//grid.clearOccupied();
@@ -101,7 +108,7 @@ public class MazeRunner {
 		Queue<Coord> fringeR = new LinkedList<Coord>();
 		Queue<Coord> fringePtr = null;
 		fringeL.add(new Coord(0, 0, null));
-		fringeR.add(new Coord(dim-1, dim-1, null));
+		fringeR.add(new Coord(grid.dim-1, grid.dim-1, null));
 		
 		Coord currentL = null;
 		Coord currentR = null;
@@ -109,7 +116,7 @@ public class MazeRunner {
 		Coord overlap2=null;
 		Coord toReturn[]= new Coord[2];
 		//left side bfs='8'. right side bfs='9'
-		while (!fringeL.isEmpty()&&!fringeR.isEmpty()&&overlap==null    ) { 
+		while (!fringeL.isEmpty()&&!fringeR.isEmpty()&&overlap==null) { 
 			currentL = fringeL.remove();
 			currentR = fringeR.remove();
 			
@@ -119,7 +126,7 @@ public class MazeRunner {
 			neighbors.removeIf((Coord coord)-> grid.getNumAt(coord.x, coord.y)==8);  
 			for (Coord c : neighbors) { 
 				c.parent = currentL;
-				fringeL.add(c);
+				if(!fringeL.contains(c)) {fringeL.add(c);}
 				if (fringeR.contains(new Coord(c.x,c.y,null))){	//FOUND OVERLAPPED.
 				 	overlap=c; 
 					fringePtr=fringeR;  
@@ -140,7 +147,7 @@ public class MazeRunner {
 			if(overlap==null)	{
 				for (Coord c : neighbors) {
 					c.parent = currentR;
-					fringeR.add(c);
+					if(!fringeR.contains(c)) {fringeR.add(c);}
 					if (fringeL.contains(new Coord(c.x,c.y,null))){	//FOUND OVERLAPPED.
 						overlap=c;
 						fringePtr=fringeL;
@@ -159,14 +166,14 @@ public class MazeRunner {
 		//System.out.println("overlap="+overlap+"=overlap2="+overlap2);
 		
 		//clear numbers on grid to show: 
-		for(int i=0;i<dim;i++) {
-			for(int j=0;j<dim;j++) {
+		for(int i=0;i<grid.dim;i++) {
+			for(int j=0;j<grid.dim;j++) {
 				if(grid.arr[i][j]==8||grid.arr[i][j]==9)
 					grid.arr[i][j]=Grid.FreeNum;
 			}
 		} 
 		grid.arr[0][0]=Grid.StartNum;
-		grid.arr[dim-1][dim-1]=Grid.EndNum;
+		grid.arr[grid.dim-1][grid.dim-1]=Grid.EndNum;
 		
 //		grid.showPath(overlap);
 //		
@@ -271,7 +278,7 @@ public class MazeRunner {
 			List<Grid> futureGen=new ArrayList<Grid>();
 			while(!grids.isEmpty()) {
 				for(int j=0;j<numMate;j++) {//Mate parent pairs with n children each
-					grid=mate(grids.remove(0),grids.remove(1));
+					//grid=mate(grids.remove(0),grids.remove(1));
 					if (DFS()!=null)	{//if solvable, record child and record hardness.
 						futureGen.add(grid);
 						if (which=='d') 
@@ -306,31 +313,28 @@ public class MazeRunner {
 	// MAIN METHOD:
 	
 	public static void display_result(Coord goal) {
-		//grid.showPath(goal);
-		//grid.show();
+ 
+		grid.clearOccupied();
+		grid.showPath(goal);
+		grid.show(); 
 		grid.clearOccupied();
 	}
 	
 	public static void main(String args[]) {
-		/*
+		
 		//System.out.println(get_solvability_distribution(17,100));
-		int[] results=get_solvability_distribution(17,10000);
+		/*
+		int[] results=get_solvability_distribution(17,100000);
 		for(int a = 0; a<=998;a++) {
-			System.out.println(a+":"+results[a]);
+			System.out.println((double)(a+1)/1000+","+results[a]);
 		}
-		
-		 * 
-		 */
-		//display_algos(8,0.2);
-		//dim=8; prob=0.2;
-		grid=new Grid(1000,0.2);
-		BFS();
-		//grid.show();
-		
+ 
+		*/
+		display_algos(500,0.2); 
 	}
 	
 	public static int[] get_solvability_distribution(int dim,int threshold_t) {
-		//for this function we will test fixed dim, increasing prob by 0.01 from 0.01(0.00 is definite solvable) using A* euclid (fastest algo)
+		//for this function we will test fixed dim, increasing prob by 0.001 from 0.01(0.00 is definite solvable) using A* euclid (fastest algo)
 		int[] solved = new int[1000];
 
 		for (int prob=1; prob<=999;prob++ ) {
@@ -342,6 +346,12 @@ public class MazeRunner {
 			}
 		}
 		return solved;
+	}
+	public static int[] get_expected_length_distribution(int dim, int threshold_t) {
+		//for this function we will test fixed dim, increasing prob by 0.001 in a given 
+		int[] length = new int[2600];
+		
+		return null;
 	}
 	public static void display_algos(int dim, double prob) {
 /*dim = 8;
@@ -366,15 +376,17 @@ public class MazeRunner {
 		long startTime_dfs = System.nanoTime();
 		goal=DFS();
 		long endTime_dfs = System.nanoTime(); 
+		System.out.println("Result from DFS:");
 		display_result(goal);
 		long startTime_BFS= System.nanoTime();
 		goal=BFS();
-		long endTime_BFS=System.nanoTime();
-		
+		long endTime_BFS=System.nanoTime(); 
+		System.out.println("Result from BFS:"); 
 		display_result(goal);
 		long startTime_BiBFS=System.nanoTime();
 		goals=BiBFS();
 		long endTime_BiBFS=System.nanoTime();
+		System.out.println("Result from Bidirection BFS:");
 		grid.showPath(goals[0]);
 		grid.showPath(goals[1]);
 		grid.show();
@@ -382,15 +394,17 @@ public class MazeRunner {
 		long startTime_Astar_1=System.nanoTime();
 		goal=Astar(true);
 		long endTime_Astar_1=System.nanoTime();
+		System.out.println("Result from A* with Manhattan distance:");
 		display_result(goal);
 		long startTime_Astar_2=System.nanoTime();
 		goal=Astar(false);
 		long endTime_Astar_2=System.nanoTime();
+		System.out.println("Result from A* with Euclid distance:");
 		display_result(goal);
 		System.out.println("Runtime:");
 		System.out.println("DFS:"+((endTime_dfs-startTime_dfs)/1000000)+"ms");
-		System.out.println("BiBFS:"+((endTime_BiBFS-startTime_BiBFS)/1000000)+"ms");
 		System.out.println("BFS:"+((endTime_BFS-startTime_BFS)/1000000)+"ms");
+		System.out.println("BiBFS:"+((endTime_BiBFS-startTime_BiBFS)/1000000)+"ms");
 		System.out.println("A*_Manhattan:"+((endTime_Astar_1-startTime_Astar_1)/1000000)+"ms");
 		System.out.println("A*_Euclid:"+((endTime_Astar_2-startTime_Astar_2)/1000000)+"ms");
 		
