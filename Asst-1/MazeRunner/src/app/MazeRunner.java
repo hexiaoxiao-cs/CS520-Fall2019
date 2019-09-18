@@ -55,7 +55,7 @@ public class MazeRunner {
 			// Find all neighbors:
 			for (Coord c : grid.getNeighbors(current.x, current.y)) {
 				c.parent = current;
-				if (!fringe.contains(c))
+//				if (!fringe.contains(c))
 					fringe.push(c);
 				grid.occupy(current.x, current.y);
 			}
@@ -108,35 +108,42 @@ public class MazeRunner {
 		Queue<Coord> fringeL = new LinkedList<Coord>();
 		Queue<Coord> fringeR = new LinkedList<Coord>();
 		Queue<Coord> fringePtr = null;
-		fringeL.add(new Coord(0, 0, null));
-		fringeR.add(new Coord(grid.dim-1, grid.dim-1, null));
+		Coord start=new Coord(0,0,null);
+		fringeL.add(start);
+		Coord end = new Coord(grid.dim-1, grid.dim-1, null);
+		fringeR.add(end);
 		
 		Coord currentL = null;
 		Coord currentR = null;
 		Coord overlap=null;
 		Coord overlap2=null;
 		Coord toReturn[]= new Coord[2];
+		Coord[][] currentRm=new Coord[grid.dim][grid.dim];
+		Coord[][] currentLm=new Coord[grid.dim][grid.dim];
+		currentLm[0][0]=start;
+		currentRm[grid.dim-1][grid.dim-1]=end;
 		//left side bfs='8'. right side bfs='9'
 		while (!fringeL.isEmpty()&&!fringeR.isEmpty()&&overlap==null) { 
 			currentL = fringeL.remove();
 			currentR = fringeR.remove();
-			
-			
 			//COLLECT NEIGHBORS FOR LEFT SIDE:
 			List<Coord> neighbors=grid.getNeighbors(currentL.x, currentL.y);
 			neighbors.removeIf((Coord coord)-> grid.getNumAt(coord.x, coord.y)==8);  
 			for (Coord c : neighbors) { 
 				c.parent = currentL;
-				if(!fringeL.contains(c)) {fringeL.add(c);}
-				if (fringeR.contains(new Coord(c.x,c.y,null))){	//FOUND OVERLAPPED.
+				if(!fringeL.contains(c)) {fringeL.add(c);
+				currentLm[c.x][c.y]=c;}
+//if (fringeR.contains(new Coord(c.x,c.y,null))){
+				if (currentRm[c.x][c.y]!=null){	//FOUND OVERLAPPED.
 				 	overlap=c; 
 					fringePtr=fringeR;  
-					while(!fringePtr.isEmpty()&&overlap2==null) {
-						Coord c2=fringePtr.remove(); 
-						if (c2.equals(overlap)) {
-							overlap2=c2; //System.out.println("set overlap2 to "+c2+ "=overlap1="+overlap);
-						}
-					} 
+//					while(!fringePtr.isEmpty()&&overlap2==null) {
+//						Coord c2=fringePtr.remove(); 
+//						if (c2.equals(overlap)) {
+//							overlap2=c2; //System.out.println("set overlap2 to "+c2+ "=overlap1="+overlap);
+//						}
+//					} 
+					overlap2=currentRm[c.x][c.y];
 					break; 
 				}
 				grid.arr[currentL.x][currentL.y]=8;	 
@@ -148,15 +155,18 @@ public class MazeRunner {
 			if(overlap==null)	{
 				for (Coord c : neighbors) {
 					c.parent = currentR;
-					if(!fringeR.contains(c)) {fringeR.add(c);}
-					if (fringeL.contains(new Coord(c.x,c.y,null))){	//FOUND OVERLAPPED.
+					if(!fringeR.contains(c)) {fringeR.add(c);
+					currentRm[c.x][c.y]=c;}
+					//if (fringeL.contains(new Coord(c.x,c.y,null))
+					if (currentLm[c.x][c.y]!=null){	//FOUND OVERLAPPED.
 						overlap=c;
 						fringePtr=fringeL;
-						while(!fringePtr.isEmpty()&&overlap2==null) {
-							Coord c2=fringePtr.remove();  
-							if (c2.equals(overlap))
-								overlap2=c2;
-						} 
+//						while(!fringePtr.isEmpty()&&overlap2==null) {
+//							Coord c2=fringePtr.remove();  
+//							if (c2.equals(overlap))
+//								overlap2=c2;
+//						} 
+						overlap2=currentLm[c.x][c.y];
 						break;
 					}
 					grid.arr[currentR.x][currentR.y]=9;	
