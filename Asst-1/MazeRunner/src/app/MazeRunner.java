@@ -114,7 +114,7 @@ public class MazeRunner {
 			neighbors.removeIf((Coord coord)-> grid.getNumAt(coord.x, coord.y)==8);  
 			for (Coord c : neighbors) { 
 				c.parent = currentL;
-				fringeL.add(c);
+				if(!fringeL.contains(c)) {fringeL.add(c);}
 				if (fringeR.contains(new Coord(c.x,c.y,null))){	//FOUND OVERLAPPED.
 				 	overlap=c; 
 					fringePtr=fringeR;  
@@ -135,7 +135,7 @@ public class MazeRunner {
 			if(overlap==null)	{
 				for (Coord c : neighbors) {
 					c.parent = currentR;
-					fringeR.add(c);
+					if(!fringeR.contains(c)) {fringeR.add(c);}
 					if (fringeL.contains(new Coord(c.x,c.y,null))){	//FOUND OVERLAPPED.
 						overlap=c;
 						fringePtr=fringeL;
@@ -263,7 +263,7 @@ public class MazeRunner {
 			System.out.println((double)(a+1)/1000+","+results[a]);
 		}
 		*/
-		display_algos(100,0.2);
+		display_algos(500,0.2);
 	}
 	
 	public static int[] get_solvability_distribution(int dim,int threshold_t) {
