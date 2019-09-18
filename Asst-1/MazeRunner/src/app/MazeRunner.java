@@ -331,7 +331,7 @@ public class MazeRunner {
 		}
  
 		*/
-		display_algos(50,0.2); 
+		display_algos(15,0.2);
 	}
 	
 	public static int[] get_solvability_distribution(int dim,int threshold_t) {
