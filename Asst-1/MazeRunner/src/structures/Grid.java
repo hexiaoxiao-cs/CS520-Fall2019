@@ -106,7 +106,7 @@ public class Grid {
 		if (isFree(x-1,y)) { list.add(new Coord(x-1,y,null));}
 		if (isFree(x,y-1)) {	list.add(new Coord(x,y-1,null));}
 		
-		return list.stream().distinct().collect(Collectors.toList());//remove duplicates
+		return list;//list.stream().distinct().collect(Collectors.toList());//remove duplicates.
 		
 			
 		
@@ -125,6 +125,27 @@ public class Grid {
 	}
 	public int getNumAt(int x,int y) {
 		return arr[x][y];
+	}
+	
+	
+	public Grid mate(Grid p2) {/*
+		if (p2.dim!=p1.dim) return null;
+		final int numSquaresFromP1=(int)Math.random()*((int)(p1.dim*p1.dim*0.75))/(dim*dim);
+		Grid child=new Grid(0,p1.dim);
+		
+		double rand=((double)(Math.random()*1000)+1)/1000; // System.out.println(rand+" "+p);
+		
+		
+		
+		int randX=(int)Math.random()*p1.dim;
+		int randY=(int)Math.random()*p1.dim;
+		
+		int 
+			
+			return child;*/return null;
+			
+		}
+		
 	}
 	 
 	
