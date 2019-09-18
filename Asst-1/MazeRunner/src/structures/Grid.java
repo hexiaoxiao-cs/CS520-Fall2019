@@ -142,9 +142,10 @@ public class Grid {
 		
 		int 
 			
-			return child;*/return null;
+			return child;
+		}*/return null;
 			
-		}
+		
 		
 	}
 	 
