@@ -55,7 +55,8 @@ public class MazeRunner {
 			// Find all neighbors:
 			for (Coord c : grid.getNeighbors(current.x, current.y)) {
 				c.parent = current;
-				fringe.push(c);
+				if (!fringe.contains(c))
+					fringe.push(c);
 				grid.occupy(current.x, current.y);
 			}
 			if (grid.isGoal(current.x, current.y)) { // save goal coordinate so we can backtrack later
@@ -330,7 +331,7 @@ public class MazeRunner {
 		}
  
 		*/
-		display_algos(500,0.2); 
+		display_algos(50,0.2); 
 	}
 	
 	public static int[] get_solvability_distribution(int dim,int threshold_t) {
