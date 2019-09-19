@@ -58,7 +58,7 @@ public class MazeRunner {
 			// Find all neighbors:
 			for (Coord c : grid.getNeighbors(current.x, current.y)) {
 				c.parent = current;
-				//if (!fringe.contains(c))
+
 					fringe.push(c);
 				//System.out.println("gfgf");
 				grid.occupy(current.x, current.y);
@@ -112,38 +112,41 @@ public class MazeRunner {
 		Queue<Coord> fringeL = new LinkedList<Coord>();
 		Queue<Coord> fringeR = new LinkedList<Coord>();
 		Queue<Coord> fringePtr = null;
-		fringeL.add(new Coord(0, 0, null));
-		fringeR.add(new Coord(grid.dim-1, grid.dim-1, null));
+		Coord start=new Coord(0,0,null);
+		fringeL.add(start);
+		Coord end = new Coord(grid.dim-1, grid.dim-1, null);
+		fringeR.add(end);
 		
 		Coord currentL = null;
 		Coord currentR = null;
 		Coord overlap=null;
 		Coord overlap2=null;
 		Coord toReturn[]= new Coord[2];
+		Coord[][] currentRm=new Coord[grid.dim][grid.dim];
+		Coord[][] currentLm=new Coord[grid.dim][grid.dim];
+		currentLm[0][0]=start;
+		currentRm[grid.dim-1][grid.dim-1]=end;
 		//left side bfs='8'. right side bfs='9'
 		while (!fringeL.isEmpty()&&!fringeR.isEmpty()&&overlap==null) { 
 			currentL = fringeL.remove();
 			currentR = fringeR.remove();
-			
-			
 			//COLLECT NEIGHBORS FOR LEFT SIDE:
 			List<Coord> neighbors=grid.getNeighbors(currentL.x, currentL.y);
-			neighbors.removeIf((Coord coord)-> grid.getNumAt(coord.x, coord.y)==8);  
+			//neighbors.removeIf((Coord coord)-> grid.getNumAt(coord.x, coord.y)==8);
 			for (Coord c : neighbors) { 
+				if(grid.getNumAt(c.x,c.y)==8) {continue;}
 				c.parent = currentL;
-				if(!fringeL.contains(c)) {fringeL.add(c);}
-				if (fringeR.contains(new Coord(c.x,c.y,null))){	//FOUND OVERLAPPED.
+				if(!fringeL.contains(c)) {fringeL.add(c);
+				currentLm[c.x][c.y]=c;}
+//if (fringeR.contains(new Coord(c.x,c.y,null))){
+				if (currentRm[c.x][c.y]!=null){	//FOUND OVERLAPPED.
 				 	overlap=c; 
 					fringePtr=fringeR;  
-					final Coord tempOverlap=overlap;
-					overlap2=fringePtr.stream().filter((Coord x)->x.equals(tempOverlap)).findFirst().get();
+
+					//final Coord tempOverlap=overlap;
+					//overlap2=fringePtr.stream().filter((Coord x)->x.equals(tempOverlap)).findFirst().get();
 					
-					/*while(!fringePtr.isEmpty()&&overlap2==null) {
-						Coord c2=fringePtr.remove(); 
-						if (c2.equals(overlap)) {
-							overlap2=c2; //System.out.println("set overlap2 to "+c2+ "=overlap1="+overlap);
-						}
-					} */
+					overlap2=currentRm[c.x][c.y]; 
 					break; 
 				}
 				grid.arr[currentL.x][currentL.y]=8;	 
@@ -151,22 +154,19 @@ public class MazeRunner {
 			
 			//COLLECT NEIGHBORS FOR RIGHT SIDE (if we still don't have an overlap):
 			neighbors=grid.getNeighbors(currentR.x, currentR.y);
-			neighbors.removeIf((Coord coord)-> grid.getNumAt(coord.x, coord.y)==9);
+			//neighbors.removeIf((Coord coord)-> grid.getNumAt(coord.x, coord.y)==9);
 			if(overlap==null)	{
 				for (Coord c : neighbors) {
+					if(grid.getNumAt(c.x, c.y)==9) {continue;}
 					c.parent = currentR;
-					if(!fringeR.contains(c)) {fringeR.add(c);}
-					if (fringeL.contains(new Coord(c.x,c.y,null))){	//FOUND OVERLAPPED.
+					if(!fringeR.contains(c)) {fringeR.add(c);
+					currentRm[c.x][c.y]=c;}
+					//if (fringeL.contains(new Coord(c.x,c.y,null))
+					if (currentLm[c.x][c.y]!=null){	//FOUND OVERLAPPED.
 						overlap=c;
 						fringePtr=fringeL;
-						
-						final Coord tempOverlap=overlap;
-						overlap2=fringePtr.stream().filter((Coord x)->x.equals(tempOverlap)).findFirst().get();
-						/*while(!fringePtr.isEmpty()&&overlap2==null) {
-							Coord c2=fringePtr.remove();  
-							if (c2.equals(overlap))
-								overlap2=c2;
-						} */
+  
+						overlap2=currentLm[c.x][c.y]; 
 						break;
 					}
 					grid.arr[currentR.x][currentR.y]=9;	
@@ -273,7 +273,65 @@ public class MazeRunner {
 		//grid.showPath(goal);
 		return goal; 
 	}
-
+	public static Coord Astar_ULLR(boolean isManhattan) {
+		PriorityQueue<Coord> open_set = new PriorityQueue<Coord>();
+		open_set.add(new Coord(0,grid.dim-1,null));
+		Coord current = null;
+		Coord goal = null;
+		double curr_weight;//current weight(for priority)
+		double curr_weight_to_start;//current weight from the starting point
+		Coord[][] closed_set=new Coord[grid.dim][grid.dim]; //a better way to store the closed set such that O(1) access with give x,y coordinate
+		while(!open_set.isEmpty()) {
+			current = open_set.poll();//removed from open
+			//System.out.println("Picked"+current.x+","+current.y+"point with priority"+current.weight);
+			closed_set[current.x][current.y]=current;//put current to the closed set
+			if(current.x==grid.dim-1&&current.y==0) {//if Goal Just go
+				goal=current;
+				break;
+			}
+ 
+			for (Coord c: grid.getNeighbors(current.x, current.y)) {
+				c.parent = current;//first, set path
+				//check whether in the closed set or (wall, burnt)
+				if(closed_set[c.x][c.y]!=null||grid.isFree(c.x, c.y)==false) {
+					continue;
+				}
+				//open_set.
+				//Calculate heuristic function and the distance between current point and previous point
+				if(isManhattan==true){
+					curr_weight_to_start=current.weight_to_start+Manhattan(current.x,current.y,c.x,c.y);//g(x) Actual distance between new point to the old point
+					
+					curr_weight = curr_weight_to_start+Manhattan(current.x,current.y,grid.dim-1,0);//g(x)+h(x)
+				}
+				else {
+					curr_weight_to_start=current.weight_to_start+Euclid(current.x,current.y,c.x,c.y);//g(x) Actual distance between new point to the old point
+					curr_weight = curr_weight_to_start+Euclid(current.x,current.y,grid.dim-1,0);
+				}
+				//System.out.println(curr_weight_to_start);
+				//System.out.println(curr_weight+"\n");
+				c.weight=curr_weight;
+				c.weight_to_start=curr_weight_to_start;
+				if(open_set.contains(c)) {
+					if(open_set.removeIf((t)->t.weight>c.weight)==true) {//if in the open set it has a worse node than the one being inserted
+						//sth being deleted
+						open_set.add(c);
+					}
+					//else not doing anything, which is keep the node in the open_set since it is currently with a better route
+				}
+				else {
+					//does not have c in open set
+					open_set.add(c);
+				}
+				
+				
+				//fringe.add(c);
+				
+			}
+			
+		}
+		//grid.showPath(goal);
+		return goal; 
+	}
 	private static double Euclid(int x1, int y1, int x2, int y2) { // find euclid distance
 		return Math.sqrt((x1 - x2) * (x1 - x2) + (y1 - y2) * (y1 - y2));
 		
@@ -281,7 +339,7 @@ public class MazeRunner {
 	}
 
 	private static double Manhattan(int x1, int y1, int x2, int y2) { // find manhattan distance
-		return Math.sqrt(Math.abs(x1 - x2) + Math.abs(y1 - y2));
+		return Math.abs(x1 - x2) + Math.abs(y1 - y2);
 	}
 	
 	public static Grid getHardestMaze( int dim, double prob, char which) {//uses genetic algorithm model
@@ -364,11 +422,7 @@ public class MazeRunner {
 		System.out.println(hardestIndex+" is hardest index. value="+hardestValue);
 		return grids.get(hardestIndex); //get the hardest maze in the last generation.
 	}
-	
-	
-	
-	
-	
+
 	
 	 
 	
@@ -378,6 +432,39 @@ public class MazeRunner {
 		grid.showPath(goal);
 		grid.show(); 
 		grid.clearOccupied();
+	}
+	
+	public static boolean baseCase_onFire(int dim, double p_maze, double p_burn) {
+		Coord goal = null;
+		Coord prev=null;
+		Coord next=null;
+		Coord curr=null;
+		while(goal==null) {//finding a solvable map
+			grid = new Grid(dim,p_maze);
+			goal = Astar(false);
+			if(Astar_ULLR(false)==null) {goal=null;continue;}
+		}
+		grid.p_burn=p_burn;
+		//back track to get a list of points of nearest route
+		curr=goal;
+		while(curr!=null) {
+			next=curr.parent;
+			curr.parent=prev;
+			prev=curr;
+			curr=next;
+		}
+		goal=prev;
+		grid.setFire(0, grid.dim-1);//UL set fire
+		while(goal!=null) {
+			if(grid.isBurnt(goal.x, goal.y)) {return false;}
+			goal=goal.parent;
+			grid.updateGrid();
+		}
+		return true;
+//		for(Coord c = goal;c!=null;c=c.parent ) {
+//			System.out.println("("+c.x+","+c.y+")");
+//		}
+		
 	}
 	
 	public static void main(String args[]) {
@@ -401,14 +488,39 @@ public class MazeRunner {
 		}
  
 		*/
+ 
 		//grid=new Grid(50,0.1);
 		//DFS();grid.show();
 		display_algos(500,0.2); 
 		
+ 
+		//display_algos(100,0.2);
+//		grid=new Grid(15,0.2);
+//		grid.p_burn=0.3;
+//		grid.setFire(14, 0);
+//		for(int i = 0; i<50;i++) {
+//			grid.show();
+//			grid.updateGrid();
+//		}
 		
-		
+		//System.out.println(baseCase_onFire(150,0.2,0.2));
+		get_avg_success(150,10000);
 	}
-	
+	public static void get_avg_success(int dim,int thres) {
+		 int[] counter = new int[1000];
+		 for(int prob = 0; prob<=998;prob++) {
+			 System.out.println(prob);
+			 for(int counts=0;counts<=thres;counts++) {
+				 if(baseCase_onFire(dim,0.26,(prob+1)/1000)==true) {
+					 counter[prob]++;
+				 }
+			 }
+			 
+		 }
+		 for(int prob=0;prob<=998;prob++) {
+			 System.out.println((prob+1)/1000+","+(double) (counter[prob]/thres));
+		 } 
+	}
 	public static int[] get_solvability_distribution(int dim,int threshold_t) {
 		//for this function we will test fixed dim, increasing prob by 0.001 from 0.01(0.00 is definite solvable) using A* euclid (fastest algo)
 		int[] solved = new int[1000];
@@ -484,8 +596,6 @@ public class MazeRunner {
 		System.out.println("BiBFS:"+((endTime_BiBFS-startTime_BiBFS)/1000000)+"ms");
 		System.out.println("A*_Manhattan:"+((endTime_Astar_1-startTime_Astar_1)/1000000)+"ms");
 		System.out.println("A*_Euclid:"+((endTime_Astar_2-startTime_Astar_2)/1000000)+"ms");
-		
-		
 		
 	}
 
