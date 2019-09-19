@@ -6,7 +6,7 @@ import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
-public class MazeRunner {
+public class MazeRunner{
 
 	public static Grid grid;
  
@@ -483,6 +483,23 @@ public class MazeRunner {
 	}
 	
 	public static void main(String args[]) {
+		//grid=new Grid(500,0.2);
+		//DFS();
+		
+//		grid=getHardestMaze( 100, 0.2, 'd');
+//		System.out.println("done.");
+//		grid.clearOccupied();
+//		grid.show();
+//		grid.showPath(DFS());
+//		grid.show();
+//		long startTime_dfs = System.nanoTime();
+//		baseCase_onFire(50,0.26,0.001);
+//		long endTime_dfs = System.nanoTime();
+//		System.out.println("BASECASE:"+((endTime_dfs-startTime_dfs)/1000000)+"ms");
+		//grid=getHardestMaze( 10, 0.2, 'd');
+		//grid=new Grid(20,0.05);
+		//grid.showPath(Astar(true));
+		//grid.show();
 		grid=getHardestMaze( 100, 0.2, 'a');
 		grid.clearOccupied();
 		grid.show();
@@ -521,23 +538,24 @@ public class MazeRunner {
 //		}
 		
 		//System.out.println(baseCase_onFire(150,0.2,0.2));
-		//get_avg_success(150,10000);
+		//get_avg_success(50,1000,2);
 	}
-	public static void get_avg_success(int dim,int thres) {
+	public static void get_avg_success(int dim,int thres,int seg) {
 		 int[] counter = new int[1000];
-		 for(int prob = 0; prob<=998;prob++) {
-			 System.out.println(prob);
-			 for(int counts=0;counts<=thres;counts++) {
-				 if(baseCase_onFire(dim,0.26,(prob+1)/1000)==true) {
+		 for(int prob = seg*166; prob<(seg+1)*166;prob++) {
+			 //System.out.println(prob);
+			 for(int counts=0;counts<thres;counts++) {
+				 
+				 if(baseCase_onFire(dim,0.21,(double)(prob+1)/1000)==true) {
 					 counter[prob]++;
 				 }
 			 }
-			 
+			 System.out.println((double)(prob)/1000+","+counter[prob]);
 		 }
-		 for(int prob=0;prob<=998;prob++) {
-			 System.out.println((prob+1)/1000+","+(double) (counter[prob]/thres));
-		 } 
+
 	}
+	
+	
 	public static int[] get_solvability_distribution(int dim,int threshold_t) {
 		//for this function we will test fixed dim, increasing prob by 0.001 from 0.01(0.00 is definite solvable) using A* euclid (fastest algo)
 		int[] solved = new int[1000];
@@ -552,11 +570,14 @@ public class MazeRunner {
 		}
 		return solved;
 	}
-	public static int[] get_expected_length_distribution(int dim, int threshold_t) {
+	public static void get_expected_length_distribution(int dim, int threshold_t) {
 		//for this function we will test fixed dim, increasing prob by 0.001 in a given 
 		int[] length = new int[2600];
-		
-		return null;
+		int counter;
+		for(int prob=1;prob<=999;prob++) {
+			
+		}
+		return;
 	}
 	public static void display_algos(int dim, double prob) {
 /*dim = 8;
@@ -615,5 +636,6 @@ public class MazeRunner {
 		System.out.println("A*_Euclid:"+((endTime_Astar_2-startTime_Astar_2)/1000000)+"ms");
 		
 	}
+
 
 }
