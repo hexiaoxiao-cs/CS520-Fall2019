@@ -19,7 +19,7 @@ public class Grid {
 	public final static int StartNum=-2;
 	public final static int EndNum=-3;
 	
-	public final String Wall="+";//-1   //(char)0x2593+""; 
+	public final String Wall="+";//-1   //(char)0x2593+""; //
 	public final String Free=" ";//0
 	public final String Occupied="*";//1
 	public final String Burnt="&";//2
@@ -178,14 +178,17 @@ public class Grid {
 	public void mutate(double mutationStrength) {
 		//change a 10% of squares.
 		int amountOfChanges=(int) Math.ceil(dim*dim*mutationStrength);
-		for(int i=0;i<amountOfChanges;i++) {
+		int i=0;
+		while(i<amountOfChanges) {
 			int x=(int)(Math.random()*dim); 
 			int y=(int)(Math.random()*dim); 
-			
-			if (arr[x][y]==WallNum) {
-				arr[x][y]=FreeNum;
-			}else if(arr[x][y]==FreeNum) {
-				arr[x][y]=WallNum;
+			int newX=x+(int)(Math.random()*3-1); 
+			int newY=y+(int)(Math.random()*3-1); 
+			if (arr[x][y]==WallNum && newX>=0&&newX<dim &&newY>=0 && newY<dim  ) {
+				int swap=arr[x][y];
+				arr[x][y]=arr[newX][newY];
+				arr[newX][newY]=swap;
+				i++;
 			}
 		}
 		

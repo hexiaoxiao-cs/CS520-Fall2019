@@ -238,7 +238,7 @@ public class MazeRunner {
 					
 					curr_weight = curr_weight_to_start+Manhattan(current.x,current.y,grid.dim-1,grid.dim-1);//g(x)+h(x)
 				 
-				
+					
 				}
 				else {
 					curr_weight_to_start=current.weight_to_start+Euclid(current.x,current.y,c.x,c.y);//g(x) Actual distance between new point to the old point
@@ -252,7 +252,9 @@ public class MazeRunner {
 					if(open_set.removeIf((t)->t.weight>c.weight)==true) {//if in the open set it has a worse node than the one being inserted
 						//sth being deleted
 						open_set.add(c);
-						
+						if (isManhattan)
+							A_manhattan_numExpansions++;
+							
 						
 					}
 					//else not doing anything, which is keep the node in the open_set since it is currently with a better route
@@ -260,6 +262,9 @@ public class MazeRunner {
 				else {
 					//does not have c in open set
 					open_set.add(c);
+					if (isManhattan)
+						A_manhattan_numExpansions++;
+					
 					
 					
 				}
@@ -344,10 +349,14 @@ public class MazeRunner {
 	
 	public static Grid getHardestMaze( int dim, double prob, char which) {//uses genetic algorithm model
 																		//which: DFS='d'. A star='a'
-		final int pop=100;	//population
-		final int numMate=10;
-		final int numGenerations=60;
-		final int mutationFreq=1 ;	//for every 'mutationFreq' generations, mutate a board.
+		
+		Grid hardestSoFar = null;
+		int hardestVal=0;
+		
+		final int pop=50;	//population
+		final int numMate=2;
+		final int numGenerations=500;
+		final int mutationFreq=2 ;	//for every 'mutationFreq' generations, mutate a board.
 		
 		List<Grid> futureGen=new ArrayList<Grid>();
 		List<Integer> hardness=new ArrayList<Integer>();
@@ -365,12 +374,12 @@ public class MazeRunner {
 			}
 		}
 		//Breed the grids:
-		for(int i=0;i<numGenerations;i++) { System.out.println("i="+i);
+		for(int i=0;i<numGenerations;i++) { System.out.println("generation="+i);
 			futureGen.clear();
 			hardness.clear();
 			 
 			if (i%mutationFreq==0) {
-				grids.get((int)( Math.random()*grids.size())).mutate(0.2);
+				grids.get((int)( Math.random()*grids.size())).mutate(0.5);
 			}
 			
 			while(!grids.isEmpty()) {
@@ -414,21 +423,24 @@ public class MazeRunner {
 					grids.add(futureGen.get(ind));  
 				}
 			}  
-			System.out.println("hardest so far="+hardness.stream().sorted(sortHighToLow).findFirst().get());
+			
+			int hardestValue=hardness.stream().sorted(sortHighToLow).findFirst().get();
+			if (hardestValue>hardestVal) {
+				int hardestIndex=hardness.indexOf(hardestValue);
+				hardestSoFar=futureGen.get(hardestIndex); 
+				hardestVal=hardestValue;
+				System.out.println("Discovered new Hardest="+hardestVal);
+			}
+			
 			
 			
 		}
-		 hardness.stream().sorted(sortHighToLow).forEach((s)->System.out.println(s+" "+hardness.indexOf(s)));
+		// hardness.stream().sorted(sortHighToLow).forEach((s)->System.out.println(s+" "+hardness.indexOf(s)));
 		
-		int hardestValue=hardness.stream().sorted(sortHighToLow).findFirst().get();
-		int hardestIndex=hardness.indexOf(hardestValue);
-		System.out.println(hardestIndex+" is hardest index. value="+hardestValue);
-		return futureGen.get(hardestIndex); //get the hardest maze in the last generation.
+		
+		return hardestSoFar;//get the hardest maze in the last generation.
 	}
 
-	
-	 
-	
 	public static void display_result(Coord goal) {
  
 		grid.clearOccupied();
@@ -471,19 +483,16 @@ public class MazeRunner {
 	}
 	
 	public static void main(String args[]) {
-		//grid=new Grid(500,0.2);
-		//DFS();
-		
+		grid=getHardestMaze( 100, 0.2, 'a');
+		grid.clearOccupied();
+		grid.show();
+		grid.showPath(Astar(true));
+		grid.show();
 		grid=getHardestMaze( 100, 0.2, 'd');
-		System.out.println("done.");
 		grid.clearOccupied();
 		grid.show();
 		grid.showPath(DFS());
 		grid.show();
-		//grid=getHardestMaze( 10, 0.2, 'd');
-		//grid=new Grid(20,0.05);
-		//grid.showPath(Astar(true));
-		//grid.show();
 		
 		
 		
