@@ -260,7 +260,65 @@ public class MazeRunner {
 		//grid.showPath(goal);
 		return goal; 
 	}
-
+	public static Coord Astar_ULLR(boolean isManhattan) {
+		PriorityQueue<Coord> open_set = new PriorityQueue<Coord>();
+		open_set.add(new Coord(0,grid.dim-1,null));
+		Coord current = null;
+		Coord goal = null;
+		double curr_weight;//current weight(for priority)
+		double curr_weight_to_start;//current weight from the starting point
+		Coord[][] closed_set=new Coord[grid.dim][grid.dim]; //a better way to store the closed set such that O(1) access with give x,y coordinate
+		while(!open_set.isEmpty()) {
+			current = open_set.poll();//removed from open
+			//System.out.println("Picked"+current.x+","+current.y+"point with priority"+current.weight);
+			closed_set[current.x][current.y]=current;//put current to the closed set
+			if(current.x==grid.dim-1&&current.y==0) {//if Goal Just go
+				goal=current;
+				break;
+			}
+ 
+			for (Coord c: grid.getNeighbors(current.x, current.y)) {
+				c.parent = current;//first, set path
+				//check whether in the closed set or (wall, burnt)
+				if(closed_set[c.x][c.y]!=null||grid.isFree(c.x, c.y)==false) {
+					continue;
+				}
+				//open_set.
+				//Calculate heuristic function and the distance between current point and previous point
+				if(isManhattan==true){
+					curr_weight_to_start=current.weight_to_start+Manhattan(current.x,current.y,c.x,c.y);//g(x) Actual distance between new point to the old point
+					
+					curr_weight = curr_weight_to_start+Manhattan(current.x,current.y,grid.dim-1,0);//g(x)+h(x)
+				}
+				else {
+					curr_weight_to_start=current.weight_to_start+Euclid(current.x,current.y,c.x,c.y);//g(x) Actual distance between new point to the old point
+					curr_weight = curr_weight_to_start+Euclid(current.x,current.y,grid.dim-1,0);
+				}
+				//System.out.println(curr_weight_to_start);
+				//System.out.println(curr_weight+"\n");
+				c.weight=curr_weight;
+				c.weight_to_start=curr_weight_to_start;
+				if(open_set.contains(c)) {
+					if(open_set.removeIf((t)->t.weight>c.weight)==true) {//if in the open set it has a worse node than the one being inserted
+						//sth being deleted
+						open_set.add(c);
+					}
+					//else not doing anything, which is keep the node in the open_set since it is currently with a better route
+				}
+				else {
+					//does not have c in open set
+					open_set.add(c);
+				}
+				
+				
+				//fringe.add(c);
+				
+			}
+			
+		}
+		//grid.showPath(goal);
+		return goal; 
+	}
 	private static double Euclid(int x1, int y1, int x2, int y2) { // find euclid distance
 		return Math.sqrt((x1 - x2) * (x1 - x2) + (y1 - y2) * (y1 - y2));
 		
@@ -317,11 +375,7 @@ public class MazeRunner {
 		
 		return grids.get(0); //idk
 	}
-	
-	
-	
-	
-	
+
 	
 	// MAIN METHOD:
 	
@@ -331,6 +385,39 @@ public class MazeRunner {
 		grid.showPath(goal);
 		grid.show(); 
 		grid.clearOccupied();
+	}
+	
+	public static boolean baseCase_onFire(int dim, double p_maze, double p_burn) {
+		Coord goal = null;
+		Coord prev=null;
+		Coord next=null;
+		Coord curr=null;
+		while(goal==null) {//finding a solvable map
+			grid = new Grid(dim,p_maze);
+			goal = Astar(false);
+			if(Astar_ULLR(false)==null) {goal=null;continue;}
+		}
+		grid.p_burn=p_burn;
+		//back track to get a list of points of nearest route
+		curr=goal;
+		while(curr!=null) {
+			next=curr.parent;
+			curr.parent=prev;
+			prev=curr;
+			curr=next;
+		}
+		goal=prev;
+		grid.setFire(0, grid.dim-1);//UL set fire
+		while(goal!=null) {
+			if(grid.isBurnt(goal.x, goal.y)) {return false;}
+			goal=goal.parent;
+			grid.updateGrid();
+		}
+		return true;
+//		for(Coord c = goal;c!=null;c=c.parent ) {
+//			System.out.println("("+c.x+","+c.y+")");
+//		}
+		
 	}
 	
 	public static void main(String args[]) {
@@ -352,8 +439,24 @@ public class MazeRunner {
 //			grid.updateGrid();
 //		}
 		
+		//System.out.println(baseCase_onFire(150,0.2,0.2));
+		get_avg_success(150,10000);
 	}
-	
+	public static void get_avg_success(int dim,int thres) {
+		 int[] counter = new int[1000];
+		 for(int prob = 0; prob<=998;prob++) {
+			 System.out.println(prob);
+			 for(int counts=0;counts<=thres;counts++) {
+				 if(baseCase_onFire(dim,0.26,(prob+1)/1000)==true) {
+					 counter[prob]++;
+				 }
+			 }
+			 
+		 }
+		 for(int prob=0;prob<=998;prob++) {
+			 System.out.println((prob+1)/1000+","+(double) (counter[prob]/thres));
+		 }
+	}
 	public static int[] get_solvability_distribution(int dim,int threshold_t) {
 		//for this function we will test fixed dim, increasing prob by 0.001 from 0.01(0.00 is definite solvable) using A* euclid (fastest algo)
 		int[] solved = new int[1000];

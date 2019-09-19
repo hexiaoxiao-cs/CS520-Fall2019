@@ -117,6 +117,8 @@ public class Grid {
 	public void updateGrid() {
 		int x=0,y=0;
 		int counter=0;
+		double rand;
+		double prob_cb;
 		for(x=0;x<=dim-1;x++) {
 			for(y=0;y<=dim-1;y++) {
 				
@@ -126,8 +128,9 @@ public class Grid {
 					if(isBurnt(x+1,y)) {counter++;}
 					if(isBurnt(x,y-1)) {counter++;}
 					if(isBurnt(x,y+1)) {counter++;}
-					double rand=((double)(Math.random()*1000)+1)/1000;
-					double prob_cb=1-Math.pow((1-p_burn), counter);
+					if(counter==0) {continue;}
+					rand=((double)(Math.random()*1000)+1)/1000;
+					prob_cb=1-Math.pow((1-p_burn), counter);
 					if(rand<prob_cb) {
 						setFire(x,y);
 					}
