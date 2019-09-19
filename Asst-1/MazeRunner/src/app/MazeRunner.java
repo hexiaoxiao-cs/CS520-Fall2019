@@ -2,6 +2,7 @@ package app;
 
 import structures.*;
 import java.util.*;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -11,8 +12,9 @@ public class MazeRunner {
  
 	//public static int dim;
 	//public static double prob;
-	public static int DFS_max_fringe_size;
-	public static int A_manhattan_max_nodes_expanded;
+	public static int DFS_fringe_size=0;
+	public static int A_manhattan_numExpansions=0;
+	//public static int A_manhattan_max_nodes_expanded=0;
  
 
 	public static class Coord implements Comparable<Coord> { // coordinate object. used in fringe.
@@ -46,6 +48,7 @@ public class MazeRunner {
 	}
 
 	public static Coord DFS() {
+		DFS_fringe_size=0;
 		Stack<Coord> fringe = new Stack<Coord>();
 		fringe.push(new Coord(0, 0, null));
 		Coord current = null;
@@ -55,16 +58,17 @@ public class MazeRunner {
 			// Find all neighbors:
 			for (Coord c : grid.getNeighbors(current.x, current.y)) {
 				c.parent = current;
-				if (!fringe.contains(c))
+				//if (!fringe.contains(c))
 					fringe.push(c);
+				//System.out.println("gfgf");
 				grid.occupy(current.x, current.y);
 			}
 			if (grid.isGoal(current.x, current.y)) { // save goal coordinate so we can backtrack later
 				goal = current;
 			}
 			
-			if (DFS_max_fringe_size<fringe.size())
-				DFS_max_fringe_size=fringe.size();
+			if (DFS_fringe_size<fringe.size())	//keep track of how large the fringe gets.
+				DFS_fringe_size=fringe.size();
 			
 		}
 		// Retrace steps to show path:
@@ -131,12 +135,15 @@ public class MazeRunner {
 				if (fringeR.contains(new Coord(c.x,c.y,null))){	//FOUND OVERLAPPED.
 				 	overlap=c; 
 					fringePtr=fringeR;  
-					while(!fringePtr.isEmpty()&&overlap2==null) {
+					final Coord tempOverlap=overlap;
+					overlap2=fringePtr.stream().filter((Coord x)->x.equals(tempOverlap)).findFirst().get();
+					
+					/*while(!fringePtr.isEmpty()&&overlap2==null) {
 						Coord c2=fringePtr.remove(); 
 						if (c2.equals(overlap)) {
 							overlap2=c2; //System.out.println("set overlap2 to "+c2+ "=overlap1="+overlap);
 						}
-					} 
+					} */
 					break; 
 				}
 				grid.arr[currentL.x][currentL.y]=8;	 
@@ -152,17 +159,23 @@ public class MazeRunner {
 					if (fringeL.contains(new Coord(c.x,c.y,null))){	//FOUND OVERLAPPED.
 						overlap=c;
 						fringePtr=fringeL;
-						while(!fringePtr.isEmpty()&&overlap2==null) {
+						
+						final Coord tempOverlap=overlap;
+						overlap2=fringePtr.stream().filter((Coord x)->x.equals(tempOverlap)).findFirst().get();
+						/*while(!fringePtr.isEmpty()&&overlap2==null) {
 							Coord c2=fringePtr.remove();  
 							if (c2.equals(overlap))
 								overlap2=c2;
-						} 
+						} */
 						break;
 					}
 					grid.arr[currentR.x][currentR.y]=9;	
 				}
 			} 
 		} 
+		
+		
+		
 		//grid.show();
 		//System.out.println("overlap="+overlap+"=overlap2="+overlap2);
 		
@@ -183,6 +196,7 @@ public class MazeRunner {
 //		
 //		grid.showPath(overlap2);  
 //		
+		
 		toReturn[0]=overlap;
 		toReturn[1]=overlap2;
 		return toReturn;
@@ -190,6 +204,8 @@ public class MazeRunner {
 	//Astar:
 	//Arguments: 1. which weighting? false for euclid, true for Manhattan
 	public static Coord Astar(boolean isManhattan) {
+		A_manhattan_numExpansions=0;
+		
 		PriorityQueue<Coord> open_set = new PriorityQueue<Coord>();
 		open_set.add(new Coord(0,0,null));
 		Coord current = null;
@@ -201,6 +217,9 @@ public class MazeRunner {
 			current = open_set.poll();//removed from open
 			//System.out.println("Picked"+current.x+","+current.y+"point with priority"+current.weight);
 			closed_set[current.x][current.y]=current;//put current to the closed set
+			
+			
+			
 			if(grid.isGoal(current.x, current.y)) {//if Goal Just go
 				goal=current;
 				break;
@@ -218,6 +237,9 @@ public class MazeRunner {
 					curr_weight_to_start=current.weight_to_start+Manhattan(current.x,current.y,c.x,c.y);//g(x) Actual distance between new point to the old point
 					
 					curr_weight = curr_weight_to_start+Manhattan(current.x,current.y,grid.dim-1,grid.dim-1);//g(x)+h(x)
+				
+					 
+				
 				}
 				else {
 					curr_weight_to_start=current.weight_to_start+Euclid(current.x,current.y,c.x,c.y);//g(x) Actual distance between new point to the old point
@@ -231,12 +253,15 @@ public class MazeRunner {
 					if(open_set.removeIf((t)->t.weight>c.weight)==true) {//if in the open set it has a worse node than the one being inserted
 						//sth being deleted
 						open_set.add(c);
+						 
+						
 					}
 					//else not doing anything, which is keep the node in the open_set since it is currently with a better route
 				}
 				else {
 					//does not have c in open set
 					open_set.add(c);
+					
 				}
 				
 				
@@ -260,50 +285,84 @@ public class MazeRunner {
 	}
 	
 	public static Grid getHardestMaze( int dim, double prob, char which) {//uses genetic algorithm model
-		//which: DFS='d'. A star='a'
+																		//which: DFS='d'. A star='a'
+		final int pop=100;	//population
+		final int numMate=5;
+		final int numGenerations=200;
+		final int mutationFreq=5;	//for every 'mutationFreq' generations, mutate a board.
 		
-		final int pop=50;	//population
-		final int numMate=4;
-		final int numGenerations=1000;
-		
-		List<Grid> grids=new ArrayList<Grid>();
+		List<Grid> futureGen=new ArrayList<Grid>();
 		List<Integer> hardness=new ArrayList<Integer>();
+			
+		List<Grid> grids=new ArrayList<Grid>();
+		Comparator<Integer> sortHighToLow= (Integer num1,Integer num2)-> num2-num1;
+		//ancestor generation:
 		while(grids.size()<pop) {
 			grid=new Grid(dim,prob);
-			if (DFS()!=null)	//if solvable
+			if (DFS()!=null)	{//if solvable
+				grid.clearOccupied();
 				grids.add(grid);
+			}
 		}
-		//Breed the grids
-		for(int i=0;i<numGenerations;i++) { 
-
-			List<Grid> futureGen=new ArrayList<Grid>();
+		//Breed the grids:
+		for(int i=0;i<numGenerations;i++) { System.out.println("i="+i);
+			futureGen.clear();
+			hardness.clear();
+			 
+			
 			while(!grids.isEmpty()) {
-				for(int j=0;j<numMate;j++) {//Mate parent pairs with n children each
-					//grid=mate(grids.remove(0),grids.remove(1));
-					if (DFS()!=null)	{//if solvable, record child and record hardness.
+				Grid parent1=grids.remove(0);
+				Grid parent2=grids.remove(0); 
+				int childrenCount=0;
+				while(childrenCount<numMate) {//Mate parent pairs with n children each
+					grid=parent1.mate(parent2);//grid.show();
+					Coord goal=null;
+					System.out.println("g1");
+					if (which=='d') {
+						goal=DFS(); 
+					}else
+						goal=Astar(true);
+					System.out.println("g2");grid.clearOccupied();
+					grid.showPath(goal);grid.show();
+					if (goal!=null) {
 						futureGen.add(grid);
-						if (which=='d') 
-							DFS();
-						else
-							Astar(true);
-						hardness.add(DFS_max_fringe_size); 
-						
+						if (which=='d') {
+							hardness.add(DFS_fringe_size);  
+						}else {
+							hardness.add(A_manhattan_numExpansions);  
+						}
+						childrenCount++;
 					}
 				}
 			}
-			List<Integer> arr=hardness.stream().sorted((Integer num1,Integer num2)-> num1-num2).limit(pop).collect(Collectors.toList());//..stream().sorted().toArray();//[hardness.size() / 2]);
-			int median=arr.get(arr.size()-1);
-			//take the hardest for new population:
+			//every 2 generations, mutate a board:
+			if (i%mutationFreq==0) {
+				futureGen.get((int)( Math.random()*futureGen.size())).mutate(0.2);
+			}
+			
+			
+			//Now there are pop/2*numMate children.
+			//hardness.stream().sorted(sortHighToLow).forEach(x->System.out.print(x+" "));
+			
+			//Get threshold hardest value to kill off easy children:
+			List<Integer> list=hardness.stream().sorted(sortHighToLow).collect(Collectors.toList());
+			int threshold=list.get(pop-1);//System.out.println("thres= "+threshold);
+			//Replace with new population:
 			grids.clear();
-			for(int ind=0;ind<pop;ind++) {
-				if (hardness.get(ind)>median) {
-					grids.add(futureGen.get(ind));
+			for(int ind=0;ind<futureGen.size()&&grids.size()<pop;ind++) {
+				if (hardness.get(ind)>=threshold) {
+					grids.add(futureGen.get(ind)); 
 				}
-			} 
+			}  
+			System.out.println("hardest so far="+hardness.stream().sorted(sortHighToLow).findFirst().get());
+			
+			
 		}
 		
-		
-		return grids.get(0); //idk
+		int hardestValue=hardness.stream().sorted(sortHighToLow).findFirst().get();
+		int hardestIndex=hardness.indexOf(hardestValue);
+		System.out.println(hardestIndex+" is hardest index. value="+hardestValue);
+		return grids.get(hardestIndex); //get the hardest maze in the last generation.
 	}
 	
 	
@@ -311,7 +370,7 @@ public class MazeRunner {
 	
 	
 	
-	// MAIN METHOD:
+	 
 	
 	public static void display_result(Coord goal) {
  
@@ -322,6 +381,17 @@ public class MazeRunner {
 	}
 	
 	public static void main(String args[]) {
+		//grid=new Grid(50,0.1);
+		/*grid=getHardestMaze( 10, 0.2, 'd');
+		grid.showPath(Astar(true));
+		grid.show();
+		//grid=getHardestMaze( 50, 0.2, 'a');
+		//grid=new Grid(20,0.05);
+		//grid.showPath(Astar(true));
+		//grid.show();
+		
+		*/
+		
 		
 		//System.out.println(get_solvability_distribution(17,100));
 		/*
@@ -331,7 +401,12 @@ public class MazeRunner {
 		}
  
 		*/
-		display_algos(50,0.2); 
+		//grid=new Grid(50,0.1);
+		//DFS();grid.show();
+		display_algos(500,0.2); 
+		
+		
+		
 	}
 	
 	public static int[] get_solvability_distribution(int dim,int threshold_t) {
@@ -388,6 +463,7 @@ public class MazeRunner {
 		goals=BiBFS();
 		long endTime_BiBFS=System.nanoTime();
 		System.out.println("Result from Bidirection BFS:");
+		grid.clearOccupied();
 		grid.showPath(goals[0]);
 		grid.showPath(goals[1]);
 		grid.show();

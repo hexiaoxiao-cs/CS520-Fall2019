@@ -19,7 +19,7 @@ public class Grid {
 	public final static int StartNum=-2;
 	public final static int EndNum=-3;
 	
-	public final String Wall="+";//-1
+	public final String Wall="+";//-1   //(char)0x2593+""; 
 	public final String Free=" ";//0
 	public final String Occupied="*";//1
 	public final String Burnt="&";//2
@@ -128,24 +128,36 @@ public class Grid {
 	}
 	
 	
-	public Grid mate(Grid p2) {/*
-		if (p2.dim!=p1.dim) return null;
-		final int numSquaresFromP1=(int)Math.random()*((int)(p1.dim*p1.dim*0.75))/(dim*dim);
-		Grid child=new Grid(0,p1.dim);
-		
-		double rand=((double)(Math.random()*1000)+1)/1000; // System.out.println(rand+" "+p);
-		
-		
-		
-		int randX=(int)Math.random()*p1.dim;
-		int randY=(int)Math.random()*p1.dim;
-		
-		int 
+	public Grid mate(Grid p2) {//p1 is 'this' instance.
+		if (dim!=p2.dim) return null;
+		 double percentage= ((double)(Math.random()*1000)+1)/1000; //This is the percentage of the board that will be child from parent 1.
+		//Create child:
+		Grid child=new Grid(dim,0);
+		for(int i=0;i<dim;i++) {
+			for(int j=0;j<dim;j++) {
+				double rand=((double)(Math.random()*1000)+1)/1000; 
+				if (rand<percentage) {
+					child.arr[i][j]= this.getNumAt(i, j); 
+				}else {
+					child.arr[i][j]= p2.getNumAt(i, j); 
+				} 
+			}
+		} 
+		return child;
+	}
+	public void mutate(double mutationStrength) {
+		//change a 10% of squares.
+		int amountOfChanges=(int) Math.ceil(dim*dim*mutationStrength);
+		for(int i=0;i<amountOfChanges;i++) {
+			int x=(int)(Math.random()*dim); 
+			int y=(int)(Math.random()*dim); 
 			
-			return child;
-		}*/return null;
-			
-		
+			if (arr[x][y]==WallNum) {
+				arr[x][y]=FreeNum;
+			}else if(arr[x][y]==FreeNum) {
+				arr[x][y]=WallNum;
+			}
+		}
 		
 	}
 	 
