@@ -483,7 +483,7 @@ public class MazeRunner{
 	}
 	
 	public static void main(String args[]) {
-		//grid=new Grid(500,0.2);
+		grid=new Grid(150,0.21);
 		//DFS();
 		
 //		grid=getHardestMaze( 100, 0.2, 'd');
@@ -492,25 +492,26 @@ public class MazeRunner{
 //		grid.show();
 //		grid.showPath(DFS());
 //		grid.show();
+		
 //		long startTime_dfs = System.nanoTime();
-//		baseCase_onFire(50,0.26,0.001);
+//		BFS();
 //		long endTime_dfs = System.nanoTime();
 //		System.out.println("BASECASE:"+((endTime_dfs-startTime_dfs)/1000000)+"ms");
 		//grid=getHardestMaze( 10, 0.2, 'd');
 		//grid=new Grid(20,0.05);
 		//grid.showPath(Astar(true));
 		//grid.show();
-		grid=getHardestMaze( 100, 0.2, 'a');
-		grid.clearOccupied();
-		grid.show();
-		grid.showPath(Astar(true));
-		grid.show();
-		grid=getHardestMaze( 100, 0.2, 'd');
-		grid.clearOccupied();
-		grid.show();
-		grid.showPath(DFS());
-		grid.show();
-		
+//		grid=getHardestMaze( 100, 0.2, 'a');
+//		grid.clearOccupied();
+//		grid.show();
+//		grid.showPath(Astar(true));
+//		grid.show();
+//		grid=getHardestMaze( 100, 0.2, 'd');
+//		grid.clearOccupied();
+//		grid.show();
+//		grid.showPath(DFS());
+//		grid.show();
+//		
 		
 		
 		
@@ -539,6 +540,7 @@ public class MazeRunner{
 		
 		//System.out.println(baseCase_onFire(150,0.2,0.2));
 		//get_avg_success(50,1000,2);
+		get_expected_length_distribution(150,1000);
 	}
 	public static void get_avg_success(int dim,int thres,int seg) {
 		 int[] counter = new int[1000];
@@ -572,10 +574,26 @@ public class MazeRunner{
 	}
 	public static void get_expected_length_distribution(int dim, int threshold_t) {
 		//for this function we will test fixed dim, increasing prob by 0.001 in a given 
-		int[] length = new int[2600];
-		int counter;
+		double[] expected_length = new double[2600];
+		//int counter_sucess=0,counter_length=0;
+		Coord goal;
 		for(int prob=1;prob<=999;prob++) {
-			
+			int counter_sucess=0,counter_length=0;
+			for(int trial=0;trial<threshold_t;trial++) {
+				grid=new Grid(dim,(double)prob/1000);
+				goal=BFS();
+				if(goal==null) {continue;}
+				//counting length
+				while(goal!=null) {
+					goal=goal.parent;
+					counter_length++;
+				}
+				counter_sucess++;
+			}
+			if(counter_sucess!=0) {
+				expected_length[prob]=(double)counter_length / (double) counter_sucess;
+			}
+			System.out.println((double)prob/1000+","+expected_length[prob]);
 		}
 		return;
 	}
