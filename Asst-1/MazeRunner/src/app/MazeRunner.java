@@ -357,7 +357,7 @@ public class MazeRunner{
 		Grid hardestSoFar = null;
 		int hardestVal=0;
 		
-		final int pop=50;	//population
+		final int pop=100;	//population
 		final int numMate=4;	//number of children each parent pair produces.
 		final int numGenerations=100;
 		final int mutationFreq=2 ;	//for every 'mutationFreq' generations, mutate a board.
