@@ -19,7 +19,7 @@ public class Grid {
 	public final static int StartNum=-2;
 	public final static int EndNum=-3;
 	
-	public final String Wall="+";//-1   //(char)0x2593+""; //
+	public final String Wall="+";//(char)0x2593+"";//"+";//-1   //(char)0x2593+""; //
 	public final String Free=" ";//0
 	public final String Occupied="*";//1
 	public final String Burnt="&";//2
@@ -83,6 +83,16 @@ public class Grid {
 		arr[dim-1][dim-1]=EndNum;
 	}
 	
+	public void clearSpecificNum(int num){
+		for(int i=0;i<dim;i++) {
+			for(int j=0;j<dim;j++) {
+				if(arr[i][j]==num)
+					arr[i][j]=FreeNum;
+			}
+		} 
+		arr[0][0]=StartNum;
+		arr[dim-1][dim-1]=EndNum;
+	}
 	public boolean isFree(int x,int y) {
 		if (x>=0&&y>=0&&x<dim&&y<dim)
 			return arr[x][y]!=BurntNum&&arr[x][y]!=OccupiedNum&&arr[x][y]!=WallNum;
@@ -149,7 +159,7 @@ public class Grid {
 		
 		for (Coord ptr = goal; ptr != null; ptr = ptr.parent) {
 			//System.out.println("parent of " + ptr + " is " + ptr.parent);
-			 occupy(ptr.x, ptr.y);
+			occupy(ptr.x, ptr.y); 
 		}
 		 arr[0][0] =  StartNum;
 		 arr[dim - 1][dim - 1] =  EndNum;

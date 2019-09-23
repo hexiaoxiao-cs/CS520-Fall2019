@@ -61,8 +61,10 @@ public class MazeRunner {
 			// Find all neighbors:
 			for (Coord c : grid.getNeighbors(current.x, current.y)) {
 				c.parent = current;
-				//if(!fringe.contains(c))
+				//if(!fringe.contains(c)) {
 					fringe.push(c); 
+					//grid.arr[c.x][c.y]=7;
+				//}
 				grid.occupy(current.x, current.y);
 				
 			}//System.out.println(fringe.size());
@@ -237,7 +239,7 @@ public class MazeRunner {
 					curr_weight_to_start=current.weight_to_start+Manhattan(current.x,current.y,c.x,c.y);//g(x) Actual distance between new point to the old point
 					
 					curr_weight = curr_weight_to_start+Manhattan(current.x,current.y,grid.dim-1,grid.dim-1);//g(x)+h(x)
-				 
+					//A_manhattan_numExpansions++;
 					
 				}
 				else {
@@ -252,6 +254,7 @@ public class MazeRunner {
 					if(open_set.removeIf((t)->t.weight>c.weight)==true) {//if in the open set it has a worse node than the one being inserted
 						//sth being deleted
 						open_set.add(c);
+						//grid.arr[c.x][c.y]=7;
 						if (isManhattan)
 							A_manhattan_numExpansions++;
 							
@@ -262,6 +265,7 @@ public class MazeRunner {
 				else {
 					//does not have c in open set
 					open_set.add(c);
+					//grid.arr[c.x][c.y]=7;
 					if (isManhattan)
 						A_manhattan_numExpansions++;
 					
@@ -348,14 +352,14 @@ public class MazeRunner {
 	}
 	
 	public static Grid getHardestMaze( int dim, double prob, char which) {//uses genetic algorithm model
-																		//which: DFS='d'. A star='a'
+																		//which: DFS='d'. A star='a'. Both='b'
 		
 		Grid hardestSoFar = null;
 		int hardestVal=0;
 		
 		final int pop=50;	//population
-		final int numMate=2;
-		final int numGenerations=500;
+		final int numMate=4;	//number of children each parent pair produces.
+		final int numGenerations=100;
 		final int mutationFreq=2 ;	//for every 'mutationFreq' generations, mutate a board.
 		
 		List<Grid> futureGen=new ArrayList<Grid>();
@@ -390,21 +394,37 @@ public class MazeRunner {
 					grid=parent1.mate(parent2);//
 					Coord goal=null;
 					 //grid.show();
-					if (which=='d') {
-						goal=DFS(); 
-					}else
-						goal=Astar(true);
-					grid.clearOccupied(); 
 					
-					if (goal!=null) {
-						futureGen.add(grid);
-						 if (which=='d') {
-							hardness.add(DFS_fringe_size);  
-						}else {
-							hardness.add(A_manhattan_numExpansions);  
+					if (which=='b') {
+						goal=DFS(); 
+						grid.clearOccupied();
+						goal=Astar(true);
+						grid.clearOccupied(); 
+						if (goal!=null) {
+							futureGen.add(grid);
+							hardness.add(A_manhattan_numExpansions+DFS_fringe_size);  
+							//System.out.println(A_manhattan_numExpansions+" "+DFS_fringe_size);
+							childrenCount++;
 						}
-						childrenCount++;
-					 	
+						
+					}else {
+						if (which=='d') {
+							goal=DFS(); 
+						}else if (which=='a')
+							goal=Astar(true);
+						
+						grid.clearOccupied(); 
+						
+						if (goal!=null) {
+							futureGen.add(grid);
+							 if (which=='d') {
+								hardness.add(DFS_fringe_size);  
+							}else {
+								hardness.add(A_manhattan_numExpansions);  
+							}
+							childrenCount++;
+						 	
+						}
 					}
 				}
 			}
@@ -481,19 +501,20 @@ public class MazeRunner {
 //		}
 		
 	}
+	public static void useGetHardest() {
+		 
+		grid=getHardestMaze( 100, 0.2, 'd');
+		display_result(DFS());
+		///grid.clearSpecificNum(7); 
+	 
+	}
 	
 	public static void main(String args[]) {
-		grid=getHardestMaze( 100, 0.2, 'a');
-		grid.clearOccupied();
-		grid.show();
-		grid.showPath(Astar(true));
-		grid.show();
-		grid=getHardestMaze( 100, 0.2, 'd');
-		grid.clearOccupied();
-		grid.show();
-		grid.showPath(DFS());
-		grid.show();
 		
+		useGetHardest();
+		//grid=new Grid(100, 0.2);
+		//display_result(DFS());
+		//grid.show();
 		
 		
 		
