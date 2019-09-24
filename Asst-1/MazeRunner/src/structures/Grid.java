@@ -110,20 +110,23 @@ public class Grid {
 	
 	public List<Coord> getNeighbors(int x,int y){
 		List <Coord> list=new ArrayList<Coord>();
+		if (isFree(x+1,y)) {list.add(new Coord(x+1,y,null));}//right
+		if (isFree(x,y+1)) {list.add(new Coord(x,y+1,null));}//down
 		
-		if (isFree(x,y+1)) {	list.add(new Coord(x,y+1,null));}
-		if (isFree(x+1,y)) { list.add(new Coord(x+1,y,null));}
-		if (isFree(x-1,y)) { list.add(new Coord(x-1,y,null));}
-		if (isFree(x,y-1)) {	list.add(new Coord(x,y-1,null));}
+		if (isFree(x-1,y)) {list.add(new Coord(x-1,y,null));}//left
+		if (isFree(x,y-1)) {list.add(new Coord(x,y-1,null));}//up
 		
 		return list;//list.stream().distinct().collect(Collectors.toList());//remove duplicates.
 	}
 	public List<Coord> getNeighbors_optimized(int x,int y){
 		List <Coord> list=new ArrayList<Coord>();
-		if (isFree(x+1,y)) {list.add(new Coord(x+1,y,null));}
-		if (isFree(x,y-1)) {list.add(new Coord(x,y-1,null));}
-		if (isFree(x,y+1)) {list.add(new Coord(x,y+1,null));}
-		if (isFree(x-1,y)) {list.add(new Coord(x-1,y,null));}
+		if (isFree(x+1,y)) {list.add(new Coord(x+1,y,null));}//right
+		if (isFree(x,y-1)) {list.add(new Coord(x,y-1,null));}//up
+		if (isFree(x-1,y)) {list.add(new Coord(x-1,y,null));}//left
+		if (isFree(x,y+1)) {list.add(new Coord(x,y+1,null));}//down
+//		for(Coord c : list) {
+//			System.out.println((c.x-x)+","+(c.y-y));
+//		}
 		return list;//list.stream().distinct().collect(Collectors.toList());//remove duplicates.
 	}
 	public boolean isBurnt(int x, int y) {

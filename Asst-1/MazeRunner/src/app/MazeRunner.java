@@ -4,6 +4,7 @@ import structures.*;
 
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.io.PrintStream;
 import java.util.*;
 import java.util.function.Predicate;
@@ -63,20 +64,24 @@ public class MazeRunner{
 		while (!fringe.isEmpty()) {
 			current = fringe.pop();
 			// Find all neighbors:
+			
+			if (grid.isGoal(current.x, current.y)) { // save goal coordinate so we can backtrack later
+				goal = current;
+				break;
+			}
+			grid.occupy(current.x, current.y);
 			for (Coord c : grid.getNeighbors(current.x, current.y)) {
 				//System.out.println(current.x+","+current.y);
 				c.parent = current;
 				//if(!fringe.contains(c)) {
 					fringe.push(c); 
 					//grid.arr[c.x][c.y]=7;
+					grid.occupy(c.x, c.y);
 				//}
-				grid.occupy(current.x, current.y);
+
 				
 			}//System.out.println(fringe.size());
-			if (grid.isGoal(current.x, current.y)) { // save goal coordinate so we can backtrack later
-				goal = current;
-				break;
-			}
+
 			
 			if (DFS_fringe_size<fringe.size())	//keep track of how large the fringe gets.
 				DFS_fringe_size=fringe.size();
@@ -96,18 +101,22 @@ public class MazeRunner{
 		while (!fringe.isEmpty()) {
 			current = fringe.pop();
 			// Find all neighbors:
+			if (grid.isGoal(current.x, current.y)) { // save goal coordinate so we can backtrack later
+				goal = current;
+				break;
+			}
+			grid.occupy(current.x, current.y);
 			for (Coord c : grid.getNeighbors_optimized(current.x, current.y)) {
 				
 				c.parent = current;
 				//if(!fringe.contains(c))
 					fringe.push(c); 
-				grid.occupy(current.x, current.y);
+					grid.occupy(c.x, c.y);
+				
 				
 			}//System.out.println(fringe.size());
-			if (grid.isGoal(current.x, current.y)) { // save goal coordinate so we can backtrack later
-				goal = current;
-				break;
-			}
+			
+
 			
 			if (DFS_fringe_size<fringe.size())	//keep track of how large the fringe gets.
 				DFS_fringe_size=fringe.size();
@@ -762,7 +771,7 @@ public class MazeRunner{
 	 
 	}
 	
-	public static void main(String args[]) {
+	public static void main(String args[]) throws IOException {
  
 		
 		//useGetHardest();
@@ -770,7 +779,7 @@ public class MazeRunner{
 		//display_result(DFS());
 		//grid.show();
  
-		grid=new Grid(150,0.21);
+		//grid=new Grid(150,0.21);
 		//DFS();
 		
 //		grid=getHardestMaze( 100, 0.2, 'd');
@@ -824,8 +833,8 @@ public class MazeRunner{
 		//grid=new Grid(50,0.1);
 		//DFS();grid.show();
 		//display_algos(500,0.2); 
-		//display_algos(15,0.2);
-		display_algos(500,0.2);
+//		display_algos(2000,0.3);
+//		display_algos(150,0.2);
 //		grid.setFire(grid.dim-1, 0);
 //		long startTime_dfs = System.nanoTime();
 //		grid.updateGrid();
@@ -840,10 +849,12 @@ public class MazeRunner{
 //		}
 		
 		//System.out.println(baseCase_onFire(150,0.2,0.2));
-		//get_avg_success(50,1000,2);
-		//get_expected_length_distribution(150,1000);
-		//compare_btw_astars(150,1000);
-		//compare_DFS(150);
+		//get_avg_success(150,1000,2);
+//		get_expected_length_distribution(150,1000);
+//		System.out.println("Compare_Btw_Astar");
+//		compare_btw_astadrs(150,1000);
+//		System.in.read();
+		compare_DFS(2000);
 		
 	}
 	public static void get_avg_success(int dim,int thres,int seg) {
@@ -905,7 +916,7 @@ public class MazeRunner{
 			int counter_sucess=0,counter_length=0;
 			for(int trial=0;trial<threshold_t;trial++) {
 				grid=new Grid(dim,(double)prob/1000);
-				goal=Astar(false);
+				goal=BFS();
 				if(goal==null) {continue;}
 				//counting length
 				while(goal!=null) {
@@ -924,7 +935,7 @@ public class MazeRunner{
 	public static void compare_DFS(int dim) {
 		Coord goal;
 		int counter_length=0;
-		grid=new Grid(dim,0.256);
+		grid=new Grid(dim,0.3);
 		double timer1= System.nanoTime();
 		goal=DFS();
 		double timer2= System.nanoTime();
