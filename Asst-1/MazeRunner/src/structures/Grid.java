@@ -21,7 +21,7 @@ public class Grid {
 	
 	public final String Wall="+";//-1   //(char)0x2593+""; //
 	public final String Free=" ";//0
-	public final String Occupied="*";//1
+	public final String Occupied="%";//1
 	public final String Burnt="&";//2
 	public final String Start="S";//-2
 	public final String End="G";//-3
@@ -106,6 +106,14 @@ public class Grid {
 		if (isFree(x-1,y)) { list.add(new Coord(x-1,y,null));}
 		if (isFree(x,y-1)) {	list.add(new Coord(x,y-1,null));}
 		
+		return list;//list.stream().distinct().collect(Collectors.toList());//remove duplicates.
+	}
+	public List<Coord> getNeighbors_optimized(int x,int y){
+		List <Coord> list=new ArrayList<Coord>();
+		if (isFree(x+1,y)) {list.add(new Coord(x+1,y,null));}
+		if (isFree(x,y-1)) {list.add(new Coord(x,y-1,null));}
+		if (isFree(x,y+1)) {list.add(new Coord(x,y+1,null));}
+		if (isFree(x-1,y)) {list.add(new Coord(x-1,y,null));}
 		return list;//list.stream().distinct().collect(Collectors.toList());//remove duplicates.
 	}
 	public boolean isBurnt(int x, int y) {
