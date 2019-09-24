@@ -76,7 +76,7 @@ public class MazeRunner{
 				//if(!fringe.contains(c)) {
 					fringe.push(c); 
 					//grid.arr[c.x][c.y]=7;
-					grid.occupy(c.x, c.y);
+					//grid.occupy(c.x, c.y);
 				//}
 
 				
@@ -111,8 +111,8 @@ public class MazeRunner{
 				c.parent = current;
 				//if(!fringe.contains(c))
 					fringe.push(c); 
-					grid.occupy(c.x, c.y);
-				
+					//grid.occupy(c.x, c.y);
+			
 				
 			}//System.out.println(fringe.size());
 			
