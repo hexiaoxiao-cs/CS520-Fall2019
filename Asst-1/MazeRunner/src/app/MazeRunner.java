@@ -53,6 +53,7 @@ public class MazeRunner{
 	}
 
 	public static Coord DFS() {
+		//Author: Sarah
 		DFS_fringe_size=0;
 		Stack<Coord> fringe = new Stack<Coord>();
 		fringe.push(new Coord(0, 0, null));
@@ -76,7 +77,7 @@ public class MazeRunner{
 				//if(!fringe.contains(c)) {
 					fringe.push(c); 
 					//grid.arr[c.x][c.y]=7;
-					//grid.occupy(c.x, c.y);
+					grid.occupy(c.x, c.y);
 				//}
 
 				
@@ -93,6 +94,7 @@ public class MazeRunner{
 	}
 
 	public static Coord DFS_new() {
+		//Author: Xiaoxiao He
 		DFS_fringe_size=0;
 		Stack<Coord> fringe = new Stack<Coord>();
 		fringe.push(new Coord(0, 0, null));
@@ -111,7 +113,7 @@ public class MazeRunner{
 				c.parent = current;
 				//if(!fringe.contains(c))
 					fringe.push(c); 
-					//grid.occupy(c.x, c.y);
+					grid.occupy(c.x, c.y);
 			
 				
 			}//System.out.println(fringe.size());
@@ -128,6 +130,7 @@ public class MazeRunner{
 	}
 	
 	public static Coord BFS() {
+		//Author: Sarah Liang
 		Queue<Coord> fringe = new LinkedList<Coord>();
 		fringe.add(new Coord(0, 0, null));
 		Coord current = null;
@@ -136,7 +139,7 @@ public class MazeRunner{
 		while (!fringe.isEmpty()) {
 			current = fringe.remove();
 			// Find all neighbors:
-
+			
 			for (Coord c : grid.getNeighbors(current.x, current.y)) {
 				c.parent = current;
 				if(!fringe.contains(c)) {fringe.add(c);}
@@ -154,10 +157,126 @@ public class MazeRunner{
 		// Retrace steps to show path:
 		return goal;
 	}
+	public static Coord BFS_best_route(double[][] prob, int x, int y) {
+		//Author: Xiaoxiao he
+		Queue<Coord> fringe = new LinkedList<Coord>();
+		fringe.add(new Coord(x, y, null));
+		Coord current = null;
+		Coord goal = null;
+		//int counter=0;
+		while (!fringe.isEmpty()) {
+			current = fringe.remove();
+			// Find all neighbors:
+			if (grid.isGoal(current.x, current.y)) { // save goal coordinate so we can backtrack later
+				goal = current;
+				return goal;
+			} 
+			for (Coord c : grid.getNeighbors(current.x, current.y)) {
+				c.parent = current;
+				c.weight=current.weight+prob[c.x][c.y]+1;
+				if(!fringe.contains(c)) {fringe.add(c);}
+				grid.occupy(current.x, current.y);
+			}
+			//grid.occupy(current.x, current.y);
+
+		}
+		
+		//grid.clearOccupied();
+		//grid.showPath(goal);
+		// Retrace steps to show path:
+		return null;
+	}
+	public static Coord BFS_ULLR() {
+		//Author Xiaoxiao He
+		Queue<Coord> fringe = new LinkedList<Coord>();
+		fringe.add(new Coord(0, grid.dim-1, null));
+		Coord current = null;
+		Coord goal = null;
+		//int counter=0;
+		while (!fringe.isEmpty()) {
+			current = fringe.remove();
+			// Find all neighbors:
+			
+			for (Coord c : grid.getNeighbors(current.x, current.y)) {
+				c.parent = current;
+				if(!fringe.contains(c)) {fringe.add(c);}
+				grid.occupy(current.x, current.y);
+			}
+			//grid.occupy(current.x, current.y);
+			if (current.x==grid.dim-1&&current.y==0) { // save goal coordinate so we can backtrack later
+				goal = current;
+				break;
+			} 
+		}
+		
+		//grid.clearOccupied();
+		//grid.showPath(goal);
+		// Retrace steps to show path:
+		return goal;
+	}
+	public static double[][] BFS_findProb() {
+		//Author Xiaoxiao he
+		Queue<Coord> fringe = new LinkedList<Coord>();
+		fringe.add(new Coord(0, grid.dim-1, null));
+		Coord current = null;
+		Coord goal = null;
+		//int counter=0;
+		//int[][] visited=new int [grid.dim-1][grid.dim-1];
+		double[][] probability_map = new double[grid.dim][grid.dim];
+		double curr_prob=0;
+		int counter = 0;
+		while (!fringe.isEmpty()) {
+			
+			current = fringe.remove();
+			// Find all neighbors:
+			//if(Manhattan(current.x,current.y,grid.dim-1,0)==depth) {return probability_map;}
+			if (current.x==grid.dim-1&&current.y==0) { // save goal coordinate so we can backtrack later
+				goal = current;
+				break;
+			} 
+			if(grid.arr[current.x][current.y]==grid.BurntNum) {
+				for (Coord c : grid.getNeighbors_nocheck(current.x, current.y)) {
+				//c.parent = current;
+				if(!fringe.contains(c)) {fringe.add(c);}
+				
+				//grid.occupy(current.x, current.y);
+			}
+				continue;
+			}
+			if(probability_map[current.x][current.y]!=0.0||!grid.isFree(current.x, current.y)) {
+				continue;}
+			if(grid.isBurnt((current.x-1),current.y)) {counter++;}
+			if(grid.isBurnt(current.x+1,current.y)) {counter++;}
+			if(grid.isBurnt(current.x,current.y-1)) {counter++;}
+			if(grid.isBurnt(current.x,current.y+1)) {counter++;}
+			curr_prob=(double) counter;
+			if(current.x-1>0) {curr_prob+=probability_map[current.x-1][current.y];}
+			if(current.y-1>0) {curr_prob+=probability_map[current.x][current.y-1];}
+			if(current.x+1<grid.dim) {curr_prob+=probability_map[current.x+1][current.y];}
+			if(current.y+1<grid.dim) {curr_prob+=probability_map[current.x][current.y+1];}
+			probability_map[current.x][current.y]=1.0-Math.pow(1-grid.p_burn, curr_prob);
+			counter=0;
+			curr_prob=0;
+			for (Coord c : grid.getNeighbors_nocheck(current.x, current.y)) {
+				//c.parent = current;
+				if(!fringe.contains(c)) {fringe.add(c);}
+				
+				//grid.occupy(current.x, current.y);
+			}
+			//grid.occupy(current.x, current.y);
+
+		}
+		
+		//grid.clearOccupied();
+		//grid.showPath(goal);
+		// Retrace steps to show path:
+		return probability_map;
+	}
 	//Astar:
 	//Arguments: 1. which weighting? 0 for euclid, 1 for Manhattan
 
 	public static Coord[] BiBFS() {
+		//Author Sarah
 		Queue<Coord> fringeL = new LinkedList<Coord>();
 		Queue<Coord> fringeR = new LinkedList<Coord>();
 		Queue<Coord> fringePtr = null;
@@ -252,6 +371,7 @@ public class MazeRunner{
 	}
 	
 	public static Coord[] BiBFS_showvisited() {
+		//Author Xiaoxiao He
 		Queue<Coord> fringeL = new LinkedList<Coord>();
 		Queue<Coord> fringeR = new LinkedList<Coord>();
 		Queue<Coord> fringePtr = null;
@@ -357,6 +477,7 @@ public class MazeRunner{
 	//Astar:
 	//Arguments: 1. which weighting? false for euclid, true for Manhattan
 	public static Coord Astar(boolean isManhattan) {
+		//Author Xiaoxiao He
 		A_manhattan_numExpansions=0;
 		
 		PriorityQueue<Coord> open_set = new PriorityQueue<Coord>();
@@ -416,23 +537,22 @@ public class MazeRunner{
 		return goal; 
 	}
 	public static Coord Astar_showvisited(boolean isManhattan) {
+		//Author Xiaoxiao He
 		A_manhattan_numExpansions=0;
 		
 		PriorityQueue<Coord> open_set = new PriorityQueue<Coord>();
 		open_set.add(new Coord(0,0,null));
 		Coord current = null;
 		Coord goal = null;
-		int [][] visited=new int [grid.dim][grid.dim];
 		double curr_weight;//current weight(for priority)
 		double curr_weight_to_start;//current weight from the starting point
 		Coord[][] closed_set=new Coord[grid.dim][grid.dim]; //a better way to store the closed set such that O(1) access with give x,y coordinate
+		int [][] isvisited= new int [grid.dim][grid.dim];
 		while(!open_set.isEmpty()) {
 			current = open_set.poll();//removed from open
+			isvisited[current.x][current.y]=1;
 			//System.out.println("Picked"+current.x+","+current.y+"point with priority"+current.weight);
 			closed_set[current.x][current.y]=current;//put current to the closed set
-			visited[current.x][current.y]=1;
-			
-			
 			if(grid.isGoal(current.x, current.y)) {//if Goal Just go
 				goal=current;
 				break;
@@ -441,6 +561,7 @@ public class MazeRunner{
 			for (Coord c: grid.getNeighbors(current.x, current.y)) {
 				c.parent = current;//first, set path
 				//check whether in the closed set or (wall, burnt)
+
 				if(closed_set[c.x][c.y]!=null||grid.isFree(c.x, c.y)==false) {
 					continue;
 				}
@@ -448,58 +569,50 @@ public class MazeRunner{
 				//Calculate heuristic function and the distance between current point and previous point
 				if(isManhattan==true){
 					curr_weight_to_start=current.weight_to_start+Manhattan(current.x,current.y,c.x,c.y);//g(x) Actual distance between new point to the old point
-					
-					curr_weight = curr_weight_to_start+Manhattan(c.x,c.y,grid.dim-1,grid.dim-1);//g(x)+h(x)
-				 
-					
+					curr_weight = curr_weight_to_start+Manhattan(c.x,c.y,(grid.dim-1),(grid.dim-1));//g(x)+h(x)
 				}
 				else {
 					curr_weight_to_start=current.weight_to_start+Euclid(current.x,current.y,c.x,c.y);//g(x) Actual distance between new point to the old point
-					curr_weight = curr_weight_to_start+Euclid(c.x,c.y,grid.dim-1,grid.dim-1);
+					curr_weight = curr_weight_to_start+Euclid(c.x,c.y,(grid.dim-1),(grid.dim-1));
 				}
 				//System.out.println(curr_weight_to_start);
 				//System.out.println(curr_weight+"\n");
 				c.weight=curr_weight;
 				c.weight_to_start=curr_weight_to_start;
 				if(open_set.contains(c)) {
-					if(open_set.removeIf((t)->t.weight>c.weight)==true) {//if in the open set it has a worse node than the one being inserted
+					if(open_set.removeIf((t)->(t.weight>c.weight)&&t.x==c.x&&t.y==c.y)==true) {//if in the open set it has a worse node than the one being inserted
 						//sth being deleted
 						open_set.add(c);
-
 						A_manhattan_numExpansions++;
-						
-						
 					}
 					//else not doing anything, which is keep the node in the open_set since it is currently with a better route
 				}
 				else {
 					//does not have c in open set
 					open_set.add(c);
-
 					A_manhattan_numExpansions++;
-					
-					
-					
 				}
-				
-				
+
 				//fringe.add(c);
-				
 			}
-			
 		}
-		//grid.showPath(goal);
 		for(int x=0;x<grid.dim;x++) {
 			for (int y=0;y<grid.dim;y++) {
-				System.out.print(visited[x][y]+" ");
+				System.out.print(isvisited[x][y]+" ");
 			}
 			System.out.println();
 		}
+		//grid.showPath(goal);
 		return goal; 
 	}
+
+
 	public static Coord Astar_ULLR(boolean isManhattan) {
+		//Author Xiaoxiao He
+		A_manhattan_numExpansions=0;
+		
 		PriorityQueue<Coord> open_set = new PriorityQueue<Coord>();
-		open_set.add(new Coord(0,grid.dim-1,null));
+		open_set.add(new Coord(0,0,null));
 		Coord current = null;
 		Coord goal = null;
 		double curr_weight;//current weight(for priority)
@@ -524,38 +637,37 @@ public class MazeRunner{
 				//Calculate heuristic function and the distance between current point and previous point
 				if(isManhattan==true){
 					curr_weight_to_start=current.weight_to_start+Manhattan(current.x,current.y,c.x,c.y);//g(x) Actual distance between new point to the old point
-					
-					curr_weight = curr_weight_to_start+Manhattan(current.x,current.y,grid.dim-1,0);//g(x)+h(x)
+					curr_weight = curr_weight_to_start+Manhattan(c.x,c.y,(grid.dim-1),(grid.dim-1));//g(x)+h(x)
 				}
 				else {
 					curr_weight_to_start=current.weight_to_start+Euclid(current.x,current.y,c.x,c.y);//g(x) Actual distance between new point to the old point
-					curr_weight = curr_weight_to_start+Euclid(current.x,current.y,grid.dim-1,0);
+					curr_weight = curr_weight_to_start+Euclid(c.x,c.y,(grid.dim-1),(grid.dim-1));
 				}
 				//System.out.println(curr_weight_to_start);
 				//System.out.println(curr_weight+"\n");
 				c.weight=curr_weight;
 				c.weight_to_start=curr_weight_to_start;
 				if(open_set.contains(c)) {
-					if(open_set.removeIf((t)->t.weight>c.weight)==true) {//if in the open set it has a worse node than the one being inserted
+					if(open_set.removeIf((t)->(t.weight>c.weight)&&t.x==c.x&&t.y==c.y)==true) {//if in the open set it has a worse node than the one being inserted
 						//sth being deleted
 						open_set.add(c);
+						A_manhattan_numExpansions++;
 					}
 					//else not doing anything, which is keep the node in the open_set since it is currently with a better route
 				}
 				else {
 					//does not have c in open set
 					open_set.add(c);
+					A_manhattan_numExpansions++;
 				}
-				
-				
+
 				//fringe.add(c);
-				
 			}
-			
 		}
 		//grid.showPath(goal);
 		return goal; 
 	}
+
 	private static double Euclid(int x1, int y1, int x2, int y2) { // find euclid distance
 		return Math.sqrt((x1 - x2) * (x1 - x2) + (y1 - y2) * (y1 - y2));
 		
@@ -568,7 +680,7 @@ public class MazeRunner{
 	
 	public static Grid getHardestMaze( int dim, double prob, char which) {//uses genetic algorithm model
 																		//which: DFS='d'. A star='a'. Both='b'
-		
+		//Author Sarah Liang
 		Grid hardestSoFar = null;
 		int hardestVal=0;
 		
@@ -677,15 +789,16 @@ public class MazeRunner{
 	}
 	
 	public static void compare_btw_astars(int dim, int threshold_t) {
-		double [] runtime_1 = new double[257];
-		int [] expansion_1 = new int[257];
-		double [] runtime_2 = new double[257];
-		int [] expansion_2 = new int[257];
+		//Author Xiaoxiao He
+		double [] runtime_1 = new double[301];
+		int [] expansion_1 = new int[301];
+		double [] runtime_2 = new double[301];
+		int [] expansion_2 = new int[301];
 		
-		int [] many = new int[257];
-		for(int p_maze=0;p_maze<=256;p_maze++) {
+		int [] many = new int[301];
+		for(int p_maze=0;p_maze<=300;p_maze++) {
 			for (int t = 0; t<threshold_t;t++) {
-				grid=new Grid(dim,(double)p_maze/1000);
+				grid=new Grid(dim,(double)p_maze/1000.0);
 				double timer1=System.nanoTime();
 				if(Astar(false)==null) {continue;}
 				double timer2=System.nanoTime();
@@ -706,25 +819,26 @@ public class MazeRunner{
 		}
 		//Printing Runtime for Euclid
 		System.out.println("Euclid runtime");
-		for(int p_maze=0;p_maze<=256;p_maze++) {
-			System.out.println((double)p_maze/1000+","+runtime_1[p_maze]/(double) many[p_maze]/10000.0);
+		for(int p_maze=0;p_maze<=300;p_maze++) {
+			System.out.println((double)p_maze/1000+","+runtime_1[p_maze]/((double) many[p_maze]*1000000.0));
 		}
 		System.out.println("Euclid expansion times");
-		for(int p_maze=0;p_maze<=256;p_maze++) {
+		for(int p_maze=0;p_maze<=300;p_maze++) {
 			System.out.println((double)p_maze/1000+","+(double)expansion_1[p_maze]/(double) many[p_maze]);
 		}
 		System.out.println("Manhattan runtime");
-		for(int p_maze=0;p_maze<=256;p_maze++) {
-			System.out.println((double)p_maze/1000+","+runtime_2[p_maze]/(double) many[p_maze]/10000.0);
+		for(int p_maze=0;p_maze<=300;p_maze++) {
+			System.out.println((double)p_maze/1000+","+runtime_2[p_maze]/((double) many[p_maze]*1000000.0));
 		}
 		System.out.println("Manhattan expansion times");
-		for(int p_maze=0;p_maze<=256;p_maze++) {
+		for(int p_maze=0;p_maze<=300;p_maze++) {
 			System.out.println((double)p_maze/1000+","+(double)expansion_2[p_maze]/(double) many[p_maze]);
 		}
 	}
 
 	public static void display_result(Coord goal) {
- 
+//		if(goal==null) {System.out.println("No Answer");}
+		
 		grid.clearOccupied();
 		grid.showPath(goal);
 		grid.show(); 
@@ -732,14 +846,15 @@ public class MazeRunner{
 	}
 	
 	public static boolean baseCase_onFire(int dim, double p_maze, double p_burn) {
+		//Author Xiaoxiao He
 		Coord goal = null;
 		Coord prev=null;
 		Coord next=null;
 		Coord curr=null;
 		while(goal==null) {//finding a solvable map
 			grid = new Grid(dim,p_maze);
-			goal = Astar(false);
-			if(Astar_ULLR(false)==null) {goal=null;continue;}
+			goal = BFS();
+			if(BFS_ULLR()==null) {goal=null;continue;}
 		}
 		grid.p_burn=p_burn;
 		//back track to get a list of points of nearest route
@@ -763,6 +878,89 @@ public class MazeRunner{
 //		}
 		
 	}
+
+	public static int[] double_onFire(int dim, double p_maze, double p_burn) {
+		//Author Xiaoxiao He
+		Coord goal1 = null;
+		Coord goal2 = new Coord(0,0,null);
+		Coord prev=null;
+		Coord next=null;
+		Coord curr=null;
+		double[][] prob;
+		int counts[]=new int [2];
+		boolean first_complete=false, second_complete=false;
+		while(goal1==null) {//finding a solvable map
+			grid = new Grid(dim,p_maze);
+			goal1 = BFS();
+			grid.clearOccupied();
+			if(BFS_ULLR()==null) {goal1=null;continue;}
+			grid.clearOccupied();
+		}
+		grid.p_burn=p_burn;
+		//back track to get a list of points of nearest route
+		curr=goal1;
+		while(curr!=null) {
+			next=curr.parent;
+			curr.parent=prev;
+			prev=curr;
+			curr=next;
+		}
+		goal1=prev;
+		grid.setFire(0, grid.dim-1);//UL set fire
+		while(goal1!=null||goal2!=null) {
+			if(goal1!=null&&grid.isBurnt(goal1.x, goal1.y)) {goal1=null;}
+			if(goal2!=null&&grid.isBurnt(goal2.x, goal2.y)) {goal2=null;}
+			if(goal1!=null) {//regular algo not die
+				if(goal1.x==grid.dim-1&&goal1.y==grid.dim-1) {first_complete=true; goal1=null;}
+				else {
+					goal1=goal1.parent;
+					}
+				}
+			if(goal2!=null) {
+				if(goal2.x==grid.dim-1&&goal2.y==grid.dim-1) {second_complete=true;goal2=null;}
+					else {
+					prob=BFS_findProb();// get current prob matrix
+					//List<Coord> sons=new ArrayList<Coord>();
+					Coord best_son=null;
+					for(Coord c: grid.getNeighbors(goal2.x, goal2.y)) {
+						
+						Coord son = BFS_best_route(prob,c.x,c.y);
+
+						grid.clearOccupied();
+						if(son==null) {continue;}
+						//son.weight+=Math.random()/100.0;
+						//System.out.println(son.weight);
+						//sons.add(son);
+						//need reverse back to get start point
+						if(best_son==null) {best_son=c;
+						best_son.weight=son.weight;}
+						else {
+							if(best_son.weight>son.weight) {best_son=c;
+							best_son.weight=son.weight;}
+						}
+					}
+					
+					goal2=best_son;//choose the point and go to next time line
+//					if(goal2!=null) {
+//						grid.showPath(goal2);
+//						grid.show();
+//						grid.clearOccupied();
+//					}
+//					else {
+//						grid.show();
+//					}
+				}
+			}
+			//grid.show();
+			grid.updateGrid();
+		}
+		if(first_complete==true) {counts[0]++;}
+		if(second_complete==true) {counts[1]++;}
+//		for(Coord c = goal;c!=null;c=c.parent ) {
+//			System.out.println("("+c.x+","+c.y+")");
+//		}
+		return counts;
+	}
 	public static void useGetHardest() {
 		 
 		grid=getHardestMaze( 100, 0.2, 'd');
@@ -770,7 +968,31 @@ public class MazeRunner{
 		///grid.clearSpecificNum(7); 
 	 
 	}
-	
+	public static void get_Onfire_dist(int dim, double p_maze,int thres) {
+		//Author Xiaoxiao He
+		int [][] dist=new int[2][1000];
+		for(int p_fire=0;p_fire<999;p_fire++) {
+			for(int t=0;t<thres;t++) {
+				double time1=System.nanoTime();
+				int[] temp=double_onFire(dim,p_maze,(double)(p_fire+1)/1000.0);
+				double time2=System.nanoTime();
+				//System.out.println((time2-time1)/1000000.0);
+				dist[0][p_fire]+=temp[0];
+				dist[1][p_fire]+=temp[1];
+			}
+			System.out.println(p_fire);
+			System.out.println((double)(p_fire+1.0)/1000.0+","+dist[0][p_fire]);
+			System.out.println((double)(p_fire+1.0)/1000.0+","+dist[1][p_fire]);
+		}
+		System.out.println("OnlyBFS");
+		for(int p_fire=0;p_fire<999;p_fire++) {
+			System.out.println((double)(p_fire+1.0)/1000.0+","+dist[0][p_fire]);
+		}
+		System.out.println("HillClimbing");
+		for(int p_fire=0;p_fire<999;p_fire++) {
+			System.out.println((double)(p_fire+1.0)/1000.0+","+dist[1][p_fire]);
+		}
+	}
 	public static void main(String args[]) throws IOException {
  
 		
@@ -781,7 +1003,23 @@ public class MazeRunner{
  
 		//grid=new Grid(150,0.21);
 		//DFS();
-		
+		//grid=new Grid(15,0.0);
+//
+//		grid.p_burn=0.5;
+//		grid.setFire(0, grid.dim-1);
+		//int[] results=double_onFire(15, 0.3,0.5);
+		//grid.show();
+		///System.out.println(results[0]);
+		//System.out.println(results[1]);
+		//get_Onfire_dist(15,0.3,100);
+//		grid.show();
+//		double[][] prob=BFS_findProb();
+//		for(int i=0;i<grid.dim;i++) {
+//			for(int j = 0; j<grid.dim;j++) {
+//				System.out.print(prob[i][j]+" ");
+//			}
+//			System.out.println();
+//		}
 //		grid=getHardestMaze( 100, 0.2, 'd');
 //		System.out.println("done.");
 //		grid.clearOccupied();
@@ -811,7 +1049,7 @@ public class MazeRunner{
 		
 		
 		//System.out.println(get_solvability_distribution(17,100));
-//		get_solvability_distribution(150,1000);
+//		get_solvability_distribution(15,1000);
 //		int thres=100000;
 //		int [][]results_dim_prob=new int[200][thres];
 //		for (int dim=0; dim<200;dim++) {
@@ -822,19 +1060,20 @@ public class MazeRunner{
 //		}
 //		
 // 	
-//		get_solvability_distribution_dim_p(1000);
+//		get_solvability_distribution_dim_p(100);
 		//grid=new Grid(15,0.256);
 //		BiBFS_showvisited();
 		//DFS();
 //		System.out.println();
 //		Astar_showvisited(false);
+//		grid.clearOccupied();
 //		System.out.println();
 //		Astar_showvisited(true);
 		//grid=new Grid(50,0.1);
 		//DFS();grid.show();
 		//display_algos(500,0.2); 
-//		display_algos(2000,0.3);
-//		display_algos(150,0.2);
+//		display_algos(150,0.3);
+		//display_algos(150,0.0);
 //		grid.setFire(grid.dim-1, 0);
 //		long startTime_dfs = System.nanoTime();
 //		grid.updateGrid();
@@ -849,21 +1088,22 @@ public class MazeRunner{
 //		}
 		
 		//System.out.println(baseCase_onFire(150,0.2,0.2));
-		//get_avg_success(150,1000,2);
+//		get_avg_success(150,1000,100);
 //		get_expected_length_distribution(150,1000);
 //		System.out.println("Compare_Btw_Astar");
-//		compare_btw_astadrs(150,1000);
+		//compare_btw_astars(150,1000);
 //		System.in.read();
-		compare_DFS(2000);
+		//compare_DFS(2000);
 		
 	}
 	public static void get_avg_success(int dim,int thres,int seg) {
+		//Author Xiaoxiao he
 		 int[] counter = new int[1000];
 		 for(int prob = seg*166; prob<(seg+1)*166;prob++) {
 			 //System.out.println(prob);
 			 for(int counts=0;counts<thres;counts++) {
 				 
-				 if(baseCase_onFire(dim,0.21,(double)(prob+1)/1000)==true) {
+				 if(baseCase_onFire(dim,0.3,(double)(prob+1)/1000)==true) {
 					 counter[prob]++;
 				 }
 			 }
@@ -874,9 +1114,9 @@ public class MazeRunner{
 	
 	
 	public static int[] get_solvability_distribution(int dim,int threshold_t) {
+		//Author Xiaoxiao He
 		//for this function we will test fixed dim, increasing prob by 0.001 from 0.01(0.00 is definite solvable) using A* euclid (fastest algo)
 		int[] solved = new int[1000];
-
 		for (int prob=1; prob<=999;prob++ ) {
 			for(int trial =0;trial<threshold_t;trial++) {
 				grid=new Grid(dim,(double) prob/1000);
@@ -889,25 +1129,38 @@ public class MazeRunner{
 		return solved;
 	}
 	public static void get_solvability_distribution_dim_p(int threshold_t) throws FileNotFoundException  {
+		//Author Xiaoxiao He
+		
 		//for this function we will test relationship between dim and prob, increasing prob by 0.001 from 0.01(0.00 is definite solvable) using A* euclid (fastest algo)
-		PrintStream o = new PrintStream(new File("C:\\Users\\Xiaoxiao He\\Desktop\\dim_p.csv")); 
-		System.setOut(o); 
-		for(int dim=10;dim<=500;dim++) {
-			int[] count= new int [101];
-			for (int prob=200; prob<=300;prob++ ) {
+		//PrintStream o = new PrintStream(new File("C:\\Users\\Xiaoxiao He\\Desktop\\dim_p.csv")); 
+		//System.setOut(o); 
+		
+		for(int dim=150;dim<=15000;dim*=2) {
+			int[] count= new int [200];
+			double prev;
+			
+			for (int prob=250; prob<350;prob++ ) {
 				for(int trial =0;trial<threshold_t;trial++) {
 					grid=new Grid(dim,(double) prob/1000);
 					if(DFS()!=null) {
-						count[prob-200]++;
+						count[prob-250]++;
 					}
+					
 				}
-				System.out.println(dim+","+(double)prob/1000+","+(double)count[prob-200]/(double)threshold_t);
+				if(count[prob-250]>(threshold_t/2)) {}
+				else {
+					System.out.println(dim+","+(double)(prob-1.0)/1000+","+(double)count[prob-250-1]/(double)threshold_t);
+					break;
+				}
+
 			}
 			
 		}
 		return;
 	}
 	public static void get_expected_length_distribution(int dim, int threshold_t) {
+		//Author Xiaoxiao He
+		
 		//for this function we will test fixed dim, increasing prob by 0.001 in a given 
 		double[] expected_length = new double[2600];
 		//int counter_sucess=0,counter_length=0;
@@ -933,13 +1186,14 @@ public class MazeRunner{
 		return;
 	}
 	public static void compare_DFS(int dim) {
+		//Author Xiaoxiao He
 		Coord goal;
 		int counter_length=0;
 		grid=new Grid(dim,0.3);
 		double timer1= System.nanoTime();
 		goal=DFS();
 		double timer2= System.nanoTime();
-		System.out.println("Old DFS:"+(timer2-timer1)/10000.0);
+		System.out.println("Old DFS:"+(timer2-timer1)/1000000.0);
 		//grid.showPath(goal);
 		while(goal!=null) {
 			goal=goal.parent;
@@ -951,7 +1205,7 @@ public class MazeRunner{
 		timer1= System.nanoTime();
 		goal=DFS_new();
 		timer2= System.nanoTime();
-		System.out.println("New DFS:"+(timer2-timer1)/10000.0);
+		System.out.println("New DFS:"+(timer2-timer1)/1000000.0);
 		while(goal!=null) {
 			goal=goal.parent;
 			counter_length++;
@@ -959,6 +1213,7 @@ public class MazeRunner{
 		System.out.println(counter_length);
 	}
 	public static void display_algos(int dim, double prob) {
+		//Author Sarah Xiaoxiao
 /*dim = 8;
 		prob = 0.2;
 		grid = new Grid(dim, prob); // dim, probability.
@@ -976,7 +1231,7 @@ public class MazeRunner{
 //		prob = 0.2;
 		
 		grid = new Grid(dim, prob); // dim, probability.
-		grid.show();
+		//grid.show();
 		
 		long startTime_dfs = System.nanoTime();
 		goal=DFS();
@@ -992,6 +1247,7 @@ public class MazeRunner{
 		goals=BiBFS();
 		long endTime_BiBFS=System.nanoTime();
 		System.out.println("Result from Bidirection BFS:");
+		if(goals[0]==null) {System.out.println("No Answer");}
 		grid.clearOccupied();
 		grid.showPath(goals[0]);
 		grid.showPath(goals[1]);

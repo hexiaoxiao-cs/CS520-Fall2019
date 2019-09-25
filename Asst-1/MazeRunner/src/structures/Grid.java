@@ -117,6 +117,14 @@ public class Grid {
 		
 		return list;//list.stream().distinct().collect(Collectors.toList());//remove duplicates.
 	}
+	public List<Coord> getNeighbors_nocheck(int x, int y){
+		List <Coord> list=new ArrayList<Coord>();
+		if(y+1<dim) {list.add(new Coord(x,y+1,null));}
+		if(y-1>=0) {list.add(new Coord(x,y-1,null));}
+		if(x+1<dim) {list.add(new Coord(x+1,y,null));}
+		if(x-1>=0) {list.add(new Coord(x-1,y,null));}
+		return list;
+	}
 	public List<Coord> getNeighbors_optimized(int x,int y){
 		List <Coord> list=new ArrayList<Coord>();
 		if (isFree(x+1,y)) {list.add(new Coord(x+1,y,null));}//right
@@ -139,9 +147,15 @@ public class Grid {
 		int counter=0;
 		double rand;
 		double prob_cb;
+		int [][]new_arr=new int[dim][dim];
+		for(int i = 0; i< dim; i++) {
+			for(int j = 0 ; j<dim; j++) {
+				new_arr[i][j]=arr[i][j];
+			}
+		}
 		for(x=0;x<=dim-1;x++) {
 			for(y=0;y<=dim-1;y++) {
-				
+				if(x==dim-1&&y==dim-1) {break;}
 				if(isFree(x,y)) {
 					counter=0;
 					if(isBurnt(x-1,y)) {counter++;}
@@ -152,11 +166,14 @@ public class Grid {
 					rand=((double)(Math.random()*1000)+1)/1000;
 					prob_cb=1-Math.pow((1-p_burn), counter);
 					if(rand<prob_cb) {
-						setFire(x,y);
+//						System.out.println(arr[x][y]);
+						new_arr[x][y]=BurntNum;
+						/* System.out.println(arr[x][y]); */
 					}
 				}
 			}
 		}
+		this.arr=new_arr;
 	}
 	
 	public void setFire(int x, int y) {
