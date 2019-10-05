@@ -7,60 +7,60 @@ import app.Minesweeper.*;
 
 public class Grid {
  
-	public int[][] arr;
+	public char[][] arr;
 	public int dim;
-	public double p_burn;
-	
-	
-	public final static int WallNum=-1;
-	public final static int FreeNum=0;
-	public final static int OccupiedNum=1;
-	public final static int BurntNum=2;
-	public final static int StartNum=-2;
-	public final static int EndNum=-3;
-	
-	public final String Wall="+";//(char)0x2593+"";//"+";//-1   //(char)0x2593+""; //
-	public final String Free=" ";//0
-	public final String Occupied="%";//1
-	public final String Burnt="&";//2
-	public final String Start="S";//-2
-	public final String End="G";//-3
-	public Grid(int dim, double p) {//initialize board:
+	public int numMines; 
+	 
+	public final static char eMine='*'; 
+	public final static char aMine='M';
+	public final static char aClear='C';
+	 
+	public Grid(char type,int dim, int numMines) {//initialize board:
+		if (numMines>dim*dim) System.err.println("too many mines");
 		this.dim=dim;
-		arr=new int[dim][dim];
+		this.numMines=numMines;
+		arr=new char[dim][dim];
 		for(int i=0;i<dim;i++) {
-			for(int j=0;j<dim;j++) {
-				double rand=((double)(Math.random()*1000)+1)/1000; // System.out.println(rand+" "+p);
-				if (rand<p) {
-					arr[i][j]= -1; 
-				}
-			}
-		} 
-		arr[0][0]=-2;
-		arr[dim-1][dim-1]=-3;
+			for (int j=0;j<dim;j++)
+				arr[i][j]='0';
+		}
+		if (type=='e') {//Environment Board.
+			int minesPlaced=0;
+			while(minesPlaced<numMines) {
+				int x=(int)(Math.random()*dim);
+				int y=(int)(Math.random()*dim);
+				 
+				if (arr[x][y]!=eMine) {
+					arr[x][y]=eMine; 
+					for(int coord[]:getNeighbors(x,y)) { 
+						int cx=coord[0];
+						int cy=coord[1];
+						if (arr[cx][cy]>='0'&&arr[cx][cy]<='8')
+							arr[cx][cy]++;
+					} 
+					minesPlaced++; 
+				} 
+				
+				
+			}  
+		}else {//Agent Board.
+			for(int i=0;i<dim;i++) {
+				for (int j=0;j<dim;j++)
+					arr[i][j]='?';
+			} 
+		}
 	}
 	
 	 
-	public void show() {
-		String toPrint;
+	public void show() { 
 		for (int i=0;i<dim;i++) {
 			System.out.print(i+"\t");
 			for (int j=0;j<dim;j++) {
-				toPrint="\0";
-				switch(arr[i][j]) {
-					case -3 : toPrint=End; break;
-					case -2 : toPrint=Start; break;
-					case -1 : toPrint=Wall; break;
-					case 0  : toPrint=Free; break;
-					case 1  : toPrint=Occupied; break;
-					case 2  : toPrint=Burnt; break;
-					default : toPrint=arr[i][j]+""; break;//System.err.println("\nPANIC:Printing Grid at ("+i+","+j+") with value "+arr[i][j]+". Program Will EXIT!\n"); System.exit(-2);
-				}
-				System.out.print( " "+toPrint +" " );
+				System.out.print( " "+arr[i][j] +" " );
 			}
 			System.out.println();
 		} 
-		System.out.print("\t");
+		System.out.print("\n\t");
 		for (int i=0;i<dim;i++) {
 			if ((i+"").length()==1)
 				System.out.print(" "+i+" ");
@@ -72,164 +72,32 @@ public class Grid {
 		System.out.println("\n ");
 		
 	}
-	public void clearOccupied(){
-		for(int i=0;i<dim;i++) {
-			for(int j=0;j<dim;j++) {
-				if(arr[i][j]==OccupiedNum)
-					arr[i][j]=FreeNum;
+	 
+	public boolean isCellCoord(int x,int y) {
+		return x>=0&&y>=0&&x<dim&&y<dim;
+	} 
+	
+	public List<int[]> getNeighbors(int x,int y){
+		List <int[]> list=new ArrayList<int[]>();
+		for(int i=x-1;i<=x+1;i++) {
+			for (int j=y-1;j<=y+1;j++) {
+				if(isCellCoord(i,j)  ){
+					int coord[]= {i,j};
+					list.add(coord);
+				}  
 			}
 		} 
-		arr[0][0]=StartNum;
-		arr[dim-1][dim-1]=EndNum;
-	}
-	
-	public void clearSpecificNum(int num){
-		for(int i=0;i<dim;i++) {
-			for(int j=0;j<dim;j++) {
-				if(arr[i][j]==num)
-					arr[i][j]=FreeNum;
-			}
-		} 
-		arr[0][0]=StartNum;
-		arr[dim-1][dim-1]=EndNum;
-	}
-	public boolean isFree(int x,int y) {
-		if (x>=0&&y>=0&&x<dim&&y<dim)
-			return arr[x][y]!=BurntNum&&arr[x][y]!=OccupiedNum&&arr[x][y]!=WallNum;
-		else return false;
-	}
-	public boolean isGoal(int x,int y) {
-		return x==dim-1&&y==dim-1;
-	}
-	
-	public void occupy(int x,int y) { //Maybe Not that useful
-		if (isFree(x,y)) {
-			arr[x][y]=OccupiedNum;
-		} 
-	}
-	
-	public List<Coord> getNeighbors(int x,int y){
-		List <Coord> list=new ArrayList<Coord>();
-		if (isFree(x,y+1)) {list.add(new Coord(x,y+1,null));}//down
-		if (isFree(x+1,y)) {list.add(new Coord(x+1,y,null));}//right
-		if (isFree(x-1,y)) {list.add(new Coord(x-1,y,null));}//left
-		if (isFree(x,y-1)) {list.add(new Coord(x,y-1,null));}//up
-		
-		return list;//list.stream().distinct().collect(Collectors.toList());//remove duplicates.
-	}
-	public List<Coord> getNeighbors_nocheck(int x, int y){
-		List <Coord> list=new ArrayList<Coord>();
-		if(y+1<dim) {list.add(new Coord(x,y+1,null));}
-		if(y-1>=0) {list.add(new Coord(x,y-1,null));}
-		if(x+1<dim) {list.add(new Coord(x+1,y,null));}
-		if(x-1>=0) {list.add(new Coord(x-1,y,null));}
 		return list;
 	}
-	public List<Coord> getNeighbors_optimized(int x,int y){
-		List <Coord> list=new ArrayList<Coord>();
-		if (isFree(x+1,y)) {list.add(new Coord(x+1,y,null));}//right
-		if (isFree(x,y-1)) {list.add(new Coord(x,y-1,null));}//up
-		if (isFree(x-1,y)) {list.add(new Coord(x-1,y,null));}//left
-		if (isFree(x,y+1)) {list.add(new Coord(x,y+1,null));}//down
-//		for(Coord c : list) {
-//			System.out.println((c.x-x)+","+(c.y-y));
-//		}
-		return list;//list.stream().distinct().collect(Collectors.toList());//remove duplicates.
-	}
-	public boolean isBurnt(int x, int y) {
-		if (x>=0&&y>=0&&x<dim&&y<dim&&arr[x][y]==BurntNum) {
-			return true;
-		}
-		return false;
-	}
-	public void updateGrid() {
-		int x=0,y=0;
-		int counter=0;
-		double rand;
-		double prob_cb;
-		int [][]new_arr=new int[dim][dim];
-		for(int i = 0; i< dim; i++) {
-			for(int j = 0 ; j<dim; j++) {
-				new_arr[i][j]=arr[i][j];
-			}
-		}
-		for(x=0;x<=dim-1;x++) {
-			for(y=0;y<=dim-1;y++) {
-				if(x==dim-1&&y==dim-1) {break;}
-				if(isFree(x,y)) {
-					counter=0;
-					if(isBurnt(x-1,y)) {counter++;}
-					if(isBurnt(x+1,y)) {counter++;}
-					if(isBurnt(x,y-1)) {counter++;}
-					if(isBurnt(x,y+1)) {counter++;}
-					if(counter==0) {continue;}
-					rand=((double)(Math.random()*1000)+1)/1000;
-					prob_cb=1-Math.pow((1-p_burn), counter);
-					if(rand<prob_cb) {
-//						System.out.println(arr[x][y]);
-						new_arr[x][y]=BurntNum;
-						/* System.out.println(arr[x][y]); */
-					}
-				}
-			}
-		}
-		this.arr=new_arr;
-	}
 	
-	public void setFire(int x, int y) {
-//		if(arr[x][y]!=StartNum &&arr[x][y]!=EndNum && arr[x][y]!=WallNum) {
-			arr[x][y]=BurntNum;
-//		}
+	//for agent board only:
+	public void markMine(int x, int y) {
+		 arr[x][y]=aMine;
+		 numMines++;
 	}
-	
-	public void showPath(Coord goal) {
-		
-		for (Coord ptr = goal; ptr != null; ptr = ptr.parent) {
-			//System.out.println("parent of " + ptr + " is " + ptr.parent);
-			occupy(ptr.x, ptr.y); 
-		}
-		 arr[0][0] =  StartNum;
-		 arr[dim - 1][dim - 1] =  EndNum;
-	}
-	public int getNumAt(int x,int y) {
-		return arr[x][y];
+	//for agent board only:
+	public void markClear(int x, int y) {
+		 arr[x][y]=aClear; 
 	}
 	 
-	public Grid mate(Grid p2) {//p1 is 'this' instance.
-		if (dim!=p2.dim) return null;
-		 double percentage= ((double)(Math.random()*1000)+1)/1000; //This is the percentage of the board that will be child from parent 1.
-		//Create child:
-		Grid child=new Grid(dim,0);
-		for(int i=0;i<dim;i++) {
-			for(int j=0;j<dim;j++) {
-				double rand=((double)(Math.random()*1000)+1)/1000; 
-				if (rand<percentage) {
-					child.arr[i][j]= this.getNumAt(i, j); 
-				}else {
-					child.arr[i][j]= p2.getNumAt(i, j); 
-				} 
-			}
-		} 
-		return child;
-	}
-	public void mutate(double mutationStrength) {
-		//change a 10% of squares.
-		int amountOfChanges=(int) Math.ceil(dim*dim*mutationStrength);
-		int i=0;
-		while(i<amountOfChanges) {
-			int x=(int)(Math.random()*dim); 
-			int y=(int)(Math.random()*dim); 
-			int newX=x+(int)(Math.random()*3-1); 
-			int newY=y+(int)(Math.random()*3-1); 
-			if (arr[x][y]==WallNum && newX>=0&&newX<dim &&newY>=0 && newY<dim  ) {
-				int swap=arr[x][y];
-				arr[x][y]=arr[newX][newY];
-				arr[newX][newY]=swap;
-				i++;
-			}
-		}
-		
- 
-	}
-
 }
