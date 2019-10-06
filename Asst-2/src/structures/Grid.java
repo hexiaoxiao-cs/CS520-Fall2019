@@ -11,9 +11,10 @@ public class Grid {
 	public int dim;
 	public int numMines; 
 	 
-	public final static char eMine='*'; 
+	public final static char eMine='*';
+	public final static char aHidden='?';
 	public final static char aMine='M';
-	public final static char aClear='C';
+	public final static char aSafe='C';
 	 
 	public Grid(char type,int dim, int numMines) {//initialize board:
 		if (numMines>dim*dim) System.err.println("too many mines");
@@ -46,7 +47,7 @@ public class Grid {
 		}else {//Agent Board.
 			for(int i=0;i<dim;i++) {
 				for (int j=0;j<dim;j++)
-					arr[i][j]='?';
+					arr[i][j]=aHidden;
 			} 
 		}
 	}
@@ -97,7 +98,7 @@ public class Grid {
 	}
 	//for agent board only:
 	public void markClear(int x, int y) {
-		 arr[x][y]=aClear; 
+		 arr[x][y]=aSafe; 
 	}
 	 
 }
