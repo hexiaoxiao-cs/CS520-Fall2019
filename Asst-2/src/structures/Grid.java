@@ -13,8 +13,9 @@ public class Grid {
 	 
 	public final static char eMine='*';
 	public final static char aHidden='?';
-	public final static char aMine='M';
-	public final static char aSafe='C';
+	public final static char aMineAndCovered='M';
+	public final static char aSafeAndCovered='C';
+	public final static char aMineExploded=eMine;
 	 
 	public Grid(char type,int dim, int numMines) {//initialize board:
 		if (numMines>dim*dim) System.err.println("too many mines");
@@ -91,14 +92,17 @@ public class Grid {
 		return list;
 	}
 	
-	//for agent board only:
-	public void markMine(int x, int y) {
-		 arr[x][y]=aMine;
-		 numMines++;
+	public List<int[]> getAllCoords(){
+		List <int[]> list=new ArrayList<int[]>();
+		for(int i=0;i<dim;i++) {
+			for (int j=0;j<dim;j++) {
+				int coord[]= {i,j};
+				list.add(coord);
+			}
+		} 
+		return list;
 	}
-	//for agent board only:
-	public void markClear(int x, int y) {
-		 arr[x][y]=aSafe; 
-	}
+	
+	
 	 
 }
