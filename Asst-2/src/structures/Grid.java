@@ -1,6 +1,7 @@
 package structures;
 
 import java.util.*;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 import app.Minesweeper.*;
@@ -92,7 +93,8 @@ public class Grid {
 		return list;
 	}
 	
-	public List<int[]> getAllCoords(){
+	
+	public List<int[]> getAllCoords() {
 		List <int[]> list=new ArrayList<int[]>();
 		for(int i=0;i<dim;i++) {
 			for (int j=0;j<dim;j++) {
@@ -102,7 +104,12 @@ public class Grid {
 		} 
 		return list;
 	}
-	
+
+
+	 
+
+
+	 
 	
 	 
 }

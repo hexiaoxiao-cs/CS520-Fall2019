@@ -45,9 +45,10 @@ public class Agent {
 		ret.removeIf((int[] coord)->board.arr[coord[0]][coord[1]]<'0'||board.arr[coord[0]][coord[1]]>'9' );
 		return ret;
 	}
+	
 
 	public boolean query(Environment e, int x, int y) {//return num mines safely ID. if queried a mine, return -1
-		board.show();
+		
 		char clue=e.board.arr[x][y];
 		board.arr[x][y]=clue;
 		if (e.board.arr[x][y]==Grid.eMine) {
@@ -55,7 +56,7 @@ public class Agent {
 			return false;
 		}
 
-		if (baseline) {
+		if (baseline) {System.out.print("querying "+x+","+y+"\t");//board.show();
 			//board.getAllCoords().stream().forEach((int[] c->{ System.out.println()});
 			int clueNum='8';
 			if (clue!=Grid.eMine) {
@@ -63,18 +64,16 @@ public class Agent {
 			}
 			List<int[]> totalNeighbors=board.getNeighbors(x, y);
 			List<int[]> hidden=hiddenNeighbors(x,y);
-			//System.out.println(clueNum+"-"+board.numMines+"="+hidden.size());
+			System.out.println(clueNum+"-"+board.numMines+"="+hidden.size());
 			if(clueNum-board.numMines==hidden.size()) {
 				hidden.stream().forEach((int[] coord)-> {markMine(coord[0],coord[1]);safelyIdentified++;});
 			}
 			List<int[]> safe=safeNeighbors(x,y);
-			//System.out.println(8-clueNum-safe.size()+" ---"+hidden.size());
+			System.out.println(8-clueNum-safe.size()+" ---"+hidden.size());
 			if(totalNeighbors.size()-clueNum-safe.size()==hidden.size()) {
 				hidden.stream().forEach((int[] coord)-> markSafe(e,coord[0],coord[1]));
 			}
-		
-		//after everything, query all the safe negihbors.
-
+			 
 	}else {
 		updateKB(  ); 
 	}
