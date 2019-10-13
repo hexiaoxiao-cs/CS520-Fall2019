@@ -21,11 +21,13 @@ public class Minesweeper{
 		int numMines=99;
 		Environment e=new Environment(dim,numMines);	//this grid has all the answers (mine locations and clues)
 		
-		boolean baseline=true;
-		Agent a=new Agent(dim,baseline); //grid filled with '?'
-
-		//this is for testing baseline: 
-		boolean allowInput=false;
+		boolean baseline=false;
+		Agent a=new Agent(dim,baseline);
+		Agent_Method_1 b=new Agent_Method_1(dim);
+		
+		//this is for testing: 
+		
+		boolean allowInput=true;
 		Scanner scan=new Scanner(System.in);
 
 		//Start Game:
@@ -33,7 +35,13 @@ public class Minesweeper{
 			
 			System.out.println("num mines revealed="+a.board.numMines);
 			System.out.println("environment board:"); e.board.show();
-			System.out.println("agent board:"); a.board.show();
+			if(baseline) {
+				System.out.println("agent board:"); a.board.show();
+			}
+			else {
+				System.out.println("agent board:"); b.board.show();
+			}
+			
 
 			int[] queryCoord=a.assessKB();	
 			if (queryCoord==null) {
@@ -48,12 +56,21 @@ public class Minesweeper{
 						StringTokenizer input = new StringTokenizer(scan.nextLine());
 						queryCoord[0]=Integer.parseInt(input.nextToken());
 						queryCoord[1]=Integer.parseInt(input.nextToken()); 
-					}*/
-					
-				}else {//not baseline stuff
-					
-					
-					
+					}
+				}else {
+					queryCoord= new int[2];
+					if (allowInput) {//You choose random in the terminal: 
+						System.out.println("\nInput random coordinate with format row+' '+column:");
+						StringTokenizer input = new StringTokenizer(scan.nextLine());
+						queryCoord[0]=Integer.parseInt(input.nextToken());
+						queryCoord[1]=Integer.parseInt(input.nextToken()); 
+					}
+					if(b.query(e, queryCoord[0], queryCoord[1])==false) {System.out.println("Boom"); return;}
+					//For each query, the algorithm will automatically determine and expand the board to whether it can not derive a solution
+					while(!b.safe_nodes.isEmpty()) {
+						int[] coord= b.safe_nodes.poll();
+						if(b.query(e,coord[0] , coord[1])==false) {System.out.println("Boom");return;}
+					}
 				}
 				
 
