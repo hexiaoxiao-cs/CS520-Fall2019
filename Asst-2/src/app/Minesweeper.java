@@ -58,7 +58,7 @@ public class Minesweeper{
 						queryCoord[1]=Integer.parseInt(input.nextToken()); 
                         }*/
 					}
-				}else {
+				else {
 					queryCoord= new int[2];
 					if (allowInput) {//You choose random in the terminal: 
 						System.out.println("\nInput random coordinate with format row+' '+column:");
@@ -96,7 +96,7 @@ public class Minesweeper{
 				toQuery.stream().distinct().forEach((int[]coord)->a.query(e, coord[0], coord[1]));
 			}
 
-		} 
+		}
 		System.out.println("All mines revealed: "+a.safelyIdentified+"/"+a.board.numMines+"~="+(int)((double)a.safelyIdentified/a.board.numMines*100)+"% safely identified."); 
 		a.board.show();
 		scan.close();
