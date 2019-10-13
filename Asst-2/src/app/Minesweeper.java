@@ -17,8 +17,8 @@ public class Minesweeper{
 	
 
 	public static void main(String args[]) {
-		int dim=5;
-		int numMines=10;
+		int dim=23;
+		int numMines=99;
 		Environment e=new Environment(dim,numMines);	//this grid has all the answers (mine locations and clues)
 		
 		boolean baseline=true;
@@ -39,17 +39,16 @@ public class Minesweeper{
 			if (queryCoord==null) {
 				if (baseline) {
 					queryCoord=new int[2];
-					//Computer chooses random coordinate to query (block with '?'):
-					 
+					//Computer chooses random coordinate to query (a random block with '?'):
 					List<int[]> possibleCoords=a.board.getAllCoords().stream().filter((int[] coord)->a.board.arr[coord[0]][coord[1]]==Grid.aHidden ).collect(Collectors.toList());
 					queryCoord=possibleCoords.get((int)(Math.random()*possibleCoords.size())); 
-					
+					/*
 					if (allowInput) {//if you choose random in the terminal: 
 						System.out.println("\nInput random coordinate with format row+' '+column:");
 						StringTokenizer input = new StringTokenizer(scan.nextLine());
 						queryCoord[0]=Integer.parseInt(input.nextToken());
 						queryCoord[1]=Integer.parseInt(input.nextToken()); 
-					}
+					}*/
 					
 				}else {//not baseline stuff
 					
@@ -65,8 +64,10 @@ public class Minesweeper{
 				//to update its knowledge base. 
 				//In this way the game can continue until the entire board is revealed 
 			} 
-			if (baseline) { //after querying the main block, see if we need to update more blocks.
-				//for each hidden block, query uncovered neighbors with clues (not hidden)
+			if (baseline) { 
+				//Deduce everything before continuing:
+				//	(after querying the main block, see if we need to update more blocks.)
+				//	for each hidden block, query neighbors with clues (not hidden) to see if it marks/reveals hidden block
 				List<int[]> toQuery=new ArrayList<int[]>();
 				Predicate<int[]> p1=(int[]coord)->a.board.arr[coord[0]][coord[1]]==Grid.aHidden;
 				Predicate<int[]> p2=(int[]coord)->a.board.arr[coord[0]][coord[1]]>='0'&&a.board.arr[coord[0]][coord[1]]<='8';

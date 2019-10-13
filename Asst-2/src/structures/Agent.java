@@ -5,7 +5,7 @@ import java.util.*;
 public class Agent {
 	public Grid board;
 	public boolean baseline;	//is baseline agent.
-	public int safelyIdentified=0; 
+	public int safelyIdentified=0; //number of safely identified mines.
 	//public datasturcture KB;
 	public Agent(int dim, boolean baseline) {
 		board=new Grid('a',dim,0);
@@ -45,7 +45,7 @@ public class Agent {
 		ret.removeIf((int[] coord)->board.arr[coord[0]][coord[1]]<'0'||board.arr[coord[0]][coord[1]]>'8' );
 		return ret;
 	}
-	private List<int[]> foundMineNeighbors(int x, int y){//safe neighbors are numbered cells
+	private List<int[]> foundMineNeighbors(int x, int y){//found mine neighbors are cells marked 'M' or exploded '*'
 		List<int[]> ret=board.getNeighbors(x, y);
 		ret.removeIf((int[] coord)->board.arr[coord[0]][coord[1]]!=Grid.aMineAndCovered&&board.arr[coord[0]][coord[1]]!=Grid.aMineExploded );
 		return ret;
@@ -61,24 +61,17 @@ public class Agent {
 			return false;
 		}
 
-		if (baseline&&clue!=Grid.eMine) {//System.out.print("querying "+x+","+y+"\t");board.show();
-			//board.getAllCoords().stream().forEach((int[] c->{ System.out.println()});
-		
-	
-			int clueNum='8';
-			if (clue!=Grid.eMine) {
-				clueNum=clue-'0';
-			}
+		if (baseline&&clue!=Grid.eMine) { 
+			int clueNum=clue-'0';
 			List<int[]> totalNeighbors=board.getNeighbors(x, y);
 			List<int[]> hidden=hiddenNeighbors(x,y);
-			//System.out.println(clueNum+"-"+foundMineNeighbors(x,y).size()+"="+hidden.size());
-			 
-			if(clueNum-foundMineNeighbors(x,y).size()==hidden.size()) {//totalNeighbors.get(revealed)
+			if(clueNum-foundMineNeighbors(x,y).size()==hidden.size()) {
+				//"If, for a given cell, the total number of mines (the clue) minus the number of revealed mines is the number of hidden neighbors, every hidden neighbor is a mine."
 				 hidden.stream().forEach((int[] coord)-> {markMine(coord[0],coord[1]);safelyIdentified++;});
 			}
 			List<int[]> safe=safeNeighbors(x,y);
-			//System.out.println(8-clueNum-safe.size()+" ---"+hidden.size());
 			if(totalNeighbors.size()-clueNum-safe.size()==hidden.size()) {
+				//"If, for a given cell, the total number of safe neighbors (8 - clue) minus the number of revealed safe neighbors is the number of hidden neighbors, every hidden neighbor is safe."
 				hidden.stream().forEach((int[] coord)-> markSafe(e,coord[0],coord[1]));
 			}
 			 
