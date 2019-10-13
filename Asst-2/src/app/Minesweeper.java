@@ -18,29 +18,30 @@ public class Minesweeper{
 
 	public static void main(String args[]) {
 		int dim=5;
-		int numMines=3;
+		int numMines=10;
 		Environment e=new Environment(dim,numMines);	//this grid has all the answers (mine locations and clues)
 		
 		boolean baseline=true;
 		Agent a=new Agent(dim,baseline); //grid filled with '?'
 
 		//this is for testing baseline: 
-		boolean allowInput=true;
+		boolean allowInput=false;
 		Scanner scan=new Scanner(System.in);
 
 		//Start Game:
 		while(a.board.numMines<numMines) {	//while we havent found all the mines
-			System.out.println("environment board:"); e.board.show();
-			System.out.println("agent board:"); a.board.show();
+			System.out.println("num mines revealed="+a.board.numMines);
+			//System.out.println("environment board:"); e.board.show();
+			//System.out.println("agent board:"); a.board.show();
 
 			int[] queryCoord=a.assessKB();	
 			if (queryCoord==null) {
 				if (baseline) {
 					queryCoord=new int[2];
-					//Computer chooses random coordinate to query:
+					//Computer chooses random coordinate to query (block with '?'):
 					 
-					//List<int[]> possibleCoords=a.board.getAllCoordsSuchThat((int[] coord)->true).stream().any;
-					//queryCoord=possibleCoords.get((int)(Math.random()*possibleCoords.size())); 
+					List<int[]> possibleCoords=a.board.getAllCoords().stream().filter((int[] coord)->a.board.arr[coord[0]][coord[1]]==Grid.aHidden ).collect(Collectors.toList());
+					queryCoord=possibleCoords.get((int)(Math.random()*possibleCoords.size())); 
 					
 					if (allowInput) {//if you choose random in the terminal: 
 						System.out.println("\nInput random coordinate with format row+' '+column:");
@@ -63,7 +64,7 @@ public class Minesweeper{
 				//to update its knowledge base. 
 				//In this way the game can continue until the entire board is revealed 
 			} 
-			if (baseline) { //System.out.println("done quering the main one. query lingering ones.");
+			if (baseline) { //after querying the main block, see if we need to update more blocks.
 				//for each hidden block, query uncovered neighbors with clues (not hidden)
 				List<int[]> toQuery=new ArrayList<int[]>();
 				Predicate<int[]> p1=(int[]coord)->a.board.arr[coord[0]][coord[1]]==Grid.aHidden;
@@ -73,12 +74,12 @@ public class Minesweeper{
 					toQuery.addAll( a.board.getNeighbors(coord[0], coord[1]).stream().filter(p2).collect(Collectors.toList()));
 				}
 				toQuery.stream().distinct().forEach((int[]coord)->a.query(e, coord[0], coord[1]));
-				
 			}
 
 		} 
-		System.out.println(a.safelyIdentified+"/"+a.board.numMines+" safely identified."); 
-
+		System.out.println("All mines revealed: "+a.safelyIdentified+"/"+a.board.numMines+"~="+(int)((double)a.safelyIdentified/a.board.numMines*100)+"% safely identified."); 
+		a.board.show();
+		scan.close();
 	}
 	
 

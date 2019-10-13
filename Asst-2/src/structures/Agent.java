@@ -42,7 +42,12 @@ public class Agent {
 	}
 	private List<int[]> safeNeighbors(int x, int y){//safe neighbors are numbered cells
 		List<int[]> ret=board.getNeighbors(x, y);
-		ret.removeIf((int[] coord)->board.arr[coord[0]][coord[1]]<'0'||board.arr[coord[0]][coord[1]]>'9' );
+		ret.removeIf((int[] coord)->board.arr[coord[0]][coord[1]]<'0'||board.arr[coord[0]][coord[1]]>'8' );
+		return ret;
+	}
+	private List<int[]> foundMineNeighbors(int x, int y){//safe neighbors are numbered cells
+		List<int[]> ret=board.getNeighbors(x, y);
+		ret.removeIf((int[] coord)->board.arr[coord[0]][coord[1]]!=Grid.aMineAndCovered&&board.arr[coord[0]][coord[1]]!=Grid.aMineExploded );
 		return ret;
 	}
 	
@@ -56,20 +61,23 @@ public class Agent {
 			return false;
 		}
 
-		if (baseline) {System.out.print("querying "+x+","+y+"\t");//board.show();
+		if (baseline&&clue!=Grid.eMine) {//System.out.print("querying "+x+","+y+"\t");board.show();
 			//board.getAllCoords().stream().forEach((int[] c->{ System.out.println()});
+		
+	
 			int clueNum='8';
 			if (clue!=Grid.eMine) {
 				clueNum=clue-'0';
 			}
 			List<int[]> totalNeighbors=board.getNeighbors(x, y);
 			List<int[]> hidden=hiddenNeighbors(x,y);
-			System.out.println(clueNum+"-"+board.numMines+"="+hidden.size());
-			if(clueNum-board.numMines==hidden.size()) {
-				hidden.stream().forEach((int[] coord)-> {markMine(coord[0],coord[1]);safelyIdentified++;});
+			//System.out.println(clueNum+"-"+foundMineNeighbors(x,y).size()+"="+hidden.size());
+			 
+			if(clueNum-foundMineNeighbors(x,y).size()==hidden.size()) {//totalNeighbors.get(revealed)
+				 hidden.stream().forEach((int[] coord)-> {markMine(coord[0],coord[1]);safelyIdentified++;});
 			}
 			List<int[]> safe=safeNeighbors(x,y);
-			System.out.println(8-clueNum-safe.size()+" ---"+hidden.size());
+			//System.out.println(8-clueNum-safe.size()+" ---"+hidden.size());
 			if(totalNeighbors.size()-clueNum-safe.size()==hidden.size()) {
 				hidden.stream().forEach((int[] coord)-> markSafe(e,coord[0],coord[1]));
 			}
@@ -82,8 +90,9 @@ public class Agent {
 }
 
 //for agent board only:
-public void markMine(int x, int y) {
-	board.arr[x][y]=Grid.aMineAndCovered;
+public void markMine(int x, int y) {		if (board.arr[x][y]=='*') System.err.print("bomb already exploded, shouldnt be here");
+	System.out.println(y+" "+x+" is marked.");
+	board.arr[x][y]=Grid.aMineAndCovered; 
 	board.numMines++;
 }
 //for agent board only:
@@ -93,17 +102,7 @@ public void markSafe(Environment e,int x, int y) {
 }	
 
 
-/*Implement the following simple agent as a baseline strategy to compare against your own:
- *  • For each cell, keep track of  
-	– the number of safe squares identified around it – the number of mines identified around it.
-	– the number of hidden squares around it.
-	• If, for a given cell, 
-		the total number of mines (the clue) minus the number of revealed mines is the number of hidden neighbors, every hidden neighbor is a mine.
-		the total number of safe neighbors (8 - clue) minus the number of revealed safe neighbors is the number of hidden neighbors, every hidden neighbor is safe.
-
-	• If no hidden cell can be conclusively identified as a mine or safe, pick a cell to reveal at random.
-	This is a weak inference algorithm based entirely on local data and comparisons, but you should expect this to be quite effective in a lot of situations. How can you do better?
- */
+ 
 
 
 
