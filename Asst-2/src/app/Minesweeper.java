@@ -30,9 +30,10 @@ public class Minesweeper{
 
 		//Start Game:
 		while(a.board.numMines<numMines) {	//while we havent found all the mines
+			
 			System.out.println("num mines revealed="+a.board.numMines);
-			//System.out.println("environment board:"); e.board.show();
-			//System.out.println("agent board:"); a.board.show();
+			System.out.println("environment board:"); e.board.show();
+			System.out.println("agent board:"); a.board.show();
 
 			int[] queryCoord=a.assessKB();	
 			if (queryCoord==null) {

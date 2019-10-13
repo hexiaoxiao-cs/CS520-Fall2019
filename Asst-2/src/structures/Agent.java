@@ -91,7 +91,7 @@ public class Agent {
 
 //for agent board only:
 public void markMine(int x, int y) {		if (board.arr[x][y]=='*') System.err.print("bomb already exploded, shouldnt be here");
-	System.out.println(y+" "+x+" is marked.");
+	//System.out.println(y+" "+x+" is marked.");
 	board.arr[x][y]=Grid.aMineAndCovered; 
 	board.numMines++;
 }
