@@ -66,7 +66,7 @@ public class Minesweeper{
 				System.out.println("agent board:"); a.board.show();
 			}
 			else {
-				System.out.println("agent board:"); b.board.show();
+				System.out.println("agent board:"); a.board.show();
 			}
 			 
 			int[] queryCoord=a.assessKB();	
@@ -92,11 +92,11 @@ public class Minesweeper{
 						queryCoord[0]=Integer.parseInt(input.nextToken());
 						queryCoord[1]=Integer.parseInt(input.nextToken()); 
 					}
-					if(b.query(e, queryCoord[0], queryCoord[1])==false) {System.out.println("Boom"); return 0;}
+					if(a.query(e, queryCoord[0], queryCoord[1])==false) {System.out.println("Boom"); return;}
 					//For each query, the algorithm will automatically determine and expand the board to whether it can not derive a solution
-					while(!b.safe_nodes.isEmpty()) {
-						int[] coord= b.safe_nodes.poll();
-						if(b.query(e,coord[0] , coord[1])==false) {System.out.println("Boom");return 0;}
+					while(!a.safe_nodes.isEmpty()) {
+						int[] coord= a.safe_nodes.poll();
+						if(a.query(e,coord[0] , coord[1])==false) {System.out.println("Boom");return;}
 					}
 				}
 				
