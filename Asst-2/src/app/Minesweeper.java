@@ -16,10 +16,14 @@ public class Minesweeper{
 	
 	public static void main(String args[]) {
  
-		boolean baseline=true;
-		int dim=25;
+		boolean baseline=false;
+		int dim=23;
+		playGame(baseline,dim,99,0);
 		 
+		/*
 		//print average final scores for plot:
+		 baseline=true;	//for baseline
+		 
 		for(int densityNum=1;densityNum<100;densityNum++) {
 			int repeat=500;
 			double avg=0;
@@ -28,7 +32,7 @@ public class Minesweeper{
 			}
 			avg/=repeat;
 			System.out.println(avg);
-		}
+		}*/
 		
 	}
 
