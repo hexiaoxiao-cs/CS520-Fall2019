@@ -3,9 +3,9 @@ package structures;
 import java.util.*;
 
 public class Eqn implements Comparable<Eqn>{
-	public ArrayList<int[]> pts = new ArrayList<int[]>();
+	public ArrayList<Integer[]> pts = new ArrayList<Integer[]>();
 	public int sum = 0;
-	public Eqn(ArrayList<int[]> p, int s) {
+	public Eqn(ArrayList<Integer[]> p, int s) {
 		pts=p;
 		sum=s;
 	}

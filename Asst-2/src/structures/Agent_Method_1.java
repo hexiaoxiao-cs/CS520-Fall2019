@@ -4,7 +4,7 @@ import java.util.*;
 
 
 public class Agent_Method_1 {
-	public Grid board;
+/*	public Grid board;
 	//public data structure KB;
 	public LinkedList<Eqn> equations= new LinkedList<Eqn>(); // Our KB
 	public Queue<int[]> safe_nodes = new LinkedList<int[]>(); // Our Processing Queue
@@ -196,5 +196,5 @@ public class Agent_Method_1 {
 		 updateKB(a); 
 		 
 		 return true;
-	}
+	}*/
 }

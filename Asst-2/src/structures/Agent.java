@@ -4,8 +4,8 @@ import java.util.*;
 
 public class Agent {
 	public Grid board;
-	public LinkedList<Eqn> equations = new LinkedList<Eqn>(); // Our KB
-	public Queue<int[]> safe_nodes = new LinkedList<int[]>(); // Our Processing Queue
+	public ArrayList<Eqn> equations = new ArrayList<Eqn>(); // Our KB
+	public Queue<Integer[]> safe_nodes = new LinkedList<Integer[]>(); // Our Processing Queue
 	// public int[][] = new
 	// KB contains equations
 	// Equations means every variable (Coordinate) is either 1 or 0 indicating mine
@@ -40,11 +40,18 @@ public class Agent {
 		this.baseline = baseline;
 	}
 
-	public int[] assessKB() {
-		int[] queryCoord;
-		// assess KB here, return coordinates {x,y} to query.
+	public int[] getNextBestPoint() {
+		SolutionSet ss = new SolutionSet(equations);
+		ss.find_soln_set();
+		Integer[] a = ss.getNextBestGuess();
+		int[] b= new int[2];
+		if(a==null) {
+			return null;
+		}
+		b[0]=a[0];
+		b[1]=a[1];
+		return b;
 
-		return null;
 	}
 
 	public void updateKB(Eqn to_insert) {
@@ -61,58 +68,62 @@ public class Agent {
 
 		if (to_insert.sum == to_insert.pts.size() || to_insert.sum == 0) { // Never Insert some Eqn with Sum = 0
 			if (to_insert.sum == 0) {
-				for (int[] c : to_insert.pts) {
-					System.out.println("Safe and Covered added," + c[0] + "," + c[1]);
+				for (Integer[] c : to_insert.pts) {
+					//System.out.println("Safe and Covered added," + c[0] + "," + c[1]);
 					safe_nodes.add(c);
 
 					board.arr[c[0]][c[1]] = board.aSafeAndCovered;
 				}
 			} else {
-				for (int[] c : to_insert.pts) {
+				for (Integer[] c : to_insert.pts) {
 					// safe_nodes.add(c);
-					System.out.println("Mine and Covered added," + c[0] + "," + c[1]);
+					//System.out.println("Mine and Covered added," + c[0] + "," + c[1]);
 					board.arr[c[0]][c[1]] = board.aMineAndCovered;
-					board.numMines--;
+					board.numMines++;
+					safelyIdentified++;
 				}
 			}
 			// Update KB
 			for (Iterator<Eqn> iter_eqn = equations.iterator(); iter_eqn.hasNext();) {
 				Eqn c = iter_eqn.next();
-				for (Iterator<int[]> iter_c = c.pts.iterator(); iter_c.hasNext();) {
-					int[] coord = iter_c.next();
+				for (Iterator<Integer[]> iter_c = c.pts.iterator(); iter_c.hasNext();) {
+					Integer[] coord = iter_c.next();
 					if (board.arr[coord[0]][coord[1]] == board.aSafeAndCovered) {
-						System.out.println("Removed Safe and Covered " + coord[0] + "," + coord[1]);
+						//System.out.println("Removed Safe and Covered " + coord[0] + "," + coord[1]);
 						iter_c.remove();// delete this entry
-
+						continue;
 					}
 					if (board.arr[coord[0]][coord[1]] == board.aMineAndCovered
+							|| board.arr[coord[0]][coord[1]] == board.aMineExploded
 							|| board.arr[coord[0]][coord[1]] == board.eMine) {
-						System.out.println(
-								"Removed Mine and Covered " + coord[0] + "," + coord[1] + ",Result Sum" + (c.sum - 1));
+						//System.out.println(
+//								"Removed Mine and Covered " + coord[0] + "," + coord[1] + ",Result Sum" + (c.sum - 1));
 						iter_c.remove();
 						c.sum--;
+						continue;
 					}
 					if (c.pts.size() == c.sum || c.sum == 0) {// only one stuff -> means singleton, And First if
 																// statement make sure that sum!=0
 						if (c.sum == 0) {
 
-							for (int[] mine : c.pts) {
+							for (Integer[] mine : c.pts) {
 								board.arr[mine[0]][mine[1]] = board.aSafeAndCovered;
-								System.out.println(
-										"Sum=0, Singleton, adding to Safe and Covered" + mine[0] + "," + mine[1]);
+								//System.out.println(
+//										"Sum=0, Singleton, adding to Safe and Covered" + mine[0] + "," + mine[1]);
 								safe_nodes.add(mine);
 							}
-							System.out.println("Equation being removed");
+							//System.out.println("Equation being removed");
 							iter_eqn.remove();
 							break;
 						}
-						for (int[] mine : c.pts) {
+						for (Integer[] mine : c.pts) {
 							board.arr[mine[0]][mine[1]] = board.aMineAndCovered;
-							board.numMines--;
-							System.out
-									.println("Sum!=0, Singleton, adding to Mine and Covered" + mine[0] + "," + mine[1]);
+							board.numMines++;
+							safelyIdentified++;
+							//System.out
+							//		.println("Sum!=0, Singleton, adding to Mine and Covered" + mine[0] + "," + mine[1]);
 						}
-						System.out.println("Equation being Removed");
+						//System.out.println("Equation being Removed");
 						iter_eqn.remove();
 						break;
 					}
@@ -123,12 +134,12 @@ public class Agent {
 			boolean isInserted = false;
 			ArrayList<Eqn> to_add = new ArrayList<Eqn>();
 			// ArrayList<Eqn> to_delete=new ArrayList<Eqn>();
-			System.out.println("Not singleton or trivial answers");
+			//System.out.println("Not singleton or trivial answers");
 			for (Iterator<Eqn> iter_eqn = equations.iterator(); iter_eqn.hasNext();) {
 				Eqn c = iter_eqn.next();
 				if (c.pts.containsAll(to_insert.pts)) {
 					if (c.pts.size() == to_insert.pts.size()) {// repetitive, rejection
-						System.out.println("Repetitive, Rejection");
+						//System.out.println("Repetitive, Rejection");
 						return;
 					}
 					// non-repetitive, split
@@ -228,21 +239,23 @@ public class Agent {
 			 if (e.board.arr[x][y]==Grid.eMine) 
 				 return false;
 			 board.arr[x][y]=e.board.arr[x][y];
-			 ArrayList<int[]> add_list= new ArrayList<int[]>();
+			 ArrayList<Integer[]> add_list= new ArrayList<Integer[]>();
 			 int sum = board.arr[x][y]-'0';
 			 for(int[] c : board.getNeighbors(x, y)) {
-
-				 	if(board.arr[c[0]][c[1]]==board.aMineAndCovered) {
-				 		System.out.println("MineAndCovered"+(sum-1));
+				 Integer[] c_int = new Integer[2];
+				 c_int[0]=c[0];
+				 c_int[1]=c[1];
+				 	if(board.arr[c[0]][c[1]]==board.aMineAndCovered|| board.arr[c[0]][c[1]]==board.aMineExploded) {
+				 		//System.out.println("MineAndCovered"+(sum-1));
 				 		sum--;
 				 	}
 					if(board.arr[c[0]][c[1]]==board.aHidden) {
-						System.out.println("Hidden Node,"+c[0]+","+c[1]);
-						add_list.add(c);
+						//System.out.println("Hidden Node,"+c[0]+","+c[1]);
+						add_list.add(c_int);
 
 				 }
 			 }
-			 System.out.println("Current Eqn originated from"+x+","+y+"with sum"+sum);
+			 //System.out.println("Current Eqn originated from"+x+","+y+"with sum"+sum);
 			 Eqn a = new Eqn(add_list,sum);
 			 
 			 updateKB(a); 
@@ -257,7 +270,7 @@ public class Agent {
 	public void markMine(int x, int y) {
 		if (board.arr[x][y] == '*')
 			System.err.print("bomb already exploded, shouldnt be here");
-		// System.out.println(y+" "+x+" is marked.");
+		// //System.out.println(y+" "+x+" is marked.");
 		board.arr[x][y] = Grid.aMineAndCovered;
 		board.numMines++;
 	}

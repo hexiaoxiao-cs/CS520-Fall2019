@@ -17,12 +17,12 @@ public class Minesweeper{
 	public static void main(String args[]) {
  
 		boolean baseline=false;
-		int dim=23;
-		playGame(baseline,dim,99,0);
+		int dim=25;
+		//playGame(baseline,dim,99,0);
 		 
-		/*
+		
 		//print average final scores for plot:
-		 baseline=true;	//for baseline
+		 baseline=false;	//for baseline
 		 
 		for(int densityNum=1;densityNum<100;densityNum++) {
 			int repeat=500;
@@ -32,7 +32,7 @@ public class Minesweeper{
 			}
 			avg/=repeat;
 			System.out.println(avg);
-		}*/
+		}
 		
 	}
 
@@ -52,24 +52,25 @@ public class Minesweeper{
 		boolean allowInput=false;
 		Scanner scan=new Scanner(System.in);
   
-		Agent_Method_1 b=new Agent_Method_1(dim);
+		//Agent_Method_1 b=new Agent_Method_1(dim);
 		 
 		
 
 		//Start Game:
 		while(a.board.numMines<numMines) {	//while we havent found all the mines
 			
-			System.out.println("num mines revealed="+a.board.numMines);
-			System.out.println("environment board:"); e.board.show();
- 
-			if(baseline) {
-				System.out.println("agent board:"); a.board.show();
-			}
-			else {
-				System.out.println("agent board:"); a.board.show();
-			}
+//			System.out.println("num mines revealed="+a.board.numMines);
+//			System.out.println("num mines in board ="+e.board.numMines);
+//			System.out.println("environment board:"); e.board.show();
+// 
+//			if(baseline) {
+//				System.out.println("agent board:"); a.board.show();
+//			}
+//			else {
+//				System.out.println("agent board:"); a.board.show();
+//			}
 			 
-			int[] queryCoord=a.assessKB();	
+			int[] queryCoord=null;
 			if (queryCoord==null) {
 				if (baseline) {
 					queryCoord=new int[2];
@@ -86,18 +87,16 @@ public class Minesweeper{
 					}
 				else {
 					queryCoord= new int[2];
-					if (allowInput) {//You choose random in the terminal: 
+					/*if (allowInput) {//You choose random in the terminal: 
 						System.out.println("\nInput random coordinate with format row+' '+column:");
 						StringTokenizer input = new StringTokenizer(scan.nextLine());
 						queryCoord[0]=Integer.parseInt(input.nextToken());
 						queryCoord[1]=Integer.parseInt(input.nextToken()); 
-					}
-					if(a.query(e, queryCoord[0], queryCoord[1])==false) {System.out.println("Boom"); return;}
-					//For each query, the algorithm will automatically determine and expand the board to whether it can not derive a solution
-					while(!a.safe_nodes.isEmpty()) {
-						int[] coord= a.safe_nodes.poll();
-						if(a.query(e,coord[0] , coord[1])==false) {System.out.println("Boom");return;}
-					}
+					}*/
+					List<int[]> possibleCoords=a.board.getAllCoords().stream().filter((int[] coord)->a.board.arr[coord[0]][coord[1]]==Grid.aHidden ).collect(Collectors.toList());
+					queryCoord=possibleCoords.get((int)(Math.random()*possibleCoords.size())); 
+//					queryCoord[0]=0;//If you have played minesweeper, you will know that starting from coner is a good choice.
+//					queryCoord[1]=0;
 				}
 				
 
@@ -121,14 +120,43 @@ public class Minesweeper{
 				}
 				toQuery.stream().distinct().forEach((int[]coord)->a.query(e, coord[0], coord[1]));
 			}
-
+			else {
+				while(a.board.numMines<numMines) {
+					
+					if(a.query(e, queryCoord[0], queryCoord[1])==false) {//System.out.println("Boom");
+						List<int[]> possibleCoords=a.board.getAllCoords().stream().filter((int[] coord)->a.board.arr[coord[0]][coord[1]]==Grid.aHidden ).collect(Collectors.toList());
+						if(possibleCoords.isEmpty()) {break;}
+						queryCoord=possibleCoords.get((int)(Math.random()*possibleCoords.size())); 
+						continue;
+						}
+					//For each query, the algorithm will automatically determine and expand the board to whether it can not derive a solution
+					while(!a.safe_nodes.isEmpty()) {
+						Integer[] coord= a.safe_nodes.poll();
+						if(a.query(e,coord[0] , coord[1])==false) {//System.out.println("Boom");
+						}
+					}
+					if(a.board.numMines!=numMines) {
+						int[] temp = a.getNextBestPoint();
+						if(temp==null||queryCoord[0]==temp[0]&&queryCoord[1]==temp[1]) {// do some random stuff
+							List<int[]> possibleCoords=a.board.getAllCoords().stream().filter((int[] coord)->a.board.arr[coord[0]][coord[1]]==Grid.aHidden ).collect(Collectors.toList());
+							if(possibleCoords.isEmpty()) {break;}
+							queryCoord=possibleCoords.get((int)(Math.random()*possibleCoords.size())); 
+						}else {
+							queryCoord=temp;
+						}
+						
+//						System.out.println(queryCoord[0]+","+queryCoord[1]);
+//						System.out.println(a.board.numMines);
+					}
+				}
+			}
  
 		} 
-		//System.out.println("All mines revealed: "+a.safelyIdentified+"/"+a.board.numMines+"~="+(int)((double)a.safelyIdentified/a.board.numMines*100)+"% safely identified."); 
-		//a.board.show();
+//		System.out.println("All mines revealed: "+a.safelyIdentified+"/"+e.board.numMines+"~="+(int)((double)a.safelyIdentified/a.board.numMines*100)+"% safely identified."); 
+//		a.board.show();
  
 		scan.close();
-		return (int)((double)a.safelyIdentified/a.board.numMines*100);
+		return (int)((double)a.safelyIdentified/e.board.numMines*100);
 	}
 	
 

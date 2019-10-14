@@ -15,8 +15,18 @@ public class Coordinate implements Comparable<Coordinate>{
 		// TODO Auto-generated method stub
 		return this.occur-o.occur;
 	}
-	public boolean equals(Coordinate o) {
-		if(o.x==this.x&&o.y==this.y) {return true;}
+	public boolean equals(Object o) {
+        if (o == this) { 
+            return true; 
+        } 
+  
+        /* Check if o is an instance of Complex or not 
+          "null instanceof [type]" also returns false */
+        if (!(o instanceof Coordinate)) { 
+            return false; 
+        } 
+        Coordinate c = (Coordinate) o;
+		if(c.x==this.x&&c.y==this.y) {return true;}
 		else {return false;}
 	}
 	public boolean equals(int[] o) {
