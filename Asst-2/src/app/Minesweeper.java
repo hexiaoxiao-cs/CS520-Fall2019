@@ -14,14 +14,33 @@ import java.util.stream.IntStream;
 public class Minesweeper{
 	
 	
-	
-
 	public static void main(String args[]) {
-		int dim=23;
-		int numMines=99;
-		Environment e=new Environment(dim,numMines);	//this grid has all the answers (mine locations and clues)
-		
 		boolean baseline=true;
+		int dim=25;
+		 
+		//plot points
+		for(int densityNum=1;densityNum<100;densityNum++) {
+			int repeat=500;
+			double avg=0;
+			for(int i=1;i<repeat;i++) { 
+				avg+=playGame(baseline,dim,0,(double)densityNum/100);
+			}
+			avg/=repeat;
+			System.out.println(avg);
+		}
+		
+	}
+
+	public static double playGame(boolean baseline, int dim, int numMines, double density) {	
+		Environment e;
+		if (density==0&&numMines>0) {
+			e=new Environment(dim,numMines);	//this grid has all the answers (mine locations and clues)
+		}else{
+			e=new Environment(dim,density,true);	
+			numMines=e.board.numMines;
+		}
+		
+		
 		Agent a=new Agent(dim,baseline); //grid filled with '?'
 
 		//this is for testing baseline: 
@@ -30,11 +49,11 @@ public class Minesweeper{
 
 		//Start Game:
 		while(a.board.numMines<numMines) {	//while we havent found all the mines
-			
+			/*
 			System.out.println("num mines revealed="+a.board.numMines);
 			System.out.println("environment board:"); e.board.show();
 			System.out.println("agent board:"); a.board.show();
-
+*/
 			int[] queryCoord=a.assessKB();	
 			if (queryCoord==null) {
 				if (baseline) {
@@ -79,9 +98,10 @@ public class Minesweeper{
 			}
 
 		} 
-		System.out.println("All mines revealed: "+a.safelyIdentified+"/"+a.board.numMines+"~="+(int)((double)a.safelyIdentified/a.board.numMines*100)+"% safely identified."); 
-		a.board.show();
+		//System.out.println("All mines revealed: "+a.safelyIdentified+"/"+a.board.numMines+"~="+(int)((double)a.safelyIdentified/a.board.numMines*100)+"% safely identified."); 
+		//a.board.show();
 		scan.close();
+		return (int)((double)a.safelyIdentified/a.board.numMines*100);
 	}
 	
 
