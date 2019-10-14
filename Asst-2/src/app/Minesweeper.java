@@ -29,6 +29,7 @@ public class Minesweeper{
 			double avg=0;
 			for(int i=1;i<repeat;i++) { 
 				avg+=playGame(baseline,dim,0,(double)densityNum/100);
+				//System.out.println(avg);
 			}
 			avg/=repeat;
 			System.out.println(avg);

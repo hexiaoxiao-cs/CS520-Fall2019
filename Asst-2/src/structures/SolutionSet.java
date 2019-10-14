@@ -21,7 +21,7 @@ public class SolutionSet {
 	public SolutionSet(ArrayList<Eqn> eqns) {
 		equations=eqns;
 		min=0;
-		max=20;
+		max=15;
 		for(Eqn c : equations) {
 			for(Integer[] coord: c.pts) {
 				if(vars.contains(new Coordinate(coord[0],coord[1]))) {
@@ -102,8 +102,9 @@ public class SolutionSet {
 			//no need for a second search
 		}
 		if(isAbleSatisfied(curr_soln)==true) {
-			
+			if(index>=max) {solns.add(soln);}else {
 		find_soln_set_recursive(curr_soln,index+1);}
+		}
 		curr_soln=soln.clone();
 		if(curr_soln[index]==-1) {
 			curr_soln[index]+=2;
