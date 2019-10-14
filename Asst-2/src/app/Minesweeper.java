@@ -15,10 +15,11 @@ public class Minesweeper{
 	
 	
 	public static void main(String args[]) {
+ 
 		boolean baseline=true;
 		int dim=25;
 		 
-		//plot points
+		//print average final scores for plot:
 		for(int densityNum=1;densityNum<100;densityNum++) {
 			int repeat=500;
 			double avg=0;
@@ -46,14 +47,24 @@ public class Minesweeper{
 		//this is for testing baseline: 
 		boolean allowInput=false;
 		Scanner scan=new Scanner(System.in);
+  
+		Agent_Method_1 b=new Agent_Method_1(dim);
+		 
+		
 
 		//Start Game:
 		while(a.board.numMines<numMines) {	//while we havent found all the mines
-			/*
+			
 			System.out.println("num mines revealed="+a.board.numMines);
 			System.out.println("environment board:"); e.board.show();
-			System.out.println("agent board:"); a.board.show();
-*/
+ 
+			if(baseline) {
+				System.out.println("agent board:"); a.board.show();
+			}
+			else {
+				System.out.println("agent board:"); b.board.show();
+			}
+			 
 			int[] queryCoord=a.assessKB();	
 			if (queryCoord==null) {
 				if (baseline) {
@@ -67,22 +78,32 @@ public class Minesweeper{
 						StringTokenizer input = new StringTokenizer(scan.nextLine());
 						queryCoord[0]=Integer.parseInt(input.nextToken());
 						queryCoord[1]=Integer.parseInt(input.nextToken()); 
-					}*/
-					
-				}else {//not baseline stuff
-					
-					
-					
+                        }*/
+					}
+				else {
+					queryCoord= new int[2];
+					if (allowInput) {//You choose random in the terminal: 
+						System.out.println("\nInput random coordinate with format row+' '+column:");
+						StringTokenizer input = new StringTokenizer(scan.nextLine());
+						queryCoord[0]=Integer.parseInt(input.nextToken());
+						queryCoord[1]=Integer.parseInt(input.nextToken()); 
+					}
+					if(b.query(e, queryCoord[0], queryCoord[1])==false) {System.out.println("Boom"); return 0;}
+					//For each query, the algorithm will automatically determine and expand the board to whether it can not derive a solution
+					while(!b.safe_nodes.isEmpty()) {
+						int[] coord= b.safe_nodes.poll();
+						if(b.query(e,coord[0] , coord[1])==false) {System.out.println("Boom");return 0;}
+					}
 				}
 				
 
 			}
-			if (!a.query(e, queryCoord[0], queryCoord[1])) {
+			/*if (!a.query(e, queryCoord[0], queryCoord[1])) {
 				
 				// mine goes off, but the agent can continue using the fact that a mine was discovered there 
 				//to update its knowledge base. 
 				//In this way the game can continue until the entire board is revealed 
-			} 
+			} */
 			if (baseline) { 
 				//Deduce everything before continuing:
 				//	(after querying the main block, see if we need to update more blocks.)
@@ -97,9 +118,11 @@ public class Minesweeper{
 				toQuery.stream().distinct().forEach((int[]coord)->a.query(e, coord[0], coord[1]));
 			}
 
+ 
 		} 
 		//System.out.println("All mines revealed: "+a.safelyIdentified+"/"+a.board.numMines+"~="+(int)((double)a.safelyIdentified/a.board.numMines*100)+"% safely identified."); 
 		//a.board.show();
+ 
 		scan.close();
 		return (int)((double)a.safelyIdentified/a.board.numMines*100);
 	}
