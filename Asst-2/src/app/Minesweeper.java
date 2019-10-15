@@ -24,7 +24,7 @@ public class Minesweeper{
 		//print average final scores for plot:
 		 baseline=false;	//for baseline
 		 
-		for(int densityNum=1;densityNum<100;densityNum++) {
+		for(int densityNum=19;densityNum<100;densityNum++) {
 			int repeat=500;
 			double avg=0;
 			for(int i=1;i<repeat;i++) { 

@@ -44,7 +44,7 @@ public class Agent {
 		for(Eqn eq : equations) {
 			boolean tmp = false;
 			for(Coordinate coord:eq.pts) {
-				if(Math.abs(coord.x-x)>3 || Math.abs(coord.y-y)>3) {
+				if(Math.abs(coord.x-x)>=3 || Math.abs(coord.y-y)>=3) {
 					tmp=false;
 					break;
 				}

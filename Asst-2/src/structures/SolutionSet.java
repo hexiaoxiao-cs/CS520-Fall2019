@@ -24,8 +24,8 @@ public class SolutionSet {
 		max=50;
 		for(Eqn c : equations) {
 			for(Coordinate coord: c.pts) {
-				if(vars.contains(new Coordinate(coord.x,coord.y))) {
-					Coordinate tmp= vars.remove(vars.indexOf(new Coordinate(coord.x,coord.y)));
+				if(vars.contains(coord)) {
+					Coordinate tmp= vars.remove(vars.indexOf(coord));
 					tmp.occur++;
 					vars.add(tmp);
 				}
@@ -84,6 +84,7 @@ public class SolutionSet {
 	}
 	public void find_soln_set() {
 		int[] soln = new int[vars.size()];
+		//System.out.println(vars.size());
 		//f(vars.size()>50) {return ;} //Not Checking any solution space > 2^25
 		Arrays.fill(soln, -1);//Initial Set to -1
 		find_soln_set_recursive(soln,0);
