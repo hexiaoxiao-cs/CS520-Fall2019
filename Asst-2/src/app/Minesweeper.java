@@ -123,20 +123,73 @@ public class Minesweeper{
 			}
 			else {
 				while(a.board.numMines<numMines) {
-					
+					//System.out.println(a.equations.size());
+//					System.out.println(queryCoord[0]+","+queryCoord[1]);
+//					System.out.println(a.board.arr[queryCoord[0]][queryCoord[1]]);
 					if(a.query(e, queryCoord[0], queryCoord[1])==false) {//System.out.println("Boom");
-						List<int[]> possibleCoords=a.board.getAllCoords().stream().filter((int[] coord)->a.board.arr[coord[0]][coord[1]]==Grid.aHidden ).collect(Collectors.toList());
-						if(possibleCoords.isEmpty()) {break;}
-						queryCoord=possibleCoords.get((int)(Math.random()*possibleCoords.size())); 
-						continue;
+						if(a.safe_nodes.isEmpty()) {
+							List<int[]> possibleCoords=a.board.getAllCoords().stream().filter((int[] coord)->a.board.arr[coord[0]][coord[1]]==Grid.aHidden ).collect(Collectors.toList());
+							if(possibleCoords.isEmpty()) {break;}
+							queryCoord=possibleCoords.get((int)(Math.random()*possibleCoords.size())); 
+							continue;
+							}
 						}
 					//For each query, the algorithm will automatically determine and expand the board to whether it can not derive a solution
 					while(!a.safe_nodes.isEmpty()) {
-						Integer[] coord= a.safe_nodes.poll();
-						if(a.query(e,coord[0] , coord[1])==false) {//System.out.println("Boom");
+						Coordinate coord= a.safe_nodes.poll();
+						if(a.query(e,coord.x , coord.y)==false) {//System.out.println("Boom");
 						}
 					}
 					if(a.board.numMines!=numMines) {
+						ArrayList<Coordinate> temp = a.getNextBestPoint_Limited();
+						int counts=0;
+						boolean isChanged=false;
+						for(Coordinate c : temp) {
+							if(c.occur!=0) {
+								if(counts!=0) {break;
+								}
+								else {
+									if(a.board.arr[queryCoord[0]][queryCoord[1]]!=a.board.aHidden) {
+										
+										continue;
+									}
+									else {
+									queryCoord[0]=c.x;
+									queryCoord[1]=c.y;
+									isChanged=true;
+									break;
+									}
+								}
+							}
+							else {
+
+								a.safe_nodes.add(c);
+							}
+						}
+						Coordinate tt= a.safe_nodes.poll();
+						if(tt==null) {
+							if(isChanged==true) {
+								continue;
+							}
+							else {
+								List<int[]> possibleCoords=a.board.getAllCoords().stream().filter((int[] coord)->a.board.arr[coord[0]][coord[1]]==Grid.aHidden ).collect(Collectors.toList());
+								if(possibleCoords.isEmpty()) {break;}
+								queryCoord=possibleCoords.get((int)(Math.random()*possibleCoords.size())); 
+								continue;
+							}
+						}else {
+							if(a.board.arr[queryCoord[0]][queryCoord[1]]!=a.board.aHidden) {
+								List<int[]> possibleCoords=a.board.getAllCoords().stream().filter((int[] coord)->a.board.arr[coord[0]][coord[1]]==Grid.aHidden ).collect(Collectors.toList());
+								if(possibleCoords.isEmpty()) {break;}
+								queryCoord=possibleCoords.get((int)(Math.random()*possibleCoords.size())); 
+								continue;
+							}else {
+							queryCoord[0]=tt.x;
+							queryCoord[1]=tt.y;
+							}
+						}
+						
+						/*
 						int[] temp = a.getNextBestPoint();
 						if(temp==null||queryCoord[0]==temp[0]&&queryCoord[1]==temp[1]) {// do some random stuff
 							List<int[]> possibleCoords=a.board.getAllCoords().stream().filter((int[] coord)->a.board.arr[coord[0]][coord[1]]==Grid.aHidden ).collect(Collectors.toList());
@@ -145,7 +198,7 @@ public class Minesweeper{
 						}else {
 							queryCoord=temp;
 						}
-						
+						*/
 //						System.out.println(queryCoord[0]+","+queryCoord[1]);
 //						System.out.println(a.board.numMines);
 					}
@@ -155,7 +208,7 @@ public class Minesweeper{
 		} 
 //		System.out.println("All mines revealed: "+a.safelyIdentified+"/"+e.board.numMines+"~="+(int)((double)a.safelyIdentified/a.board.numMines*100)+"% safely identified."); 
 //		a.board.show();
- 
+// 
 		scan.close();
 		return (int)((double)a.safelyIdentified/e.board.numMines*100);
 	}

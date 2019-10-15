@@ -5,7 +5,7 @@ import java.util.*;
 public class Agent {
 	public Grid board;
 	public ArrayList<Eqn> equations = new ArrayList<Eqn>(); // Our KB
-	public Queue<Integer[]> safe_nodes = new LinkedList<Integer[]>(); // Our Processing Queue
+	public Queue<Coordinate> safe_nodes = new LinkedList<Coordinate>(); // Our Processing Queue
 	// public int[][] = new
 	// KB contains equations
 	// Equations means every variable (Coordinate) is either 1 or 0 indicating mine
@@ -39,7 +39,59 @@ public class Agent {
 		board = new Grid('a', dim, 0);
 		this.baseline = baseline;
 	}
-
+	public ArrayList<Eqn> make_smaller_KB(int x, int y) {
+		ArrayList<Eqn> smaller= new ArrayList<Eqn>();
+		for(Eqn eq : equations) {
+			boolean tmp = false;
+			for(Coordinate coord:eq.pts) {
+				if(Math.abs(coord.x-x)>3 || Math.abs(coord.y-y)>3) {
+					tmp=false;
+					break;
+				}
+				else {
+					tmp=true;
+				}
+			}
+			if(tmp==true) {
+				smaller.add(eq);
+			}
+		}
+		return smaller;
+	}
+	public ArrayList<Coordinate> getNextBestPoint_Limited() {//Search in the 5*5 area
+		SolutionSet ss = new SolutionSet(equations);
+		int[] final_results=new int[ss.vars.size()];
+		ArrayList<Coordinate> to_return = new ArrayList<Coordinate> ();
+		//Arrays.fill(final_results, -1);
+		for(Coordinate c : ss.vars) {
+			ArrayList<Eqn> smaller = make_smaller_KB(c.x,c.y);
+			if(smaller.isEmpty()) {continue;}
+			SolutionSet temp=new SolutionSet(smaller);
+			temp.find_soln_set();
+			if(temp.solns.isEmpty()) {continue;}
+			int[] curr_stat=new int[temp.vars.size()];
+			for(int[] soln : temp.solns) {
+				for(int i = 0; i<temp.vars.size();i++) {
+					curr_stat[i]+=soln[i];
+				}
+			}
+			for(int i = 0; i < temp.vars.size();i++) {
+				/*
+				if(final_results[ss.vars.indexOf(temp.vars.get(i))]==-1) {
+					final_results[ss.vars.indexOf(temp.vars.get(i))]=0;//indicating we searched this one and no solns in that space 
+				}*/
+				//System.out.println(final_results.toString());
+				final_results[ss.vars.indexOf(temp.vars.get(i))]+=curr_stat[i];
+			}
+		}
+		for(int i = 0 ; i < ss.vars.size(); i++) {
+			Coordinate tt=new Coordinate(ss.vars.get(i).x,ss.vars.get(i).y);
+			tt.occur=final_results[i];
+			to_return.add(tt);
+		}
+		Collections.sort(to_return);
+		return to_return;
+	}
 	public int[] getNextBestPoint() {
 		SolutionSet ss = new SolutionSet(equations);
 		ss.find_soln_set();
@@ -68,17 +120,17 @@ public class Agent {
 
 		if (to_insert.sum == to_insert.pts.size() || to_insert.sum == 0) { // Never Insert some Eqn with Sum = 0
 			if (to_insert.sum == 0) {
-				for (Integer[] c : to_insert.pts) {
+				for (Coordinate c : to_insert.pts) {
 					//System.out.println("Safe and Covered added," + c[0] + "," + c[1]);
 					safe_nodes.add(c);
 
-					board.arr[c[0]][c[1]] = board.aSafeAndCovered;
+					board.arr[c.x][c.y] = board.aSafeAndCovered;
 				}
 			} else {
-				for (Integer[] c : to_insert.pts) {
+				for (Coordinate c : to_insert.pts) {
 					// safe_nodes.add(c);
 					//System.out.println("Mine and Covered added," + c[0] + "," + c[1]);
-					board.arr[c[0]][c[1]] = board.aMineAndCovered;
+					board.arr[c.x][c.y] = board.aMineAndCovered;
 					board.numMines++;
 					safelyIdentified++;
 				}
@@ -86,16 +138,19 @@ public class Agent {
 			// Update KB
 			for (Iterator<Eqn> iter_eqn = equations.iterator(); iter_eqn.hasNext();) {
 				Eqn c = iter_eqn.next();
-				for (Iterator<Integer[]> iter_c = c.pts.iterator(); iter_c.hasNext();) {
-					Integer[] coord = iter_c.next();
-					if (board.arr[coord[0]][coord[1]] == board.aSafeAndCovered) {
-						//System.out.println("Removed Safe and Covered " + coord[0] + "," + coord[1]);
+				for (Iterator<Coordinate> iter_c = c.pts.iterator(); iter_c.hasNext();) {
+					Coordinate coord = iter_c.next();
+					if (board.arr[coord.x][coord.y] == board.aSafeAndCovered
+							|| (board.arr[coord.x][coord.y]>='0'&&board.arr[coord.x][coord.y]<='8')) {
+						//System.out.println("Removed Safe and Covered " + coord[0] + "," + coord[1]+", with entry"+board.arr[coord[0]][coord[1]]);
+						
 						iter_c.remove();// delete this entry
 						continue;
 					}
-					if (board.arr[coord[0]][coord[1]] == board.aMineAndCovered
-							|| board.arr[coord[0]][coord[1]] == board.aMineExploded
-							|| board.arr[coord[0]][coord[1]] == board.eMine) {
+					//System.out.println(coord[0] + "," + coord[1]+", with entry"+board.arr[coord[0]][coord[1]]);
+					if (board.arr[coord.x][coord.y] == board.aMineAndCovered
+							|| board.arr[coord.x][coord.y] == board.aMineExploded
+							|| board.arr[coord.x][coord.y] == board.eMine) {
 						//System.out.println(
 //								"Removed Mine and Covered " + coord[0] + "," + coord[1] + ",Result Sum" + (c.sum - 1));
 						iter_c.remove();
@@ -106,8 +161,8 @@ public class Agent {
 																// statement make sure that sum!=0
 						if (c.sum == 0) {
 
-							for (Integer[] mine : c.pts) {
-								board.arr[mine[0]][mine[1]] = board.aSafeAndCovered;
+							for (Coordinate mine : c.pts) {
+								board.arr[mine.x][mine.y] = board.aSafeAndCovered;
 								//System.out.println(
 //										"Sum=0, Singleton, adding to Safe and Covered" + mine[0] + "," + mine[1]);
 								safe_nodes.add(mine);
@@ -116,8 +171,8 @@ public class Agent {
 							iter_eqn.remove();
 							break;
 						}
-						for (Integer[] mine : c.pts) {
-							board.arr[mine[0]][mine[1]] = board.aMineAndCovered;
+						for (Coordinate mine : c.pts) {
+							board.arr[mine.x][mine.y] = board.aMineAndCovered;
 							board.numMines++;
 							safelyIdentified++;
 							//System.out
@@ -147,7 +202,9 @@ public class Agent {
 					// therefore we will delete c.pts from equations, and delete to_insert.pts stuff
 					// and sum from c.pts then insert back to KB
 					iter_eqn.remove();
+					//System.out.println("Before " + c.pts.size());
 					c.pts.removeAll(to_insert.pts);
+					//System.out.println("After " + c.pts.size());
 					c.sum -= to_insert.sum;
 					to_add.add(c);
 					if (isInserted == false) {
@@ -170,7 +227,6 @@ public class Agent {
 						to_insert.sum -= c.sum;
 						isInserted = true;
 						to_add.add(to_insert);
-
 					} 
 				}
 
@@ -239,12 +295,10 @@ public class Agent {
 			 if (e.board.arr[x][y]==Grid.eMine) 
 				 return false;
 			 board.arr[x][y]=e.board.arr[x][y];
-			 ArrayList<Integer[]> add_list= new ArrayList<Integer[]>();
+			 ArrayList<Coordinate> add_list= new ArrayList<Coordinate>();
 			 int sum = board.arr[x][y]-'0';
 			 for(int[] c : board.getNeighbors(x, y)) {
-				 Integer[] c_int = new Integer[2];
-				 c_int[0]=c[0];
-				 c_int[1]=c[1];
+				 Coordinate c_int = new Coordinate(c[0],c[1]);
 				 	if(board.arr[c[0]][c[1]]==board.aMineAndCovered|| board.arr[c[0]][c[1]]==board.aMineExploded) {
 				 		//System.out.println("MineAndCovered"+(sum-1));
 				 		sum--;

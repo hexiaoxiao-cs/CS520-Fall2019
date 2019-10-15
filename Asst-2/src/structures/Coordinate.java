@@ -1,10 +1,10 @@
 package structures;
 
 public class Coordinate implements Comparable<Coordinate>{
-	int x;
-	int y;
-	int assign=-1;
-	int occur;
+	public int x;
+	public int y;
+	//public int assign=-1;
+	public int occur;
 	public Coordinate(int x, int y) {
 		this.x = x;
 		this.y = y;

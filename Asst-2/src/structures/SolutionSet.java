@@ -21,16 +21,16 @@ public class SolutionSet {
 	public SolutionSet(ArrayList<Eqn> eqns) {
 		equations=eqns;
 		min=0;
-		max=15;
+		max=50;
 		for(Eqn c : equations) {
-			for(Integer[] coord: c.pts) {
-				if(vars.contains(new Coordinate(coord[0],coord[1]))) {
-					Coordinate tmp= vars.remove(vars.indexOf(new Coordinate(coord[0],coord[1])));
+			for(Coordinate coord: c.pts) {
+				if(vars.contains(new Coordinate(coord.x,coord.y))) {
+					Coordinate tmp= vars.remove(vars.indexOf(new Coordinate(coord.x,coord.y)));
 					tmp.occur++;
 					vars.add(tmp);
 				}
 				else {//not in list
-					vars.add(new Coordinate(coord[0],coord[1]));
+					vars.add(new Coordinate(coord.x,coord.y));
 				}
 				
 			}
@@ -51,11 +51,11 @@ public class SolutionSet {
 			int tmp=c.sum;
 			int counts=0;
 			int not_filled=0;
-			for(Integer[] Coord : c.pts) {
-				if(assignments[vars.indexOf(new Coordinate(Coord[0],Coord[1]))]==-1) {not_filled++;continue;}
-				tmp-=assignments[vars.indexOf(new Coordinate(Coord[0],Coord[1]))];
+			for(Coordinate Coord : c.pts) {
+				if(assignments[vars.indexOf(Coord)]==-1) {not_filled++;continue;}
+				tmp-=assignments[vars.indexOf(Coord)];
 				//System.out.println(tmp);
-				if(assignments[vars.indexOf(new Coordinate(Coord[0],Coord[1]))]==0) {counts++;}
+				if(assignments[vars.indexOf(Coord)]==0) {counts++;}
 				if(tmp<0) {//System.out.println("Equation Failed on "+equations.indexOf(c));
 				return false;}
 			}
@@ -64,17 +64,17 @@ public class SolutionSet {
 			if(tmp==not_filled|| tmp==0) {
 				if(tmp!=0) {//set all stuff to 1, Constraint Enforced
 					//System.out.println("Constraint Enforced to ones!");
-					for(Integer[] Coord : c.pts) {
-						if(assignments[vars.indexOf(new Coordinate(Coord[0],Coord[1]))]==-1) {
-						assignments[vars.indexOf(new Coordinate(Coord[0],Coord[1]))]=1;}
+					for(Coordinate Coord : c.pts) {
+						if(assignments[vars.indexOf(Coord)]==-1) {
+						assignments[vars.indexOf(Coord)]=1;}
 						//if(assignments[vars.indexOf(Coord)]==0) {counts++;}
 					}
 					
 				}
 				else { //set all stuff to 0, Constraint Enforced
 					//System.out.println("Constraint Enforced to zero!");
-					for(Integer[] Coord : c.pts) {
-						if(assignments[vars.indexOf(new Coordinate(Coord[0],Coord[1]))]==-1) {assignments[vars.indexOf(new Coordinate(Coord[0],Coord[1]))]=0;}
+					for(Coordinate Coord : c.pts) {
+						if(assignments[vars.indexOf(Coord)]==-1) {assignments[vars.indexOf(Coord)]=0;}
 						//if(assignments[vars.indexOf(Coord)]==0) {counts++;}
 					}
 				}
