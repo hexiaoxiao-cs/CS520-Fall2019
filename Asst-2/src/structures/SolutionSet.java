@@ -15,6 +15,9 @@ public class SolutionSet {
 	//public ArrayList<Eqn[]> point_eqns=new ArrayList<Eqn[]>();
 	public int[] soln_for_num_of_mines;
 	public int[] next_probing=new int[2];
+	public int num_m;
+	public boolean isConstrainted=false;
+	
 	public ArrayList<int[]> solns= new ArrayList<int[]>();
 	public int[][] mines; // for calculating probability
 	//public int[] soln_filled;
@@ -46,16 +49,30 @@ public class SolutionSet {
 	}
 	public boolean isAbleSatisfied(int[] assignments) {
 		//soln_filled=assignments.clone();
-		
+		int assigned_num=0;
+		if(isConstrainted==true) {
+			
+			for(int i = 0 ; i <assignments.length;i++) {
+				if(assignments[i]!=-1) {
+					assigned_num++;
+				}
+				
+			}
+			if(assigned_num>num_m) {return false;}//unsatisfiable due to the constraint on the total mine number
+			
+		}
 		for(Eqn c : equations) {
 			int tmp=c.sum;
 			int counts=0;
 			int not_filled=0;
 			for(Coordinate Coord : c.pts) {
 				if(assignments[vars.indexOf(Coord)]==-1) {not_filled++;continue;}
+
 				tmp-=assignments[vars.indexOf(Coord)];
+				
 				//System.out.println(tmp);
 				if(assignments[vars.indexOf(Coord)]==0) {counts++;}
+				
 				if(tmp<0) {//System.out.println("Equation Failed on "+equations.indexOf(c));
 				return false;}
 			}
@@ -66,7 +83,11 @@ public class SolutionSet {
 					//System.out.println("Constraint Enforced to ones!");
 					for(Coordinate Coord : c.pts) {
 						if(assignments[vars.indexOf(Coord)]==-1) {
-						assignments[vars.indexOf(Coord)]=1;}
+						assignments[vars.indexOf(Coord)]=1;
+						assigned_num++;}
+						if(isConstrainted==true) {
+							if(assigned_num>num_m) {return false;}
+						}
 						//if(assignments[vars.indexOf(Coord)]==0) {counts++;}
 					}
 					
@@ -74,7 +95,11 @@ public class SolutionSet {
 				else { //set all stuff to 0, Constraint Enforced
 					//System.out.println("Constraint Enforced to zero!");
 					for(Coordinate Coord : c.pts) {
-						if(assignments[vars.indexOf(Coord)]==-1) {assignments[vars.indexOf(Coord)]=0;}
+						if(assignments[vars.indexOf(Coord)]==-1) {assignments[vars.indexOf(Coord)]=0;
+						assigned_num++;}
+						if(isConstrainted==true) {
+							if(assigned_num>num_m) {return false;}
+						}
 						//if(assignments[vars.indexOf(Coord)]==0) {counts++;}
 					}
 				}
@@ -83,6 +108,14 @@ public class SolutionSet {
 		return true;
 	}
 	public void find_soln_set() {
+		int[] soln = new int[vars.size()];
+		//System.out.println(vars.size());
+		//f(vars.size()>50) {return ;} //Not Checking any solution space > 2^25
+		Arrays.fill(soln, -1);//Initial Set to -1
+		find_soln_set_recursive(soln,0);
+		
+	}
+	public void find_soln_set_constrainted(int num_mine) {
 		int[] soln = new int[vars.size()];
 		//System.out.println(vars.size());
 		//f(vars.size()>50) {return ;} //Not Checking any solution space > 2^25

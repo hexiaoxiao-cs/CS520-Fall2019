@@ -12,7 +12,8 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 public class Minesweeper{
-	
+	static boolean isConstrainted=false;
+	static boolean isTotal=false;
 	
 	public static void main(String args[]) {
  
@@ -23,8 +24,9 @@ public class Minesweeper{
 		
 		//print average final scores for plot:
 		 baseline=false;	//for baseline
-		 
-		for(int densityNum=19;densityNum<100;densityNum++) {
+		isConstrainted=true;
+		isTotal=true;
+		for(int densityNum=1;densityNum<100;densityNum++) {
 			int repeat=500;
 			double avg=0;
 			for(int i=1;i<repeat;i++) { 
@@ -48,7 +50,7 @@ public class Minesweeper{
 		
 		
 		Agent a=new Agent(dim,baseline); //grid filled with '?'
-
+		a.num_mines=numMines;
 		//this is for testing baseline: 
 		boolean allowInput=false;
 		Scanner scan=new Scanner(System.in);
@@ -141,7 +143,15 @@ public class Minesweeper{
 						}
 					}
 					if(a.board.numMines!=numMines) {
-						ArrayList<Coordinate> temp = a.getNextBestPoint_Limited();
+						ArrayList<Coordinate> temp;
+						if(isTotal==false) {
+							temp = a.getNextBestPoint_Limited();
+							}
+						
+						else {
+							
+							temp = a.getNextBestPoint(isConstrainted);
+						}
 						int counts=0;
 						boolean isChanged=false;
 						for(Coordinate c : temp) {

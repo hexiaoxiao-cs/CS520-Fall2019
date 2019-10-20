@@ -6,6 +6,7 @@ public class Agent {
 	public Grid board;
 	public ArrayList<Eqn> equations = new ArrayList<Eqn>(); // Our KB
 	public Queue<Coordinate> safe_nodes = new LinkedList<Coordinate>(); // Our Processing Queue
+	public int num_mines;
 	// public int[][] = new
 	// KB contains equations
 	// Equations means every variable (Coordinate) is either 1 or 0 indicating mine
@@ -92,16 +93,31 @@ public class Agent {
 		Collections.sort(to_return);
 		return to_return;
 	}
-	public int[] getNextBestPoint() {
+	public ArrayList<Coordinate> getNextBestPoint(boolean isConstrainted) {//get Next Best Point Search Range: All KB
+		//isConstrainted means whether we add the constraint on the remaining mine number
 		SolutionSet ss = new SolutionSet(equations);
+		ss.num_m=num_mines-board.numMines;
+		ss.isConstrainted=isConstrainted;
 		ss.find_soln_set();
-		Integer[] a = ss.getNextBestGuess();
-		int[] b= new int[2];
-		if(a==null) {
-			return null;
+		//Integer[] a = ss.getNextBestGuess();
+		
+		ArrayList<Coordinate> b = new ArrayList<Coordinate>();
+		if(ss.solns.isEmpty()) {
+			return b;
 		}
-		b[0]=a[0];
-		b[1]=a[1];
+		int[] curr_stat=new int[ss.vars.size()];
+		for(int[] soln : ss.solns) {
+			for(int i = 0; i<ss.vars.size();i++) {
+				curr_stat[i]+=soln[i];
+			}
+		}
+		for(int i = 0 ; i < ss.vars.size();i++) {
+			Coordinate tt=new Coordinate(ss.vars.get(i).x,ss.vars.get(i).y);
+			tt.occur=curr_stat[i];
+			b.add(tt);
+		}
+		Collections.sort(b);
+		
 		return b;
 
 	}
@@ -138,6 +154,10 @@ public class Agent {
 			// Update KB
 			for (Iterator<Eqn> iter_eqn = equations.iterator(); iter_eqn.hasNext();) {
 				Eqn c = iter_eqn.next();
+				if(c.pts.isEmpty()) {
+					iter_eqn.remove();
+					continue;
+				}
 				for (Iterator<Coordinate> iter_c = c.pts.iterator(); iter_c.hasNext();) {
 					Coordinate coord = iter_c.next();
 					if (board.arr[coord.x][coord.y] == board.aSafeAndCovered
