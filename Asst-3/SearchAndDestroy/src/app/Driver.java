@@ -6,7 +6,7 @@ import structures.*;
 
 public class Driver {
 	
-	final static int dim=10;
+	final static int dim=50;	//<--dim=50 takes like 30 seconds.
 	static double[][] belief;	
 	static Map map;
 	public static void main(String[] args) {
@@ -24,10 +24,11 @@ public class Driver {
 		int queriedY=(int)(Math.random()*dim);
 		while(!map.query(queriedX,queriedY) ){
 			numQueries++;
-			updateBeliefMatrix(queriedX,queriedY);	
+			updateBeliefMatrix(queriedX,queriedY);		//based on exercise 1
 			showBeliefs();
-			//queriedX= ;	<--set next coord to query here
-			//queriedY= ;   <--set next coord to query here (or else it will go in an infinite loop)
+			int[] next=searchNext(); 
+			queriedX=next[0];
+			queriedY= next[1];   //<--set next coord to query here (based on exercise 2)
 			
 		}
 		System.out.println("Number of Queries="+numQueries);
@@ -59,7 +60,24 @@ public class Driver {
 		});
 	}
 	
-	
+	private static int[] searchNext() {
+		double max=0;
+		int[]coord=new int[2];
+		for(int i=0;i<dim;i++) {
+			for(int j=0;j<dim;j++) {
+				double p=probFoundIfSearched(i,j);
+				if(max<p){
+					max=p;
+					coord[0]=i;
+					coord[1]=j;
+				}
+			}
+		}
+		return coord;
+	}
+	private static double probFoundIfSearched(int x,int y) {//exercise 2
+		return belief[x][y]*(map.arr[x][y].falseNegProb+1);
+	}
 	
 	private static void showBeliefs() { 
 		for (int i=0;i<dim;i++) {
