@@ -101,7 +101,7 @@ public class Map {
 		List <int[]> list=new ArrayList<int[]>();
 		for(int i=x-1;i<=x+1;i++) {
 			for (int j=y-1;j<=y+1;j++) {
-				if(isCellCoord(i,j)  ){
+				if((x!=i||y!=j)&&isCellCoord(i,j) ){
 					int coord[]= {i,j};
 					list.add(coord);
 				}  
