@@ -53,7 +53,15 @@ public class Map {
 	}
 
 	public boolean query(int x,int y) {
-		return x==targetCoord[0]&&y==targetCoord[1];
+		boolean isTarget=(x==targetCoord[0]&&y==targetCoord[1]);
+		if (!isTarget) return false;
+		else {//false negative:
+			double rand=((double)(Math.random()*1000)+1)/1000;  
+			if (rand<=arr[x][y].falseNegProb) 
+				return isTarget;
+			else 
+				return false;
+		}
 	} 
 
 	public void show() { 
