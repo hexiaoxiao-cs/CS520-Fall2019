@@ -6,10 +6,10 @@ import structures.*;
 
 public class Driver {
 	
-	final static int dim=10;	//<--dim=50 takes like 30 seconds.
+	final static int dim=50;	//<--dim=50 takes like 30 seconds.
 	static double[][] belief;	//X
 	static double[][] probFound;		//Y
-	static int[] maxProbCoord=new int[2];
+	static int[] maxProbCoord=new int[2];	//location of max value in Y
 	static Map map;
 	public static void main(String[] args) {
 		int numQueries=0;
@@ -20,7 +20,6 @@ public class Driver {
 		for(int i=0;i<dim;i++) {
 			for(int j=0;j<dim;j++) {
 				belief[i][j]=1.0/(dim*dim);
-				
 			}
 		}
 		map.show();
@@ -28,14 +27,15 @@ public class Driver {
 		int queriedY=(int)(Math.random()*dim);
 		while(!map.query(queriedX,queriedY) ){
 			numQueries++;
-			updateBeliefMatrix(queriedX,queriedY);		//based on exercise 1
-			showDecimalsMatrix(belief);
-			showDecimalsMatrix(probFound);
+			updateBeliefMatrix(queriedX,queriedY);	//updates X and Y matrices.
+			//System.out.println("X matrix");showDecimalsMatrix(belief);
+			//System.out.println("Y matrix");showDecimalsMatrix(probFound);
 			queriedX=maxProbCoord[0];
-			queriedY= maxProbCoord[1];   //<--set next coord to query here (based on exercise 2)
+			queriedY= maxProbCoord[1];   //<--set next coord to query here (based on max value in Y matrix)
 			
 		}
-		System.out.println("Number of Queries="+numQueries);
+		System.out.println("Number of Queries="+numQueries+" used to find [target]. \nTerrain type="+map.arr[map.targetCoord[0]][map.targetCoord[1]]+".");
+		//map.show();
 		
 		 
 	}

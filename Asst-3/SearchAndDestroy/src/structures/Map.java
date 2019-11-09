@@ -17,22 +17,28 @@ public class Map {
 		public double falseNegProb;
 		public double assignToCellProb;
 		public char character;
-		public Terrain(double falseNegProb,double assignToCellProb,char character) {
+		public String terrainName;
+		public Terrain(double falseNegProb,double assignToCellProb,char character,String name) {
 			this.falseNegProb=falseNegProb;
 			this.assignToCellProb=assignToCellProb;
 			this.character=character;
+			this.terrainName=name;
+		}
+		public String toString() {
+			return terrainName;
 		}
 	}
-	public final static Terrain flat=new Terrain(0.1,0.2,'_');	//(0,.2]
-	public final static Terrain hilly=new Terrain(0.3,0.5,'^');	//(.2,.5]
-	public final static Terrain forest=new Terrain(0.7,0.7,'*');	//(.5,.7]
-	public final static Terrain cave=new Terrain(0.9,1,'O');	//(.7,1.0]
+	public final static Terrain flat=new Terrain(0.1,0.2,'_',"flat");	//(0,.2]=20%
+	public final static Terrain hilly=new Terrain(0.3,0.5,'^',"hilly");	//(.2,.5]=30%
+	public final static Terrain forest=new Terrain(0.7,0.7,'*',"forest");	//(.5,.7]=20%
+	public final static Terrain cave=new Terrain(0.9,1,'O',"cave");	//(.7,1.0]=30%
 	
 	
 	
 	public Map(int dim) {
 		targetCoord[0]=(int)(Math.random()*dim);  
 		targetCoord[1]=(int)(Math.random()*dim);
+		 
 		//initialize board:
 		this.dim=dim; 
 		arr=new Terrain[dim][dim];
@@ -57,10 +63,10 @@ public class Map {
 		if (!isTarget) return false;
 		else {//false negative:
 			double rand=((double)(Math.random()*1000)+1)/1000;  
-			if (rand<=arr[x][y].falseNegProb) 
-				return isTarget;
+			if (rand<=arr[x][y].falseNegProb)  
+				return false;	//false negative.
 			else 
-				return false;
+				return true;		//return the truth.
 		}
 	} 
 
