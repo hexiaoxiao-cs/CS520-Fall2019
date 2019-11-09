@@ -27,11 +27,11 @@ public class Map {
 		public String toString() {
 			return terrainName;
 		}
-	}
-	public final static Terrain flat=new Terrain(0.1,0.2,'_',"flat");	//(0,.2]=20%
-	public final static Terrain hilly=new Terrain(0.3,0.5,'^',"hilly");	//(.2,.5]=30%
-	public final static Terrain forest=new Terrain(0.7,0.7,'*',"forest");	//(.5,.7]=20%
-	public final static Terrain cave=new Terrain(0.9,1,'O',"cave");	//(.7,1.0]=30%
+	}																	//assignment probs:
+	public final static Terrain flat=new Terrain(0.1,0.2,'_',"flat");		//.2-0=20%
+	public final static Terrain hilly=new Terrain(0.3,0.5,'^',"hilly");	//.5-.2=30%
+	public final static Terrain forest=new Terrain(0.7,0.7,'*',"forest");	//.7-.5=20%
+	public final static Terrain cave=new Terrain(0.9,1,'O',"cave");		//1-.7=30%
 	
 	
 	
