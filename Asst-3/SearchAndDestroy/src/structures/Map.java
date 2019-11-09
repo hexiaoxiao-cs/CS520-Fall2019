@@ -10,7 +10,7 @@ import java.util.stream.Collectors;
 public class Map {
 
 	public Terrain[][] arr;
-	public int dim=50; 
+	public int dim; 
 	public int[] targetCoord=new int[2];
 	
 	public static class Terrain{

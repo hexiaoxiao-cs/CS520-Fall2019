@@ -30,30 +30,29 @@ public class Driver {
 		while(!map.query(queriedX,queriedY) ){
 			numQueries++;
 			updateBeliefMatrix(queriedX,queriedY);	//updates X and Y matrices.
-			System.out.println("querired "+queriedX+" , "+queriedY);
-			System.out.println("X matrix");showDecimalsMatrix(belief);
-			System.out.println("Y matrix");showDecimalsMatrix(probFound);
+			//System.out.println("querired "+queriedX+" , "+queriedY);
+		//	System.out.println("X matrix");showDecimalsMatrix(belief);
+		//	System.out.println("Y matrix");showDecimalsMatrix(probFound);
 			queriedX=maxProbCoord[0];
 			queriedY= maxProbCoord[1];   //<--set next coord to query here (based on max value in Y matrix)
 			
 		}
 		System.out.println("Number of Queries="+numQueries+" used to find [target]. \nTerrain type="+map.arr[map.targetCoord[0]][map.targetCoord[1]]+".");
-		//map.show();
-		
-		 
+		//map.show(); 
 	}
 	
 	private static void updateBeliefMatrix(int x,int y) {
 		updateSingle(x,y);
 		updateOthers(x,y);
 	}
-	
+
 	private static void updateSingle(int x,int y) {	//failed x and y
 		double b=belief[x][y];
 		double falseNegRate=map.arr[x][y].falseNegProb;
 		belief[x][y]=(b*falseNegRate)/(b*falseNegRate+(1-b));//formula
 		updateProbFoundMatrix(x,y);
 	}
+	
 	private static void updateProbFoundMatrix(int x, int y) {
 		probFound[x][y]=probFoundIfSearched(x,y);  
 		if(probFoundIfSearched(maxProbCoord[0],maxProbCoord[1])<probFound[x][y]){
@@ -83,14 +82,10 @@ public class Driver {
 	}
 	
 	private static void showDecimalsMatrix(double[][] matrix) { 
-		
 		for (int i=0;i<matrix.length;i++) {
 			System.out.print(i+"\t");
-			for (int j=0;j<matrix.length;j++) {
-				double b=matrix[i][j];
-				if (b==0||b==1) { System.out.print("\t"+(int)b); continue;}
-				 
-				System.out.print("\t"+new DecimalFormat("#.####").format(b).substring(1));
+			for (int j=0;j<matrix.length;j++) { 
+				System.out.print("\t"+new DecimalFormat("#.#####").format(matrix[i][j]).substring(1) );
 			}
 			System.out.println();
 		} 
