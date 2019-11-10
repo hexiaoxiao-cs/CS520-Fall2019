@@ -9,16 +9,18 @@ import structures.*;
 
 public class Driver {
 	
-	final static int dim=10;	
+	final static int dim=4;	
 	static double[][] belief;	//X
 	static double[][] probFound;		//Y
 	static int[] maxProbCoord=new int[2];	//location of max value in X/Y depending on what Rule 1/2
 	static Map map; 
+	//static int[] maxElocation=new int[2];
+	static double maxE=0;
 	
-	static int rule=1;
+	static int rule=2;
 	
 	
-	static boolean exercise4=false;//EXERCISE 4 STUFF
+	static boolean exercise4=true;//EXERCISE 4 STUFF
 	
 	public static void main(String[] args) {int sum1=0;int sum2=0;
 		map=new Map(dim);
@@ -31,30 +33,34 @@ public class Driver {
 			}
 		}
 		map.show();
+		
 		int queriedX=(int)(Math.random()*dim);
 		int queriedY=(int)(Math.random()*dim);
+		if(exercise4) {
+			int[] next=neighborCoordToQuery(true,queriedX,queriedY,belief,probFound,1);
+			queriedX=next[0];
+			queriedY=next[1];
+		}
 		int numQueries=1;
 		
-		while(!map.query(queriedX,queriedY)){
-			numQueries++;
+		while(!map.query(queriedX,queriedY) ){
 			updateBeliefMatrix(queriedX,queriedY);	//<-- updates X->updates Y matrices->updates maxProbCoord.
-			//System.out.println("querired "+queriedX+" , "+queriedY);
-			//System.out.println("X matrix");showDecimalsMatrix(belief);
-			//System.out.println("Y matrix");showDecimalsMatrix(probFound);
+			System.out.println("querired "+queriedX+" , "+queriedY);
+			System.out.println("X matrix");showDecimalsMatrix(belief);
+			System.out.println("Y matrix");showDecimalsMatrix(probFound);
 			
-			/*
+			
 			//EXERCISE 4 STUFF vvvvv
 			if (exercise4) {
-				int[] nextCoord=neighborCoordToQuery(queriedX,queriedY);
-				queriedX=nextCoord[0];
-				queriedY=nextCoord[1]; 
-			}//^^^^^^^^^^^^^^^^^^^^^
-			
-			else {*/
+				int[] next=neighborCoordToQuery(false,queriedX,queriedY,belief,probFound,1);
+				queriedX=next[0];
+				queriedY=next[1];   //<--set next coord to query here (based on max value in Y matrix or X matrix,(rule 1 vs rule 2) )
+			}else {
 				queriedX=maxProbCoord[0];
 				queriedY= maxProbCoord[1];   //<--set next coord to query here (based on max value in Y matrix or X matrix,(rule 1 vs rule 2) )
 		
-			//}
+			}
+			numQueries++;
 		}
 		System.out.println("Number of Queries="+numQueries+" used to find [target]. \nTerrain type="+map.arr[map.targetCoord[0]][map.targetCoord[1]]+".");
 	  
@@ -62,20 +68,31 @@ public class Driver {
 	}
 	
 	//EXERCISE 4 STUFF vvvvvvvvvvvvvv
-	private static int[] neighborCoordToQuery(int currX,int currY, double[][] Xmatrix, double[][] Ymatrix,int levels) {//current x, y
-		//double[][] E=new double[dim][dim];	//<--E (utility) matrix
-		//int[] ret=new int[2];
-		//int[] maxElocation=new int[2];
+	private static int[] neighborCoordToQuery(boolean firstTime,int currX,int currY, double[][] Xmatrix, double[][] Ymatrix,int levels) {//current x, y
+		double[] info=findE(currX,currY,Xmatrix,Ymatrix,levels);
+		double maxE=info[0];
+		int x=(int)info[1];
+		int y=(int)info[2];
 		
-		
-		findE(iX,iY,Xmatrix,Ymatrix,levels);//<--returns E(i|Oi) 
-		
-		
-		//return ret;
+		List<int[]> list=map.getLRUD(currX, currY);
+		if (firstTime) list=map.getAllCoords();//System.out.println("___");
+		for(int[] c:list) {
+			info=findE(c[0],c[1],Xmatrix,Ymatrix,levels); 
+			if (maxE<info[0]) {
+				maxE=info[0];
+				x=(int)info[1];
+				y=(int)info[2];
+			}
+			//System.out.println(+","+y);
+		}//System.out.println("___");
+		return new int[] {x,y};
 	}
+	 
 	
-	private static double findE(int iX,int iY,double[][]Xmatrix,double[][]Ymatrix,int levels) {//<-- returns E(i|Oi)
-		if (levels==0) return Ymatrix[iX][iY];	//base case.
+	private static double[] findE(int iX,int iY,double[][]Xmatrix,double[][]Ymatrix,int levels) {//<-- returns array: { E(i|Oi), iX, iY }
+		if (levels==0) { 
+			return new double[]{Ymatrix[iX][iY],iX,iY};	//base case.
+		}
 		else {
 			double[][] pretendXmatrix=Xmatrix.clone();
 			double[][] pretendYmatrix=Ymatrix.clone();
@@ -98,14 +115,16 @@ public class Driver {
 			//Stuff after sigma:
 			double sum=0;
 			for(int[] n:map.getLRUD(iX, iY)) {
-				sum+=findE(n[0],n[1],pretendXmatrix,pretendYmatrix, levels-1);
+				sum+=findE(n[0],n[1],pretendXmatrix,pretendYmatrix, levels-1)[0];
 			}
 			//formula exercise 4:
-			return Ymatrix[iX][iY]+.25*((1+(map.arr[iX][iY].falseNegProb-1))*Xmatrix[iX][iY])*sum;
-				
+			double d=Ymatrix[iX][iY]+.25*((1+(map.arr[iX][iY].falseNegProb-1))*Xmatrix[iX][iY])*sum;
+			return new double[]{d,iX,iY};
 		}
 			
 	}
+	
+	
 	/*
 	private static double neighborSums(int x,int y,int levels) {
 		double sumOverNs=0;

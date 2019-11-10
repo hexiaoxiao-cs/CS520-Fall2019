@@ -117,8 +117,12 @@ public class Map {
 		list.add(new int[]{x,y-1});
 		list.add(new int[]{x+1,y});
 		list.add(new int[]{x,y+1});
-		return list.stream().filter(c->isCellCoord(c[0],c[1])).collect(Collectors.toList());  
-		 
+		
+		list=list.stream().filter(c->isCellCoord(c[0],c[1])).collect(Collectors.toList());  
+		//System.out.println("askhasfhsaf a");
+		//list.stream().forEach(c->System.out.println(c[0]+","+c[1]));
+		//System.out.println("alsklaslsadflk");
+		 return list;
 	}
 
 
