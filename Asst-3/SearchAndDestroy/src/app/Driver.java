@@ -22,7 +22,9 @@ public class Driver {
 	
 	static boolean exercise4=true;//EXERCISE 4 STUFF
 	
-	public static void main(String[] args) {int sum1=0;int sum2=0;
+	public static void main(String[] args) {
+		for(int k = 0; k<200; k ++) {
+		int sum1=0;int sum2=0;
 		map=new Map(dim);
 		belief=new double[dim][dim];
 		probFound=new double[dim][dim];
@@ -62,9 +64,9 @@ public class Driver {
 			}
 			numQueries++;
 		}
-		System.out.println("Number of Queries="+numQueries+" used to find [target]. \nTerrain type="+map.arr[map.targetCoord[0]][map.targetCoord[1]]+".");
-	  
-		
+		//System.out.println("Number of Queries="+numQueries+" used to find [target]. \nTerrain type="+map.arr[map.targetCoord[0]][map.targetCoord[1]]+".");
+		System.out.println(numQueries+","+map.arr[map.targetCoord[0]][map.targetCoord[1]]);
+		}
 	}
 	
 	//EXERCISE 4 STUFF vvvvvvvvvvvvvv
