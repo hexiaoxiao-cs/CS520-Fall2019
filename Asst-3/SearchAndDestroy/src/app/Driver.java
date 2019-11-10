@@ -20,11 +20,12 @@ public class Driver {
 	static int rule=2;
 	
 	
-	static boolean exercise4=true;//EXERCISE 4 STUFF
+	static boolean exercise4=false;//EXERCISE 4 STUFF
 	
 	public static void main(String[] args) {
 		for(int k = 0; k<200; k ++) {
 		int sum1=0;int sum2=0;
+		boolean isProb3=true;
 		map=new Map(dim);
 		belief=new double[dim][dim];
 		probFound=new double[dim][dim];
@@ -34,15 +35,16 @@ public class Driver {
 				belief[i][j]=1.0/(dim*dim);
 			}
 		}
-		map.show();
+		//map.show();
 		
 		int queriedX=(int)(Math.random()*dim);
 		int queriedY=(int)(Math.random()*dim);
 		if(exercise4) {
-			int[] next=neighborCoordToQuery(true,queriedX,queriedY,belief,probFound,1);
+			int[] next=neighborCoordToQuery(true,queriedX,queriedY,belief,probFound,2);
 			queriedX=next[0];
 			queriedY=next[1];
 		}
+
 		int numQueries=1;
 		 
 		while(!map.query(queriedX,queriedY) ) {
@@ -54,13 +56,40 @@ public class Driver {
 			
 			//EXERCISE 4 STUFF vvvvv
 			if (exercise4) {
-				int[] next=neighborCoordToQuery(false,queriedX,queriedY,belief.clone(),probFound.clone(),1);
+				int[] next=neighborCoordToQuery(false,queriedX,queriedY,belief.clone(),probFound.clone(),2);
 				queriedX=next[0];
 				queriedY=next[1];   //<--set next coord to query here (based on max value in Y matrix or X matrix,(rule 1 vs rule 2) )
 			}else {
+				if(isProb3==true) {
+					double currmax=0;
+					//int nextx,nexty;
+					if(rule==1) {
+						currmax=belief[queriedX][queriedY];	
+					}
+					else {
+						currmax=probFound[queriedX][queriedY];
+					}
+					for(int[] c : map.getLRUD(queriedX, queriedY)) {
+						if(rule==1) {
+							if(currmax<belief[c[0]][c[1]]) {
+								queriedX=c[0];
+								queriedY=c[1];
+								currmax=belief[c[0]][c[1]];
+							}
+						}
+						else {
+							if(currmax<probFound[c[0]][c[1]]) {
+								queriedX=c[0];
+								queriedY=c[1];
+								currmax=belief[c[0]][c[1]];
+							}
+						}
+					}
+				}
+				else {
 				queriedX=maxProbCoord[0];
 				queriedY= maxProbCoord[1];   //<--set next coord to query here (based on max value in Y matrix or X matrix,(rule 1 vs rule 2) )
-		
+				}
 			}
 			numQueries++;
 		}
@@ -75,7 +104,9 @@ public class Driver {
 		double maxE=info[0];
 		int x=(int)info[1];
 		int y=(int)info[2];
-		
+//		double maxE=0;
+//		int x=0;
+//		int y=0;
 		List<int[]> list=map.getLRUD(currX, currY);
 		if (firstTime) list=map.getAllCoords();//System.out.println("___");
 		for(int[] c:list) {
