@@ -78,7 +78,7 @@ public class Driver {
 		if (levels==0) return Ymatrix[iX][iY];	//base case.
 		else {
 			double[][] pretendXmatrix=Xmatrix.clone();
-			double[][] pretendYmatrix=Xmatrix.clone();
+			double[][] pretendYmatrix=Ymatrix.clone();
 			//Change matrices to assume that we failed: 
 			map.getAllCoords().stream().forEach(c->{ 
 				int cx=c[0];
