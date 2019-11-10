@@ -15,12 +15,12 @@ public class Driver {
 	static int[] maxProbCoord=new int[2];	//location of max value in X/Y depending on what Rule 1/2
 	static Map map; 
 	
-	final static int rule=1;
+	static int rule=1;
 	
 	
-	static boolean exercise4=true;//EXERCISE 4 STUFF
+	static boolean exercise4=false;//EXERCISE 4 STUFF
 	
-	public static void main(String[] args) {
+	public static void main(String[] args) {int sum1=0;int sum2=0;
 		map=new Map(dim);
 		belief=new double[dim][dim];
 		probFound=new double[dim][dim];
@@ -34,6 +34,7 @@ public class Driver {
 		int queriedX=(int)(Math.random()*dim);
 		int queriedY=(int)(Math.random()*dim);
 		int numQueries=1;
+		
 		while(!map.query(queriedX,queriedY)){
 			numQueries++;
 			updateBeliefMatrix(queriedX,queriedY);	//<-- updates X->updates Y matrices->updates maxProbCoord.
@@ -41,7 +42,7 @@ public class Driver {
 			//System.out.println("X matrix");showDecimalsMatrix(belief);
 			//System.out.println("Y matrix");showDecimalsMatrix(probFound);
 			
-			
+			/*
 			//EXERCISE 4 STUFF vvvvv
 			if (exercise4) {
 				int[] nextCoord=neighborCoordToQuery(queriedX,queriedY);
@@ -49,37 +50,63 @@ public class Driver {
 				queriedY=nextCoord[1]; 
 			}//^^^^^^^^^^^^^^^^^^^^^
 			
-			else {
+			else {*/
 				queriedX=maxProbCoord[0];
 				queriedY= maxProbCoord[1];   //<--set next coord to query here (based on max value in Y matrix or X matrix,(rule 1 vs rule 2) )
 		
-			}
+			//}
 		}
 		System.out.println("Number of Queries="+numQueries+" used to find [target]. \nTerrain type="+map.arr[map.targetCoord[0]][map.targetCoord[1]]+".");
-		//map.show(); 
+	  
+		
 	}
 	
-	/*EXERCISE 4 STUFF vvvvvvvvvvvvvv
-	private static int[] neighborCoordToQuery(int currX,int currY) {//current x, y
+	//EXERCISE 4 STUFF vvvvvvvvvvvvvv
+	private static int[] neighborCoordToQuery(int currX,int currY, double[][] Xmatrix, double[][] Ymatrix,int levels) {//current x, y
 		//double[][] E=new double[dim][dim];	//<--E (utility) matrix
 		//int[] ret=new int[2];
 		//int[] maxElocation=new int[2];
 		
 		
-		findE(iX,iY);//<--returns E(i|Oi) 
+		findE(iX,iY,Xmatrix,Ymatrix,levels);//<--returns E(i|Oi) 
 		
 		
 		//return ret;
 	}
 	
-	private static double findE(int iX,int iY,int levels) {//<-- returns E(i|Oi)
-		if (levels==0) return ____;
-		else
-			return probFound[iX][iY]+.25*((1+(map.arr[iX][iY].falseNegProb-1)*belief[iX][iY])*
-				neighborSums(iX,iY, levels));		
-			//^^formula exercise 4.
+	private static double findE(int iX,int iY,double[][]Xmatrix,double[][]Ymatrix,int levels) {//<-- returns E(i|Oi)
+		if (levels==0) return Ymatrix[iX][iY];	//base case.
+		else {
+			double[][] pretendXmatrix=Xmatrix.clone();
+			double[][] pretendYmatrix=Xmatrix.clone();
+			//Change matrices to assume that we failed: 
+			map.getAllCoords().stream().forEach(c->{ 
+				int cx=c[0];
+				int cy=c[1]; 
+				double bi=pretendXmatrix[iX][iY];
+				double falseNegRate=map.arr[cx][cy].falseNegProb;
+				double bj=pretendXmatrix[cx][cy];
+				//Xmatrix:
+				if (cx==iX&&cy==iY) {//update single pretend failed.
+					pretendXmatrix[cx][cy]=(bi*falseNegRate)/(bi*falseNegRate+(1-bi)); 
+				}else {//update others.
+					pretendXmatrix[cx][cy]=bj/(bi*falseNegRate+(1-bi)); 
+				} 
+				//Ymatrix:
+				pretendYmatrix[cx][cy]=(1-map.arr[cx][cy].falseNegProb)*pretendXmatrix[cx][cy];
+			});  
+			//Stuff after sigma:
+			double sum=0;
+			for(int[] n:map.getLRUD(iX, iY)) {
+				sum+=findE(n[0],n[1],pretendXmatrix,pretendYmatrix, levels-1);
+			}
+			//formula exercise 4:
+			return Ymatrix[iX][iY]+.25*((1+(map.arr[iX][iY].falseNegProb-1))*Xmatrix[iX][iY])*sum;
+				
+		}
+			
 	}
-	
+	/*
 	private static double neighborSums(int x,int y,int levels) {
 		double sumOverNs=0;
 		for(int[] n:map.getNeighbors(x, y)) {
@@ -107,20 +134,6 @@ public class Driver {
 		belief[x][y]=(b*falseNegRate)/(b*falseNegRate+(1-b));//formula
 		updateProbFoundMatrix(x,y);	//update Y value, update max.
 	}
-	
-	private static void updateProbFoundMatrix(int x, int y) {
-		probFound[x][y]=probFoundIfSearched(x,y);  
-		updateMax(x,y);
-	}
-	private static void updateMax(int x, int y) {
-		if ((rule==1 &&probFound[maxProbCoord[0]][maxProbCoord[1]]<probFound[x][y])||
-			
-		  (rule==2 &&belief[maxProbCoord[0]][maxProbCoord[1]]<belief[x][y])){
-			maxProbCoord[0]=x;
-			maxProbCoord[1]=y;
-		}
-	}
-	
 	private static void updateOthers(int x, int y) {	//update X.
 		map.getAllCoords().stream().forEach(c->{ 
 			int cx=c[0];
@@ -135,14 +148,21 @@ public class Driver {
 		});
 	}
 	
-	
-	
-	
-	 
-	private static double probFoundIfSearched(int x,int y) {//exercise 2
-		//System.out.println((1-map.arr[x][y].falseNegProb)*belief[x][y]+" for "+x+" ,"+y);
-		return (1-map.arr[x][y].falseNegProb)*belief[x][y];
+	private static void updateProbFoundMatrix(int x, int y) {
+		probFound[x][y]=(1-map.arr[x][y].falseNegProb)*belief[x][y];
+		updateMax(x,y);
 	}
+	
+	private static void updateMax(int x, int y) {
+		if ((rule==1 &&probFound[maxProbCoord[0]][maxProbCoord[1]]<probFound[x][y])||
+			
+		  (rule==2 &&belief[maxProbCoord[0]][maxProbCoord[1]]<belief[x][y])){
+			maxProbCoord[0]=x;
+			maxProbCoord[1]=y;
+		}
+	}
+	
+	
 	
 	private static void showDecimalsMatrix(double[][] matrix) { 
 		for (int i=0;i<matrix.length;i++) {

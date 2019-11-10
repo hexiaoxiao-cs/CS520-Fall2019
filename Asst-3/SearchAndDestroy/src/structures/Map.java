@@ -2,6 +2,7 @@ package structures;
 
 import java.util.*;
 import java.util.function.Predicate;
+import java.util.stream.Collector;
 import java.util.stream.Collectors;
 
  
@@ -108,6 +109,16 @@ public class Map {
 			}
 		} 
 		return list;
+	}
+	
+	public List<int[]> getLRUD(int x,int y){	//Left right up down.
+		List <int[]> list=new ArrayList<int[]>();
+		list.add(new int[]{x-1,y});
+		list.add(new int[]{x,y-1});
+		list.add(new int[]{x+1,y});
+		list.add(new int[]{x,y+1});
+		return list.stream().filter(c->isCellCoord(c[0],c[1])).collect(Collectors.toList());  
+		 
 	}
 
 
