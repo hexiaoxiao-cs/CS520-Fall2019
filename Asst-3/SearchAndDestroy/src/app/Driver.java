@@ -9,7 +9,7 @@ import structures.*;
 
 public class Driver {
 	
-	final static int dim=4;	
+	final static int dim=50;	
 	static double[][] belief;	//X
 	static double[][] probFound;		//Y
 	static int[] maxProbCoord=new int[2];	//location of max value in X/Y depending on what Rule 1/2
@@ -45,9 +45,9 @@ public class Driver {
 		 
 		while(!map.query(queriedX,queriedY) ) {
 			updateBeliefMatrix(queriedX,queriedY);	//<-- updates X->updates Y matrices->updates maxProbCoord.
-			System.out.println("querired "+queriedX+" , "+queriedY);
-			System.out.println("X matrix");showDecimalsMatrix(belief);
-			System.out.println("Y matrix");showDecimalsMatrix(probFound);
+			//System.out.println("querired "+queriedX+" , "+queriedY);
+			//System.out.println("X matrix");showDecimalsMatrix(belief);
+			//System.out.println("Y matrix");showDecimalsMatrix(probFound);
 			
 			
 			//EXERCISE 4 STUFF vvvvv
@@ -64,10 +64,7 @@ public class Driver {
 		}
 		System.out.println("Number of Queries="+numQueries+" used to find [target]. \nTerrain type="+map.arr[map.targetCoord[0]][map.targetCoord[1]]+".");
 	 // System.out.println((double)(0.0000000000000006*0.000000000000000007));
-		int [][]b=new int[][] {{6,3}};
-		int[][] c=b.clone();
-		c[0][0]=4;
-		System.out.println(b[0][0]); 
+	 
 	}
 	
 	//EXERCISE 4 STUFF vvvvvvvvvvvvvv
@@ -81,7 +78,7 @@ public class Driver {
 		if (firstTime) list=map.getAllCoords();//System.out.println("___");
 		for(int[] c:list) {
 			info=findE(c[0],c[1],Xmatrix,Ymatrix,levels); 
-			if (maxE<info[0]) {System.out.println(maxE);
+			if (maxE<info[0]) { 
 				maxE=info[0];
 				x=(int)info[1];
 				y=(int)info[2];
@@ -143,9 +140,9 @@ public class Driver {
 	private static void updateSingle(int x,int y) {	//update X.
 		double b=belief[x][y];
 		double falseNegRate=map.arr[x][y].falseNegProb;
-		System.out.println(belief[x][y]);
+		 
 		belief[x][y]=(b*falseNegRate)/(b*falseNegRate+(1-b));//formula
-		System.out.println(belief[x][y]);
+		//System.out.println(belief[x][y]);
 		updateProbFoundMatrix(x,y);	//update Y value, update max.
 	}
 	private static void updateOthers(int x, int y) {	//update X.
