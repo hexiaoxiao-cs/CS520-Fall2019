@@ -23,9 +23,108 @@ public class Driver {
 	static boolean exercise4=false;//EXERCISE 4 STUFF
 	
 	public static void main(String[] args) {
-		for(int k = 0; k<200; k ++) {
+		problem_3_p1();//Problem 3->Fixed map->rule 1 and 2 
+		rule=1;
+		problem_3_p2();//Problem 3->Changing map->Rule 1
+		rule=2;
+		problem_3_p2();//Problem 3->Changing map->Rule 2
+		rule=1;
+		problem_4_p1();//Problem 4->Changing map->Rule 1
+		rule=2;
+		problem_4_p1();//Problem 4->Changing map->Rule 2
+		problem_4_p2();//Problem 4->Changing map->Our method
+	}
+	public static void problem_3_p1() {
 		int sum1=0;int sum2=0;
-		boolean isProb3=true;
+		boolean isProb3=false;
+		map=new Map(dim);
+		for(int k = 0; k<10000; k ++) {
+
+		map.targetCoord[0]=(int)(Math.random()*dim);  
+		map.targetCoord[1]=(int)(Math.random()*dim); 
+		for(rule = 1; rule <=2 ;rule++) {
+
+		belief=new double[dim][dim];
+		probFound=new double[dim][dim];
+		//Initialize:
+		for(int i=0;i<dim;i++) {
+			for(int j=0;j<dim;j++) {
+				belief[i][j]=1.0/(dim*dim);
+			}
+		}
+		//map.show();
+		
+		int queriedX=(int)(Math.random()*dim);
+		int queriedY=(int)(Math.random()*dim);
+		if(exercise4) {
+			int[] next=neighborCoordToQuery(true,queriedX,queriedY,belief,probFound,2);
+			queriedX=next[0];
+			queriedY=next[1];
+		}
+
+		int numQueries=1;
+		 
+		while(!map.query(queriedX,queriedY) ) {
+			updateBeliefMatrix(queriedX,queriedY);	//<-- updates X->updates Y matrices->updates maxProbCoord.
+			//System.out.println("querired "+queriedX+" , "+queriedY);
+			//System.out.println("X matrix");showDecimalsMatrix(belief);
+			//System.out.println("Y matrix");showDecimalsMatrix(probFound);
+			
+			
+			//EXERCISE 4 STUFF vvvvv
+			if (exercise4) {
+				int[] next=neighborCoordToQuery(false,queriedX,queriedY,belief.clone(),probFound.clone(),2);
+				queriedX=next[0];
+				queriedY=next[1];   //<--set next coord to query here (based on max value in Y matrix or X matrix,(rule 1 vs rule 2) )
+			}else {
+				if(isProb3==true) {
+					double currmax=0;
+					//int nextx,nexty;
+					if(rule==1) {
+						currmax=belief[queriedX][queriedY];	
+					}
+					else {
+						currmax=probFound[queriedX][queriedY];
+					}
+					for(int[] c : map.getLRUD(queriedX, queriedY)) {
+						if(rule==1) {
+							if(currmax<belief[c[0]][c[1]]) {
+								queriedX=c[0];
+								queriedY=c[1];
+								currmax=belief[c[0]][c[1]];
+							}
+						}
+						else {
+							if(currmax<probFound[c[0]][c[1]]) {
+								queriedX=c[0];
+								queriedY=c[1];
+								currmax=belief[c[0]][c[1]];
+							}
+						}
+					}
+				}
+				else {
+				queriedX=maxProbCoord[0];
+				queriedY= maxProbCoord[1];   //<--set next coord to query here (based on max value in Y matrix or X matrix,(rule 1 vs rule 2) )
+				}
+			}
+			numQueries++;
+		}
+		
+		//System.out.println("Number of Queries="+numQueries+" used to find [target]. \nTerrain type="+map.arr[map.targetCoord[0]][map.targetCoord[1]]+".");
+		System.out.println(rule+","+map.arr[map.targetCoord[0]][map.targetCoord[1]]+","+numQueries);
+		}
+		}
+	}
+	public static void problem_3_p2() {
+		boolean isProb3=false;
+		System.out.println("Running Params: rule "+rule+" is Exercise4"+exercise4+"is Prob3"+isProb3);
+			//System.out.println(dim);
+			int SumQueries=0;
+		for(int k = 0; k<10000; k ++) {
+			
+		int sum1=0;int sum2=0;
+		
 		map=new Map(dim);
 		belief=new double[dim][dim];
 		probFound=new double[dim][dim];
@@ -95,9 +194,175 @@ public class Driver {
 		}
 		//System.out.println("Number of Queries="+numQueries+" used to find [target]. \nTerrain type="+map.arr[map.targetCoord[0]][map.targetCoord[1]]+".");
 		System.out.println(numQueries+","+map.arr[map.targetCoord[0]][map.targetCoord[1]]);
+		SumQueries+=numQueries;
 		}
+
 	}
 	
+	public static void problem_4_p1() {
+		boolean isProb3=true;
+		System.out.println("Running Params: rule "+rule+" is Exercise4"+exercise4+"is Prob3"+isProb3);
+			//System.out.println(dim);
+			int SumQueries=0;
+		for(int k = 0; k<10000; k ++) {
+		int sum1=0;int sum2=0;
+		
+		map=new Map(dim);
+
+		belief=new double[dim][dim];
+		probFound=new double[dim][dim];
+		//Initialize:
+		for(int i=0;i<dim;i++) {
+			for(int j=0;j<dim;j++) {
+				belief[i][j]=1.0/(dim*dim);
+			}
+		}
+		//map.show();
+		
+		int queriedX=(int)(Math.random()*dim);
+		int queriedY=(int)(Math.random()*dim);
+		if(exercise4) {
+			int[] next=neighborCoordToQuery(true,queriedX,queriedY,belief,probFound,2);
+			queriedX=next[0];
+			queriedY=next[1];
+		}
+
+		int numQueries=1;
+		 
+		while(!map.query(queriedX,queriedY) ) {
+			updateBeliefMatrix(queriedX,queriedY);	//<-- updates X->updates Y matrices->updates maxProbCoord.
+			//System.out.println("querired "+queriedX+" , "+queriedY);
+			//System.out.println("X matrix");showDecimalsMatrix(belief);
+			//System.out.println("Y matrix");showDecimalsMatrix(probFound);
+			
+			
+			//EXERCISE 4 STUFF vvvvv
+			if (exercise4) {
+				int[] next=neighborCoordToQuery(false,queriedX,queriedY,belief.clone(),probFound.clone(),2);
+				queriedX=next[0];
+				queriedY=next[1];   //<--set next coord to query here (based on max value in Y matrix or X matrix,(rule 1 vs rule 2) )
+			}else {
+				if(isProb3==true) {
+					double currmax=0;
+					//int nextx,nexty;
+					if(rule==1) {
+						currmax=belief[queriedX][queriedY];	
+					}
+					else {
+						currmax=probFound[queriedX][queriedY];
+					}
+					for(int[] c : map.getLRUD(queriedX, queriedY)) {
+						if(rule==1) {
+							if(currmax<belief[c[0]][c[1]]) {
+								queriedX=c[0];
+								queriedY=c[1];
+								currmax=belief[c[0]][c[1]];
+							}
+						}
+						else {
+							if(currmax<probFound[c[0]][c[1]]) {
+								queriedX=c[0];
+								queriedY=c[1];
+								currmax=belief[c[0]][c[1]];
+							}
+						}
+					}
+				}
+				else {
+				queriedX=maxProbCoord[0];
+				queriedY= maxProbCoord[1];   //<--set next coord to query here (based on max value in Y matrix or X matrix,(rule 1 vs rule 2) )
+				}
+			}
+			numQueries++;
+		}
+		//System.out.println("Number of Queries="+numQueries+" used to find [target]. \nTerrain type="+map.arr[map.targetCoord[0]][map.targetCoord[1]]+".");
+		System.out.println(numQueries+","+map.arr[map.targetCoord[0]][map.targetCoord[1]]);
+		}
+		
+	}
+
+	public static void problem_4_p2()
+	{
+		boolean isProb3=false;
+		exercise4=true;
+		System.out.println("Running Params: rule "+rule+" is Exercise4"+exercise4+"is Prob3"+isProb3);
+			//System.out.println(dim);
+			int SumQueries=0;
+		for(int k = 0; k<10000; k ++) {
+		int sum1=0;int sum2=0;
+		
+		map=new Map(dim);
+		belief=new double[dim][dim];
+		probFound=new double[dim][dim];
+		//Initialize:
+		for(int i=0;i<dim;i++) {
+			for(int j=0;j<dim;j++) {
+				belief[i][j]=1.0/(dim*dim);
+			}
+		}
+		//map.show();
+		
+		int queriedX=(int)(Math.random()*dim);
+		int queriedY=(int)(Math.random()*dim);
+		if(exercise4) {
+			int[] next=neighborCoordToQuery(true,queriedX,queriedY,belief,probFound,2);
+			queriedX=next[0];
+			queriedY=next[1];
+		}
+
+		int numQueries=1;
+		 
+		while(!map.query(queriedX,queriedY) ) {
+			updateBeliefMatrix(queriedX,queriedY);	//<-- updates X->updates Y matrices->updates maxProbCoord.
+			//System.out.println("querired "+queriedX+" , "+queriedY);
+			//System.out.println("X matrix");showDecimalsMatrix(belief);
+			//System.out.println("Y matrix");showDecimalsMatrix(probFound);
+			
+			
+			//EXERCISE 4 STUFF vvvvv
+			if (exercise4) {
+				int[] next=neighborCoordToQuery(false,queriedX,queriedY,belief.clone(),probFound.clone(),2);
+				queriedX=next[0];
+				queriedY=next[1];   //<--set next coord to query here (based on max value in Y matrix or X matrix,(rule 1 vs rule 2) )
+			}else {
+				if(isProb3==true) {
+					double currmax=0;
+					//int nextx,nexty;
+					if(rule==1) {
+						currmax=belief[queriedX][queriedY];	
+					}
+					else {
+						currmax=probFound[queriedX][queriedY];
+					}
+					for(int[] c : map.getLRUD(queriedX, queriedY)) {
+						if(rule==1) {
+							if(currmax<belief[c[0]][c[1]]) {
+								queriedX=c[0];
+								queriedY=c[1];
+								currmax=belief[c[0]][c[1]];
+							}
+						}
+						else {
+							if(currmax<probFound[c[0]][c[1]]) {
+								queriedX=c[0];
+								queriedY=c[1];
+								currmax=belief[c[0]][c[1]];
+							}
+						}
+					}
+				}
+				else {
+				queriedX=maxProbCoord[0];
+				queriedY= maxProbCoord[1];   //<--set next coord to query here (based on max value in Y matrix or X matrix,(rule 1 vs rule 2) )
+				}
+			}
+			numQueries++;
+		}
+		//System.out.println("Number of Queries="+numQueries+" used to find [target]. \nTerrain type="+map.arr[map.targetCoord[0]][map.targetCoord[1]]+".");
+		System.out.println(numQueries+","+map.arr[map.targetCoord[0]][map.targetCoord[1]]);
+		SumQueries+=numQueries;
+		}
+	}
 	//EXERCISE 4 STUFF vvvvvvvvvvvvvv
 	private static int[] neighborCoordToQuery(boolean firstTime,int currX,int currY, double[][] Xmatrix, double[][] Ymatrix,int levels) {//current x, y
 		double[] info=findE(currX,currY,Xmatrix,Ymatrix,levels);
@@ -198,8 +463,8 @@ public class Driver {
 	}
 	
 	private static void updateMax(int x, int y) {
-		if ((rule==1 &&probFound[maxProbCoord[0]][maxProbCoord[1]]<probFound[x][y])||
-		 (rule==2 &&belief[maxProbCoord[0]][maxProbCoord[1]]<belief[x][y])){
+		if ((rule==2 &&probFound[maxProbCoord[0]][maxProbCoord[1]]<probFound[x][y])||
+		 (rule==1 &&belief[maxProbCoord[0]][maxProbCoord[1]]<belief[x][y])){
 			maxProbCoord[0]=x;
 			maxProbCoord[1]=y;
 		}
