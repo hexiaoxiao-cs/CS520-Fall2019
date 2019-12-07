@@ -8,7 +8,7 @@ import random
 import pickle
 import modules
 
-training_folder="./training"
+training_folder="./training/"
 now = datetime.now()
 
 def read_images():
@@ -16,7 +16,7 @@ def read_images():
     y_truth=[]
     file_order=[]
     print("Reading Images\n")
-    for image in tqdm.tqdm(glob(training_folder+"/*.jpg")):
+    for image in tqdm.tqdm(glob(training_folder+"*.jpg")):
         basename=os.path.basename(image)
         filename=os.path.split(basename)[0]
         x_truth.append(imageio.imread(training_folder+filename+"_bw.jpeg"))
