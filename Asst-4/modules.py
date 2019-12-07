@@ -25,7 +25,6 @@ class Dense_layer:
         return np.dot(inputs, self.weights) + self.biases
 
     def backward(self, inputs, grad_output):
-        #calculate the
         grad_input = np.dot(grad_output, self.weights.T)
 
         # compute gradient with weights and biases

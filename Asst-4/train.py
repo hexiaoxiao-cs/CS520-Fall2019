@@ -21,6 +21,7 @@ def read_images():
         filename=os.path.split(basename)[0]
         x_truth.append(imageio.imread(training_folder+filename+"_bw.jpeg"))
         y_truth.append(imageio.imread(image))
+
         file_order.append(filename)
     return x_truth, y_truth, file_order
 
@@ -65,13 +66,31 @@ def prepare_data(x_truth,y_truth,training_list,validation_list,test_list):
 
 
 def forward_pro(x_data,networks):
+    memory={}
+    i=0
     for layer in networks:
         if(networks[0]==layer):
             lo=layer.forward(x_data)
+            memory[str(i) + "_prev"] = x_data
         else:
             lo=layer.forward(prev)
+            memory[str(i) + "_prev"] = prev
         prev=modules.sigmoid(lo)
-    return prev
+        memory[str(i) + "_after"] = prev
+        i=i+1
+    return prev, memory,i
+
+
+def back_pro(dLoss,memory,networks,i):
+
+    for layers in reversed(networks):
+        after=memory[str(i)+"_after"]
+        d_prev=modules.sigmoid_backward(dLoss,after)
+        before=memory[str(i)+"_prev"]
+        dLoss=layers.backward(before,d_prev)
+        i=i-1
+    return networks
+
 
 
 def begin_training(x_data,y_data,x_validation_data,y_validation_data,x_test_data,y_test_data):
@@ -81,14 +100,22 @@ def begin_training(x_data,y_data,x_validation_data,y_validation_data,x_test_data
     networks.append(modules.Dense_layer(basesize, basesize*2,learning_rate=0.5))
     networks.append(modules.Dense_layer(basesize*2,basesize*3,learning_rate=0.5))
 
-    y_pred=forward_pro(x_data,networks)
-    y_pred_image=y_pred.reshape(255,255,3)
-    MSE = np.square(np.subtract(y_data, y_pred_image)).mean()
+    #Forward Propogation
 
-    #Start backward propogation
+    for p in range(0, len(x_data)):
+        y_pred,memory,i =forward_pro(x_data[p],networks)
+        y_pred_image=y_pred.reshape(255,255,3)
 
-    #calculate the derivative
+        MSE = np.square(np.subtract(y_data[p], y_pred_image)).mean() #accuracy
 
-    dA_prev = - (np.divide(Y_data, Y_hat) - np.divide(1 - Y, 1 - Y_hat))
+        dMSE=np.substract(y_data[p],y_pred_image)
 
+        y_back=dMSE.reshape(basesize*3) #linearize the stuff
+
+        #Start backward propogation
+        networks=back_pro(y_back,memory,networks,i)
+        print(MSE)
+
+    pickle.dump(networks,open("networks_dump_"+str(now)+".p", "wb"))
     #try 1-> Linearize and use 4 dense layer each with 3 densely connected layers
+
