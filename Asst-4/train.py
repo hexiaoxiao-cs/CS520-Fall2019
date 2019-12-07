@@ -69,7 +69,7 @@ def forward_pro(x_data,networks):
         if(networks[0]==layer):
             lo=layer.forward(x_data)
         else:
-            layer.forward(prev)
+            lo=layer.forward(prev)
         prev=modules.sigmoid(lo)
     return prev
 
@@ -78,7 +78,7 @@ def begin_training(x_data,y_data,x_validation_data,y_validation_data,x_test_data
     networks=[]
     basesize = x_data[0].size
     networks.append(modules.Dense_layer(basesize,basesize,learning_rate=0.5))
-    networks.append( modules.Dense_layer(basesize, basesize*2,learning_rate=0.5))
+    networks.append(modules.Dense_layer(basesize, basesize*2,learning_rate=0.5))
     networks.append(modules.Dense_layer(basesize*2,basesize*3,learning_rate=0.5))
 
     y_pred=forward_pro(x_data,networks)
@@ -89,6 +89,6 @@ def begin_training(x_data,y_data,x_validation_data,y_validation_data,x_test_data
 
     #calculate the derivative
 
-    dA_prev = - (np.divide(Y_data, Y_hat) - np.divide(1 - Y, 1 - Y_hat));
+    dA_prev = - (np.divide(Y_data, Y_hat) - np.divide(1 - Y, 1 - Y_hat))
 
     #try 1-> Linearize and use 4 dense layer each with 3 densely connected layers

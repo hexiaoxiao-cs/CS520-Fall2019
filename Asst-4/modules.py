@@ -4,30 +4,16 @@ import numpy as np
 def sigmoid(Z):
     return 1 / (1 + np.exp(-Z))
 
-
-def relu(Z):
-    return np.maximum(0, Z)
-
-
 def sigmoid_backward(dA, Z):
     sig = sigmoid(Z)
     return dA * sig * (1 - sig)
-
-
-def relu_backward(dA, Z):
-    dZ = np.array(dA, copy=True)
-    dZ[Z <= 0] = 0;
-    return dZ;
-
 
 class Dense_layer:
     def __init__(self, input_units, output_units, learning_rate=0.5):
         # f(x) = Weights*Inputs + Some constants
 
-        self.weights = np.random.normal(loc=0.0,
-                                        scale=np.sqrt(2 / (input_units + output_units)),
-                                        size=(input_units, output_units))
-        self.biases = np.zeros(output_units)
+        self.weights = np.random.normal(loc=0.0,scale=np.sqrt(2 / (input_units + output_units)),size=(input_units, output_units))
+        self.biases = np.zeros(output_units) #W[0]
         self.learning_rate = learning_rate
 
     def forward(self, inputs):
@@ -39,8 +25,7 @@ class Dense_layer:
         return np.dot(inputs, self.weights) + self.biases
 
     def backward(self, inputs, grad_output):
-        # compute d f / d x = d f / d dense * d dense / d x
-        # where d dense/ d x = weights transposed
+        #calculate the
         grad_input = np.dot(grad_output, self.weights.T)
 
         # compute gradient with weights and biases
