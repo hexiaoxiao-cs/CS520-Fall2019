@@ -18,7 +18,7 @@ def read_images():
     print("Reading Images\n")
     for image in tqdm.tqdm(glob(training_folder+"*.jpg")):
         basename=os.path.basename(image)
-        filename=os.path.split(basename)[0]
+        filename=os.path.splitext(basename)[0]
         x_truth.append(imageio.imread(training_folder+filename+"_bw.jpeg"))
         y_truth.append(imageio.imread(image))
 
