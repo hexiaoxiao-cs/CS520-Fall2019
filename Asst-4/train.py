@@ -51,7 +51,7 @@ def prepare_data(x_truth,y_truth,training_list,validation_list,test_list):
     y_validation_data = []
     x_test_data=[]
     y_test_data = []
-    for i in range(x_truth.size):
+    for i in range(len(x_truth)):
         if i in training_list:
             x_data.append(np.array(x_truth[i]).flatten())
             x_data.append(np.array(y_truth[i]))
@@ -95,11 +95,14 @@ def back_pro(dLoss,memory,networks,i):
 
 def begin_training(x_data,y_data,x_validation_data,y_validation_data,x_test_data,y_test_data):
     networks=[]
-    basesize = x_data[0].size
+    basesize = x_data[0].size/4
+    print(basesize)
     networks.append(modules.Dense_layer(basesize,basesize,learning_rate=0.5))
+    print(1)
     networks.append(modules.Dense_layer(basesize, basesize*2,learning_rate=0.5))
+    print(2)
     networks.append(modules.Dense_layer(basesize*2,basesize*3,learning_rate=0.5))
-
+    print(3)
     #Forward Propogation
 
     for p in range(0, len(x_data)):
@@ -119,8 +122,14 @@ def begin_training(x_data,y_data,x_validation_data,y_validation_data,x_test_data
     pickle.dump(networks,open("networks_dump_"+str(now)+".p", "wb"))
     #try 1-> Linearize and use 4 dense layer each with 3 densely connected layers
 
-x_truth=pickle.load(open("x_truth.p","rb"))
-y_truth=pickle.load(open("y_truth.p","rb"))
+if(os.path.exists("x_truth.p")):
+    x_truth=pickle.load(open("x_truth.p","rb"))
+    y_truth=pickle.load(open("y_truth.p","rb"))
+else:
+    x_truth,y_truth,file_order=read_images()
+    pickle.dump(x_truth,open("x_truth.p","wb"))
+    pickle.dump(y_truth,open("y_truth.p","wb"))
+    pickle.dump(file_order,open("file_order.p","wb"))
 training_list,validation_list,test_list=generate_validate_set(len(x_truth))
 x_data,y_data,x_validation_data,y_validation_data,x_test_data,y_test_data=prepare_data(x_truth,y_truth,training_list,validation_list,test_list)
 write_current_configuration(training_list,validation_list,test_list)
