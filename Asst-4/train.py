@@ -119,8 +119,8 @@ def begin_training(x_data,y_data,x_validation_data,y_validation_data,x_test_data
     pickle.dump(networks,open("networks_dump_"+str(now)+".p", "wb"))
     #try 1-> Linearize and use 4 dense layer each with 3 densely connected layers
 
-x_truth=pickle.load(open("x_truth.p"))
-y_truth=pickle.load(open("y_truth.p"))
+x_truth=pickle.load(open("x_truth.p","rb"))
+y_truth=pickle.load(open("y_truth.p","rb"))
 training_list,validation_list,test_list=generate_validate_set(len(x_truth))
 x_data,y_data,x_validation_data,y_validation_data,x_test_data,y_test_data=prepare_data(x_truth,y_truth,training_list,validation_list,test_list)
 write_current_configuration(training_list,validation_list,test_list)
