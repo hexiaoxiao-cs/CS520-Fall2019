@@ -111,14 +111,15 @@ def begin_training(x_data,y_data,x_validation_data,y_validation_data,x_test_data
     networks=[]
     basesize = x_data[0].size*3
     #print(basesize)
-    networks.append(modules.Dense_layer(basesize,basesize,learning_rate=0.5))
+    networks.append(modules.Dense_layer(basesize,basesize,learning_rate=0.4))
     #print(1)
-    networks.append(modules.Dense_layer(basesize,basesize,learning_rate=0.5))
+    networks.append(modules.Dense_layer(basesize,basesize,learning_rate=0.4))
     #print(2)
-    networks.append(modules.Dense_layer(basesize,basesize,learning_rate=0.5))
+    networks.append(modules.Dense_layer(basesize,basesize,learning_rate=0.4))
     #print(3)
     #Forward Propogation
     for x in tqdm.tqdm(range(100)):
+        sum=0
         for p in range(0, len(x_data)):
             x_to_train=np.append(np.append(x_data[p],x_data[p]),x_data[p]) #copy 3 times for R,G,B channel
             y_pred,memory,i =forward_pro(x_to_train,networks)
