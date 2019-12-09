@@ -121,7 +121,7 @@ def begin_training(x_data,y_data,x_validation_data,y_validation_data,x_test_data
     for x in tqdm.tqdm(range(100)):
         sum=0
         for p in range(0, len(x_data)):
-            x_to_train=np.append(np.append(x_data[p],x_data[p]),x_data[p]) #copy 3 times for R,G,B channel
+            x_to_train=np.dstack((x_data[p],x_data[p],x_data[p])).flatten() #copy 3 times for R,G,B channel
             y_pred,memory,i =forward_pro(x_to_train,networks)
             #y_pred_image=y_pred.reshape(64,64,3)
             #print(y_pred)
