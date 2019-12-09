@@ -30,7 +30,10 @@ class Dense_layer:
         grad_input = np.dot(grad_output, self.weights.T)
 
         # compute gradient with weights and biases
-        grad_weights = np.dot(inputs.T, grad_output)
+        print(inputs.T)
+        print(grad_output)
+	
+        grad_weights = np.dot( grad_output,inputs.T)
         grad_biases = grad_output.mean(axis=0) * inputs.shape[0]
 
         if grad_weights.shape == self.weights.shape and grad_biases.shape == self.biases.shape:

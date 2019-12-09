@@ -15,6 +15,7 @@ def read_images():
     x_truth=[]
     y_truth=[]
     file_order=[]
+    i=0
     print("Reading Images\n")
     for image in tqdm.tqdm(glob(training_folder+"*.jpg")):
         basename=os.path.basename(image)
@@ -23,6 +24,9 @@ def read_images():
         y_truth.append(imageio.imread(image)/256)
 
         file_order.append(filename)
+        i=i+1
+        if i>3001:
+            break
     return x_truth, y_truth, file_order
 
 def generate_validate_set(size, prob=0.1):
@@ -54,7 +58,7 @@ def prepare_data(x_truth,y_truth,training_list,validation_list,test_list):
     for i in range(len(x_truth)):
         if i in training_list:
             x_data.append(np.array(x_truth[i]).flatten())
-            x_data.append(np.array(y_truth[i]))
+            y_data.append(np.array(y_truth[i]))
         else:
             if i in validation_list:
                 x_validation_data.append(np.array(x_truth[i]).flatten())
@@ -75,18 +79,30 @@ def forward_pro(x_data,networks):
         else:
             lo=layer.forward(prev)
             memory[str(i) + "_prev"] = prev
+            print(len(prev))
+        memory[str(i)+"_middle"]=lo
+        print(memory[str(i)+"_prev"].shape)
         prev=modules.sigmoid(lo)
         memory[str(i) + "_after"] = prev
+        print(prev.shape)
+        print(lo.shape)
+        
         i=i+1
     return prev, memory,i
 
 
 def back_pro(dLoss,memory,networks,i):
-
+    i=i-1
     for layers in reversed(networks):
-        after=memory[str(i)+"_after"]
+        after=memory[str(i)+"_middle"]
+        print(str(i)+"_middle")
+        print(str(i)+"_prev")
+        print(after)
         d_prev=modules.sigmoid_backward(dLoss,after)
         before=memory[str(i)+"_prev"]
+        print(before)
+        print(len(before))
+        print(len(d_prev))
         dLoss=layers.backward(before,d_prev)
         i=i-1
     return networks
@@ -95,7 +111,7 @@ def back_pro(dLoss,memory,networks,i):
 
 def begin_training(x_data,y_data,x_validation_data,y_validation_data,x_test_data,y_test_data):
     networks=[]
-    basesize = x_data[0].size/4
+    basesize = x_data[0].size
     print(basesize)
     networks.append(modules.Dense_layer(basesize,basesize,learning_rate=0.5))
     print(1)
@@ -107,16 +123,17 @@ def begin_training(x_data,y_data,x_validation_data,y_validation_data,x_test_data
 
     for p in range(0, len(x_data)):
         y_pred,memory,i =forward_pro(x_data[p],networks)
-        y_pred_image=y_pred.reshape(255,255,3)
+        #y_pred_image=y_pred.reshape(64,64,3)
+        print(y_pred)
+        y_data_to_compare=y_data[p].flatten()
+        MSE = np.square(np.subtract(y_data_to_compare, y_pred)).mean() #accuracy
 
-        MSE = np.square(np.subtract(y_data[p], y_pred_image)).mean() #accuracy
+        dMSE=np.subtract(y_data_to_compare,y_pred)
 
-        dMSE=np.substract(y_data[p],y_pred_image)
-
-        y_back=dMSE.reshape(basesize*3) #linearize the stuff
+        #y_back=dMSE.reshape(basesize*3) #linearize the stuff
 
         #Start backward propogation
-        networks=back_pro(y_back,memory,networks,i)
+        networks=back_pro(dMSE,memory,networks,i)
         print(MSE)
 
     pickle.dump(networks,open("networks_dump_"+str(now)+".p", "wb"))
@@ -130,6 +147,8 @@ else:
     pickle.dump(x_truth,open("x_truth.p","wb"))
     pickle.dump(y_truth,open("y_truth.p","wb"))
     pickle.dump(file_order,open("file_order.p","wb"))
+print(len(x_truth))
+print(len(y_truth))
 training_list,validation_list,test_list=generate_validate_set(len(x_truth))
 x_data,y_data,x_validation_data,y_validation_data,x_test_data,y_test_data=prepare_data(x_truth,y_truth,training_list,validation_list,test_list)
 write_current_configuration(training_list,validation_list,test_list)
