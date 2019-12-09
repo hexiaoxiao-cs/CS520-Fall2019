@@ -79,9 +79,7 @@ def forward_pro(x_data,networks):
         else:
             lo=layer.forward(prev)
             memory[str(i) + "_prev"] = prev
-            print(len(prev))
-        memory[str(i)+"_middle"]=lo
-        print(memory[str(i)+"_prev"].shape)
+        memory[str(i) + "_middle"]=lo
         prev=modules.sigmoid(lo)
         memory[str(i) + "_after"] = prev
         print(prev.shape)
@@ -114,11 +112,11 @@ def begin_training(x_data,y_data,x_validation_data,y_validation_data,x_test_data
     basesize = x_data[0].size
     print(basesize)
     networks.append(modules.Dense_layer(basesize,basesize,learning_rate=0.5))
-    print(1)
+    #print(1)
     networks.append(modules.Dense_layer(basesize, basesize*2,learning_rate=0.5))
-    print(2)
+    #print(2)
     networks.append(modules.Dense_layer(basesize*2,basesize*3,learning_rate=0.5))
-    print(3)
+    #print(3)
     #Forward Propogation
 
     for p in range(0, len(x_data)):

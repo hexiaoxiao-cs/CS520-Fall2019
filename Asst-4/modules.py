@@ -12,11 +12,11 @@ class Dense_layer:
     def __init__(self, input_units, output_units, learning_rate=0.5):
         # f(x) = Weights*Inputs + Some constants
         self.weights = np.random.normal(loc=0.0,scale=np.sqrt(2 / (input_units + output_units)),size=(input_units, output_units))
-        print(1)
+        #print(1)
         self.biases = np.zeros(output_units) #W[0]
-        print(1)
+        #print(1)
         self.learning_rate = learning_rate
-        print(1)
+        #print(1)
         
     def forward(self, inputs):
         # f(x) = Weights*Inputs + Some constants
@@ -27,7 +27,7 @@ class Dense_layer:
         return np.dot(inputs, self.weights) + self.biases
 
     def backward(self, inputs, grad_output):
-        grad_input = np.dot(grad_output, self.weights.T)
+        grad_input = np.dot(self.weights.T,grad_output)
 
         # compute gradient with weights and biases
         print(inputs.T)
