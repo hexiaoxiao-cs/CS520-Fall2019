@@ -42,4 +42,3 @@ class Dense_layer:
         # Calculated based on the weights used during the forward pass
         accum_grad = grad_output.dot(W.T)
         return accum_grad
-        
