@@ -113,14 +113,14 @@ def begin_training(x_data,y_data,x_validation_data,y_validation_data,x_test_data
     print(basesize)
     networks.append(modules.Dense_layer(basesize,basesize,learning_rate=0.5))
     #print(1)
-    networks.append(modules.Dense_layer(basesize, basesize,learning_rate=0.5))
+    networks.append(modules.Dense_layer(basesize,basesize,learning_rate=0.5))
     #print(2)
     networks.append(modules.Dense_layer(basesize,basesize,learning_rate=0.5))
     #print(3)
     #Forward Propogation
 
     for p in range(0, len(x_data)):
-        x_to_train=x_data[p]++x_data[p]++x_data[p] #copy 3 times for R,G,B channel
+        x_to_train=x_data[p].append(x_data[p].append(x_data[p])) #copy 3 times for R,G,B channel
         y_pred,memory,i =forward_pro(x_to_train,networks)
         #y_pred_image=y_pred.reshape(64,64,3)
         print(y_pred)
