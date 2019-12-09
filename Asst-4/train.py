@@ -101,7 +101,7 @@ def back_pro(dLoss,memory,networks,i):
         print(before)
         print(len(before))
         print(len(d_prev))
-        dLoss=layers.backward(before,d_prev)
+        dLoss=layers.backward(d_prev)
         i=i-1
     return networks
 
