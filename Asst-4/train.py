@@ -109,18 +109,19 @@ def back_pro(dLoss,memory,networks,i):
 
 def begin_training(x_data,y_data,x_validation_data,y_validation_data,x_test_data,y_test_data):
     networks=[]
-    basesize = x_data[0].size
+    basesize = x_data[0].size*3
     print(basesize)
     networks.append(modules.Dense_layer(basesize,basesize,learning_rate=0.5))
     #print(1)
-    networks.append(modules.Dense_layer(basesize, basesize*2,learning_rate=0.5))
+    networks.append(modules.Dense_layer(basesize, basesize,learning_rate=0.5))
     #print(2)
-    networks.append(modules.Dense_layer(basesize*2,basesize*3,learning_rate=0.5))
+    networks.append(modules.Dense_layer(basesize,basesize,learning_rate=0.5))
     #print(3)
     #Forward Propogation
 
     for p in range(0, len(x_data)):
-        y_pred,memory,i =forward_pro(x_data[p],networks)
+        x_to_train=x_data[p]++x_data[p]++x_data[p] #copy 3 times for R,G,B channel
+        y_pred,memory,i =forward_pro(x_to_train,networks)
         #y_pred_image=y_pred.reshape(64,64,3)
         print(y_pred)
         y_data_to_compare=y_data[p].flatten()
