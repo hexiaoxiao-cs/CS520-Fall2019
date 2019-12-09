@@ -23,26 +23,23 @@ class Dense_layer:
 
         # input shape: [batch, input_units]
         # output shape: [batch, output units]
-
+        self.layer_input = inputs
         return np.dot(inputs, self.weights) + self.biases
 
-    def backward(self, inputs, grad_output):
-        grad_input = np.dot(self.weights.T,grad_output)
+    def backward(self, grad_output):
 
-        # compute gradient with weights and biases
-        print(inputs.T)
-        print(grad_output)
-	
-        grad_weights = np.dot( grad_output,inputs.T)
-        grad_biases = grad_output.mean(axis=0) * inputs.shape[0]
+        W = self.weights
 
-        if grad_weights.shape == self.weights.shape and grad_biases.shape == self.biases.shape:
-            print(
-                "Something Wrong" + self.weights.shape + "," + str(grad_weights.shape) + "," + self.biases.shape + "," +
-                str(grad_biases.shape))
+        # Calculate gradient w.r.t layer weights
+        grad_w = self.layer_input.T.dot(grad_output)
+        grad_w0 = np.sum(grad_output, axis=0, keepdims=True)
 
-        # Here we perform a stochastic gradient descent step.
-        self.weights = self.weights - self.learning_rate * grad_weights
-        self.biases = self.biases - self.learning_rate * grad_biases
+        # Update the layer weights
+        self.weights = self.weights - self.learning_rate * grad_w
+        self.biases = self.biases - self.learning_rate * grad_w0
 
-        return grad_input
+        # Return accumulated gradient for next layer
+        # Calculated based on the weights used during the forward pass
+        accum_grad = grad_output.dot(W.T)
+        return accum_grad
+        
