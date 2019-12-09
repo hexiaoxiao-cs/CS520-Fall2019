@@ -118,24 +118,26 @@ def begin_training(x_data,y_data,x_validation_data,y_validation_data,x_test_data
     networks.append(modules.Dense_layer(basesize,basesize,learning_rate=0.5))
     #print(3)
     #Forward Propogation
+    for x in tqdm.tqdm(range(100)):
+        for p in range(0, len(x_data)):
+            x_to_train=np.append(np.append(x_data[p],x_data[p]),x_data[p]) #copy 3 times for R,G,B channel
+            y_pred,memory,i =forward_pro(x_to_train,networks)
+            #y_pred_image=y_pred.reshape(64,64,3)
+            #print(y_pred)
+            y_data_to_compare=y_data[p].flatten()
+            MSE = np.square(np.subtract(y_data_to_compare, y_pred)).mean() #accuracy
 
-    for p in range(0, len(x_data)):
-        x_to_train=np.append(np.append(x_data[p],x_data[p]),x_data[p]) #copy 3 times for R,G,B channel
-        y_pred,memory,i =forward_pro(x_to_train,networks)
-        #y_pred_image=y_pred.reshape(64,64,3)
-        #print(y_pred)
-        y_data_to_compare=y_data[p].flatten()
-        MSE = np.square(np.subtract(y_data_to_compare, y_pred)).mean() #accuracy
+            dMSE=np.subtract(y_data_to_compare,y_pred)
 
-        dMSE=np.subtract(y_data_to_compare,y_pred)
+            #y_back=dMSE.reshape(basesize*3) #linearize the stuff
 
-        #y_back=dMSE.reshape(basesize*3) #linearize the stuff
+            #Start backward propogation
+            networks=back_pro(dMSE,memory,networks,i)
+            sum+=MSE
+        pickle.dump(networks, open("networks_dump_" + str(x) + ".p", "wb"))
+        print(sum/len(x_data))
 
-        #Start backward propogation
-        networks=back_pro(dMSE,memory,networks,i)
-        print(MSE)
 
-    pickle.dump(networks,open("networks_dump_"+str(now)+".p", "wb"))
     #try 1-> Linearize and use 4 dense layer each with 3 densely connected layers
 
 if(os.path.exists("x_truth.p")):
