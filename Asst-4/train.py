@@ -82,8 +82,8 @@ def forward_pro(x_data,networks):
         memory[str(i) + "_middle"]=lo
         prev=modules.sigmoid(lo)
         memory[str(i) + "_after"] = prev
-        print(prev.shape)
-        print(lo.shape)
+        #print(prev.shape)
+        #print(lo.shape)
         
         i=i+1
     return prev, memory,i
@@ -93,14 +93,14 @@ def back_pro(dLoss,memory,networks,i):
     i=i-1
     for layers in reversed(networks):
         after=memory[str(i)+"_middle"]
-        print(str(i)+"_middle")
-        print(str(i)+"_prev")
-        print(after)
+        #print(str(i)+"_middle")
+        #print(str(i)+"_prev")
+        #print(after)
         d_prev=modules.sigmoid_backward(dLoss,after)
         before=memory[str(i)+"_prev"]
-        print(before)
-        print(len(before))
-        print(len(d_prev))
+        #print(before)
+        #print(len(before))
+        #print(len(d_prev))
         dLoss=layers.backward(d_prev)
         i=i-1
     return networks
@@ -110,7 +110,7 @@ def back_pro(dLoss,memory,networks,i):
 def begin_training(x_data,y_data,x_validation_data,y_validation_data,x_test_data,y_test_data):
     networks=[]
     basesize = x_data[0].size*3
-    print(basesize)
+    #print(basesize)
     networks.append(modules.Dense_layer(basesize,basesize,learning_rate=0.5))
     #print(1)
     networks.append(modules.Dense_layer(basesize,basesize,learning_rate=0.5))
@@ -120,10 +120,10 @@ def begin_training(x_data,y_data,x_validation_data,y_validation_data,x_test_data
     #Forward Propogation
 
     for p in range(0, len(x_data)):
-        x_to_train=x_data[p].append(x_data[p].append(x_data[p])) #copy 3 times for R,G,B channel
+        x_to_train=np.append(np.append(x_data[p],x_data[p]),x_data[p]) #copy 3 times for R,G,B channel
         y_pred,memory,i =forward_pro(x_to_train,networks)
         #y_pred_image=y_pred.reshape(64,64,3)
-        print(y_pred)
+        #print(y_pred)
         y_data_to_compare=y_data[p].flatten()
         MSE = np.square(np.subtract(y_data_to_compare, y_pred)).mean() #accuracy
 
@@ -146,8 +146,8 @@ else:
     pickle.dump(x_truth,open("x_truth.p","wb"))
     pickle.dump(y_truth,open("y_truth.p","wb"))
     pickle.dump(file_order,open("file_order.p","wb"))
-print(len(x_truth))
-print(len(y_truth))
+##print(len(x_truth))
+#print(len(y_truth))
 training_list,validation_list,test_list=generate_validate_set(len(x_truth))
 x_data,y_data,x_validation_data,y_validation_data,x_test_data,y_test_data=prepare_data(x_truth,y_truth,training_list,validation_list,test_list)
 write_current_configuration(training_list,validation_list,test_list)
