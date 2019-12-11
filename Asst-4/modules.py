@@ -28,17 +28,23 @@ class Dense_layer:
 
     def backward(self, grad_output):
 
-        W = self.weights
+        # W = self.weights
+        #
+        # # Calculate gradient w.r.t layer weights
+        # grad_w = self.layer_input.T.dot(grad_output)
+        # grad_w0 = np.sum(grad_output, axis=0, keepdims=True)
+        # compute d f / d x = d f / d dense * d dense / d x
+        # where d dense/ d x = weights transposed
+        grad_input = np.dot(grad_output, self.weights.T)
 
-        # Calculate gradient w.r.t layer weights
-        grad_w = self.layer_input.T.dot(grad_output)
-        grad_w0 = np.sum(grad_output, axis=0, keepdims=True)
-
+        # compute gradient w.r.t. weights and biases
+        grad_weights = np.dot(self.layer_input.T, grad_output)
+        grad_biases = grad_output.mean(axis=0) * self.layer_input.shape[0]
         # Update the layer weights
-        self.weights = self.weights - self.learning_rate * grad_w
-        self.biases = self.biases - self.learning_rate * grad_w0
+        self.weights = self.weights - self.learning_rate * grad_weights
+        self.biases = self.biases - self.learning_rate * grad_biases
 
         # Return accumulated gradient for next layer
         # Calculated based on the weights used during the forward pass
         accum_grad = grad_output.dot(W.T)
-        return accum_grad
+        return grad_input

@@ -8,7 +8,7 @@ network_num=8
 
 networks=pickle.load(open("networks_dump_"+str(network_num)+".p","rb"))
 
-to_test= imageio.imread("./training/2350507_bw.jpeg")
+to_test= imageio.imread("./training/2350507_bw.jpeg").flatten()
 
 input=np.dstack((to_test,to_test,to_test))
 
