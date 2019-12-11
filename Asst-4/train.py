@@ -73,7 +73,7 @@ def forward_pro(x_data,networks):
     memory={}
     i=0
     for layer in networks:
-        if(networks[0]==layer):
+        if i==0:
             lo=layer.forward(x_data)
             memory[str(i) + "_prev"] = x_data
         else:
@@ -95,7 +95,7 @@ def back_pro(dLoss,memory,networks,i):
         after=memory[str(i)+"_middle"]
         #print(str(i)+"_middle")
         #print(str(i)+"_prev")
-	#print(after)
+        #print(after)
         d_prev=modules.sigmoid_backward(dLoss,after)
         before=memory[str(i)+"_prev"]
         #print(before)
