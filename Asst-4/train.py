@@ -95,13 +95,15 @@ def back_pro(dLoss,memory,networks,i):
         after=memory[str(i)+"_middle"]
         #print(str(i)+"_middle")
         #print(str(i)+"_prev")
-        #print(after)
+	#print(after)
         d_prev=modules.sigmoid_backward(dLoss,after)
         before=memory[str(i)+"_prev"]
         #print(before)
         #print(len(before))
         #print(len(d_prev))
         dLoss=layers.backward(d_prev)
+        print(d_prev)
+        print(layers.weights)
         i=i-1
     return networks
 
@@ -111,11 +113,11 @@ def begin_training(x_data,y_data,x_validation_data,y_validation_data,x_test_data
     networks=[]
     basesize = x_data[0].size*3
     #print(basesize)
-    networks.append(modules.Dense_layer(basesize,basesize,learning_rate=0.4))
+    networks.append(modules.Dense_layer(basesize,basesize,learning_rate=0.1))
     #print(1)
-    networks.append(modules.Dense_layer(basesize,basesize,learning_rate=0.4))
+    networks.append(modules.Dense_layer(basesize,basesize,learning_rate=0.1))
     #print(2)
-    networks.append(modules.Dense_layer(basesize,basesize,learning_rate=0.4))
+    networks.append(modules.Dense_layer(basesize,basesize,learning_rate=0.1))
     #print(3)
     #Forward Propogation
     for x in tqdm.tqdm(range(100)):
@@ -128,13 +130,15 @@ def begin_training(x_data,y_data,x_validation_data,y_validation_data,x_test_data
             y_data_to_compare=y_data[p].flatten()
             MSE = np.square(np.subtract(y_data_to_compare, y_pred)).mean() #accuracy
 
-            dMSE=np.subtract(y_data_to_compare,y_pred)
+            dMSE=-2*np.subtract(y_data_to_compare,y_pred)
 
             #y_back=dMSE.reshape(basesize*3) #linearize the stuff
 
             #Start backward propogation
             networks=back_pro(dMSE,memory,networks,i)
             sum+=MSE
+            print(y_pred)
+            print(y_data_to_compare)
         pickle.dump(networks, open("networks_dump_" + str(x) + ".p", "wb"))
         print(sum/len(x_data))
 
