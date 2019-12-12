@@ -8,13 +8,23 @@ def sigmoid_backward(dA, Z):
     sig = sigmoid(Z)
     return dA * sig * (1 - sig)
 
+def relu(Z):
+    return np.maximum(0,Z)
+
+def relu_backward(dA, Z):
+    dZ = np.array(dA, copy = True)
+    dZ[Z <= 0] = 0
+    return dZ
+
 class Dense_layer:
     def __init__(self, input_units, output_units, learning_rate=0.5):
         # f(x) = Weights*Inputs + Some constants
         self.weights = np.random.normal(loc=0.0,scale=np.sqrt(2 / (input_units + output_units)),size=(input_units, output_units))
-        print(self.weights)
-	#print(1)
+        #print("initialized Weights")
+        #print(self.weights)
+	    #print(1)
         self.biases = np.zeros(output_units) #W[0]
+        self.biases=self.biases.reshape((self.biases.size,1))
         #print(1)
         self.learning_rate = learning_rate
         #print(1)
@@ -25,27 +35,26 @@ class Dense_layer:
         # input shape: [batch, input_units]
         # output shape: [batch, output units]
         self.layer_input = inputs
-        return np.dot(inputs, self.weights) + self.biases
+        return np.dot(self.weights, inputs) + self.biases
 
     def backward(self, grad_output):
-
-        # W = self.weights
-        #
-        # # Calculate gradient w.r.t layer weights
-        # grad_w = self.layer_input.T.dot(grad_output)
-        # grad_w0 = np.sum(grad_output, axis=0, keepdims=True)
-        # compute d f / d x = d f / d dense * d dense / d x
-        # where d dense/ d x = weights transposed
-        grad_input = np.dot(grad_output, self.weights.T)
-
+        #print("Our Output is")
+        grad_input = np.dot(self.weights,grad_output)
+        #print(grad_input)
         # compute gradient w.r.t. weights and biases
-        grad_weights = np.dot(self.layer_input.T, grad_output)
-        grad_biases = grad_output.mean(axis=0) * self.layer_input.shape[0]
+        # print("layer_input")
+        # print(self.layer_input)
+        # print("grad_output")
+        # print(grad_output)
+        # print("grad_weights")
+        grad_weights = np.dot(grad_output,self.layer_input.T)
+        # print(grad_weights)
+        # print("grad_biases")
+        grad_biases = grad_output.mean()
+        # print(grad_biases)
         # Update the layer weights
         self.weights = self.weights - self.learning_rate * grad_weights
         self.biases = self.biases - self.learning_rate * grad_biases
 
-        # Return accumulated gradient for next layer
-        # Calculated based on the weights used during the forward pass
-        #accum_grad = grad_output.dot(W.T)
+
         return grad_input
