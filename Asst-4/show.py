@@ -4,7 +4,7 @@ import pickle
 import modules
 
 
-network_num=15
+network_num=99
 
 networks_r=pickle.load(open("networks_r_dump_"+str(network_num)+".p","rb"))
 
